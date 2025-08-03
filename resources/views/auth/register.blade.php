@@ -47,6 +47,9 @@
                 <input type="hidden" name="mobile" id="full_phone" />
             </div>
 
+            <input type="hidden" name="location" id="location" />
+
+
             <!-- Password Field -->
             <div x-data="{ show: false }" class="relative mb-4">
                 <input :type="show ? 'text' : 'password'" name="password" placeholder="Password"
@@ -172,6 +175,18 @@
 <!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
+
+<script>
+    fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('location').value = data.country_name || 'Unknown';
+        })
+        .catch(() => {
+            document.getElementById('location').value = 'Unknown';
+        });
+</script>
+
 <script>
     const phoneInput = document.querySelector("#phone");
     const fullPhoneInput = document.querySelector("#full_phone");

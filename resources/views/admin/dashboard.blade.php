@@ -11,7 +11,6 @@
     <div class="bg-white py-4 px-6 flex justify-between items-center shadow">
         <h1 class="text-2xl font-bold">TripMate</h1>
         <div class="flex items-center space-x-4">
-            <span class="material-icons">account_circle</span>
             <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
     @csrf
     <button type="submit" class="text-red-600 hover:underline">Logout</button>
@@ -23,15 +22,26 @@
     <!-- Main Layout -->
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
-            <div class="bg-white rounded-md p-2 text-center font-semibold">Dashboard</div>
-            <a href="#" class="block px-2 py-1 hover:bg-gray-100 rounded">Hotels</a>
-            <a href="#" class="block px-2 py-1 hover:bg-gray-100 rounded">Locations</a>
-            <a href="#" class="block px-2 py-1 hover:bg-gray-100 rounded">Tour Types</a>
-            <a href="#" class="block px-2 py-1 hover:bg-gray-100 rounded">Customers</a>
-            <a href="#" class="block px-2 py-1 hover:bg-gray-100 rounded">Bookings</a>
-            <a href="#" class="block px-2 py-1 hover:bg-gray-100 rounded">Reviews</a>
-        </div>
+<div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
+    <a href="{{ route('admin.dashboard') }}"
+       class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Dashboard
+    </a>
+
+    {{-- Only keep the routes you have defined so far --}}
+    <a href="{{ route('admin.customers') }}"
+       class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Customers
+    </a>
+
+    {{-- Disabled links for future sections --}}
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Locations</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Tour Types</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
+</div>
+
 
         <!-- Dashboard Content -->
         <div class="flex-1 p-10">

@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Controllers\Admin\AdminCustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     });
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers');
+    Route::get('/hotels', [\App\Http\Controllers\Admin\HotelController::class, 'index'])->name('hotels');
+
 });
 
 /*

@@ -36,17 +36,19 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|email|max:255',
             'mobile' => 'required|string|max:20',
             'password' => 'required|string|confirmed|min:8',
+            'location' => 'nullable|string|max:255',
         ]);
 
         // Generate OTP
         $otp = rand(100000, 999999);
 
-        // Store user data in session, not DB
+        // Store user data in session (not DB yet)
         Session::put('register_data', [
             'name' => $request->name,
             'email' => $request->email,
             'mobile' => $request->mobile,
             'password' => Hash::make($request->password),
+            'location' => $request->location,
             'otp' => $otp,
         ]);
 
@@ -83,14 +85,14 @@ class RegisteredUserController extends Controller
         }
 
         if ($data['otp'] == $request->otp) {
-            // Save verified user to DB
+            // ✅ Save user with otp_verified = 1
             Tourist::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'mobile' => $data['mobile'],
+                'location' => $data['location'],
                 'password' => $data['password'],
-                'otp_verified' => true,
-                'otp' => null,
+                'otp_verified' => 1, // ✅ mark as verified
             ]);
 
             Session::forget(['register_data', 'pending_email']);

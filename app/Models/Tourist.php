@@ -17,7 +17,8 @@ class Tourist extends Authenticatable
     'mobile',
     'password',
     'otp',              // ✅ add this
-    'otp_verified'      // ✅ and this
+    'otp_verified',      // ✅ and this
+    'location'
 ];
 
     protected $hidden = [
