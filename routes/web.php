@@ -75,7 +75,7 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
 | Tourist Logout (default guard)
 |--------------------------------------------------------------------------
 */
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+Route::post('/login', [AuthenticatedSessionController::class, 'destroy'])->name('login');
 
 /*
 |--------------------------------------------------------------------------
@@ -94,3 +94,4 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/auth.php';
+

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use App\Mail\TouristOtpMail;
+use App\Mail\RegistrationSuccessEmail;
+
 
 class RegisteredUserController extends Controller
 {
@@ -39,7 +41,7 @@ class RegisteredUserController extends Controller
             'location' => 'nullable|string|max:255',
         ]);
 
-        // Generate OTP
+        // Generate OTP (6-digit random number)
         $otp = rand(100000, 999999);
 
         // Store user data in session (not DB yet)
@@ -60,49 +62,68 @@ class RegisteredUserController extends Controller
             return back()->with('error', 'Failed to send OTP email. Please try again.');
         }
 
+        // Store email in session for later comparison
         Session::put('pending_email', $request->email);
 
+        // Return to the registration page with the OTP modal
         return redirect()->back()->with('showOtpModal', true);
     }
 
     public function verifyOtp(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'otp' => 'required|digits:6',
-            'email' => 'required|email',
-        ]);
+{
+    // Validate OTP input
+    $request->validate([
+        'otp' => 'required|digits:6',
+        'email' => 'required|email',
+    ]);
 
-        $data = Session::get('register_data');
+    // Retrieve the stored registration data from the session
+    $data = Session::get('register_data');
 
-        logger("Entered OTP: " . $request->otp);
-        logger("Stored OTP for {$request->email}: " . ($data['otp'] ?? 'null'));
-
-        if (!$data || $request->email !== $data['email']) {
-            return back()->with([
-                'showOtpModal' => true,
-                'otp_error' => 'Session expired or mismatched email. Please register again.'
-            ]);
-        }
-
-        if ($data['otp'] == $request->otp) {
-            // ✅ Save user with otp_verified = 1
-            Tourist::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'mobile' => $data['mobile'],
-                'location' => $data['location'],
-                'password' => $data['password'],
-                'otp_verified' => 1, // ✅ mark as verified
-            ]);
-
-            Session::forget(['register_data', 'pending_email']);
-
-            return redirect()->route('login')->with('success', 'OTP verified. Please log in.');
-        }
-
-        return redirect()->back()->with([
+    if (!$data || $request->email !== $data['email']) {
+        return back()->with([
             'showOtpModal' => true,
-            'otp_error' => 'Invalid OTP. Please try again.'
+            'otp_error' => 'Session expired or mismatched email. Please register again.'
         ]);
     }
+
+    // Validate OTP
+    if ($data['otp'] == $request->otp) {
+        // Save the user after OTP verification
+        $user = Tourist::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'mobile' => $data['mobile'],
+            'location' => $data['location'],
+            'password' => $data['password'],
+            'otp_verified' => 1, // Mark as verified
+        ]);
+
+        // Send registration success email to the user
+        try {
+            // Send the success email
+            Mail::to($user->email)->send(new RegistrationSuccessEmail($user));  // Send email to the user
+
+            // Log success message
+            logger('Registration success email sent to: ' . $user->email);
+        } catch (\Exception $e) {
+            // Log email failure
+            logger('Failed to send registration email: ' . $e->getMessage());
+        }
+
+        // Clear session data
+        Session::forget(['register_data', 'pending_email']);
+
+        // Redirect to login page with success message
+        return redirect()->route('login')->with('success', 'OTP verified and registration complete. A confirmation email has been sent.');
+    }
+
+    // OTP is invalid, return back with error
+    return back()->with([
+        'showOtpModal' => true,
+        'otp_error' => 'Invalid OTP. Please try again.'
+    ]);
+}
+
+
 }
