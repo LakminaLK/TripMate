@@ -32,9 +32,12 @@
                 Customers
             </a>
 
+            <a href="{{ route('admin.activities.index') }}"
+               class="{{ request()->routeIs('admin.activities.index') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                Activities
+            </a>
+
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Locations</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Tour Types</span>
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
         </div>
