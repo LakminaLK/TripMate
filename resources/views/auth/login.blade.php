@@ -62,6 +62,10 @@
             <p class="mt-4 text-sm text-center text-gray-600">
                 Don’t have an account? 
                 <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Sign up</a>
+            <p class="mt-4 text-sm text-center text-gray-600">
+                Forget your password?
+                <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">Forgot Password</a>
+
             </p>
         </div>
     </div>

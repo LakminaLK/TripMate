@@ -12,6 +12,8 @@ use App\Http\Controllers\TouristController;
 use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\ProfileController;
 
+
+
 /*
 |---------------------------------------------------------------------- 
 | Landing Page (Tourist) 
@@ -114,6 +116,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     // Admin Activities Routes
     Route::resource('activities', ActivityController::class);
 });
+Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+// In routes/auth.php
+Route::put('/profile/password', [PasswordController::class, 'update'])->name('profile.password.update');
+
+
+    require __DIR__.'/auth.php';
 
 // Landing page route for the home link in the navbar
 Route::get('/', fn() => view('tourist.landing'))->name('landing');
