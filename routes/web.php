@@ -87,6 +87,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile/image', [ProfileController::class, 'removeImage'])->name('profile.removeImage');
+    Route::delete('/profile/remove-image', [ProfileController::class, 'removeImage'])->name('profile.removeImage');
+
+
+
+});
+
+Route::middleware(['auth:tourist'])->group(function () {
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile/remove-image', [ProfileController::class, 'removeImage'])->name('profile.removeImage');
 });
 
 /*
@@ -100,4 +114,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     // Admin Activities Routes
     Route::resource('activities', ActivityController::class);
 });
+
+// Landing page route for the home link in the navbar
+Route::get('/', fn() => view('tourist.landing'))->name('landing');
+
 

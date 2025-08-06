@@ -24,7 +24,7 @@
         </div>
 
         <nav class="flex items-center gap-6 text-sm font-medium">
-            <a href="#" class="hover:text-blue-600 transition">Home</a>
+            <a href="{{ route('landing') }}" class="hover:text-blue-600 transition">Home</a>
             <a href="#" class="hover:text-blue-600 transition">About</a>
             <a href="#" class="hover:text-blue-600 transition">Explore</a>
             <a href="#" class="hover:text-blue-600 transition">Emergancy Info</a>
