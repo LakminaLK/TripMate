@@ -22,26 +22,33 @@
     <!-- Main Layout -->
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
-            <a href="{{ route('admin.dashboard') }}"
-               class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Dashboard
-            </a>
+<div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
+    <a href="{{ route('admin.dashboard') }}"
+       class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Dashboard
+    </a>
 
-            <a href="{{ route('admin.customers') }}"
-               class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Customers
-            </a>
+    <a href="{{ route('admin.customers') }}"
+       class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Customers
+    </a>
 
-            <a href="{{ route('admin.activities.index') }}"
-               class="{{ request()->routeIs('admin.activities.index') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Activities
-            </a>
+    <a href="{{ route('admin.activities.index') }}"
+       class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Activities
+    </a>
 
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
-        </div>
+    <!-- NEW: Location Management link -->
+    <a href="{{ route('admin.locations.index') }}"
+       class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Locations
+    </a>
+
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
+</div>
+
 
 
         <!-- Dashboard Content -->

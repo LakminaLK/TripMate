@@ -21,26 +21,33 @@
     <!-- Main Layout -->
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
-            <a href="{{ route('admin.dashboard') }}"
-               class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Dashboard
-            </a>
+<div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
+    <a href="{{ route('admin.dashboard') }}"
+       class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Dashboard
+    </a>
 
-            <a href="{{ route('admin.customers') }}"
-               class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Customers
-            </a>
+    <a href="{{ route('admin.customers') }}"
+       class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Customers
+    </a>
 
-            <a href="{{ route('admin.activities.index') }}"
-               class="{{ request()->routeIs('admin.activities.index') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Activities
-            </a>
+    <a href="{{ route('admin.activities.index') }}"
+       class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Activities
+    </a>
 
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
-        </div>
+    <!-- NEW: Location Management link -->
+    <a href="{{ route('admin.locations.index') }}"
+       class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Locations
+    </a>
+
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
+    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
+</div>
+
 
         <!-- Activities Content -->
         <div class="flex-1 p-10">
@@ -51,37 +58,47 @@
                 Add New Activity
             </button>
 
-            <!-- Activities Table -->
-            <table class="min-w-full bg-white border border-gray-300 rounded overflow-hidden">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-4 text-left">Activity ID</th>
-                        <th class="p-4 text-left">Activity Name</th>
-                        <th class="p-4 text-left">Status</th>
-                        <th class="p-4 text-left">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($activities as $activity)
-                        <tr class="border-t">
-                            <td class="p-4">{{ 'A' . str_pad($activity->id, 3, '0', STR_PAD_LEFT) }}</td>
-                            <td class="p-4">{{ $activity->name }}</td>
-                            <td class="p-4">{{ $activity->status }}</td>
-                            <td class="p-4 flex space-x-2">
-                                <!-- Edit Activity Button -->
-                                <button class="text-blue-500 hover:underline" id="edit-activity-btn-{{ $activity->id }}" data-activity="{{ json_encode($activity) }}">Edit</button>
+            <table class="min-w-full bg-white border border-gray-300 rounded-xl overflow-hidden shadow">
+    <thead class="bg-gray-100 text-gray-700 text-sm uppercase tracking-wider">
+        <tr>
+            <th class="px-6 py-4 text-left">Activity ID</th>
+            <th class="px-6 py-4 text-left">Activity Name</th>
+            <th class="px-6 py-4 text-left">Status</th>
+            <th class="px-6 py-4 text-left">Actions</th>
+        </tr>
+    </thead>
+    <tbody class="text-gray-800 text-sm">
+        @forelse($activities as $activity)
+            <tr class="border-t hover:bg-gray-50 transition duration-150 ease-in-out">
+                <td class="px-6 py-4 font-medium">{{ 'A' . str_pad($activity->id, 3, '0', STR_PAD_LEFT) }}</td>
+                <td class="px-6 py-4">{{ $activity->name }}</td>
+                <td class="px-6 py-4 capitalize">{{ $activity->status }}</td>
+                <td class="px-6 py-4 flex space-x-2">
+                    <button
+                        id="edit-activity-btn-{{ $activity->id }}"
+                        data-activity='@json($activity)'
+                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                    >
+                        Edit
+                    </button>
 
-                                <!-- Delete Activity Form -->
-                                <form action="{{ route('admin.activities.destroy', $activity->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:underline">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    <form action="{{ route('admin.activities.destroy', $activity->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this activity?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-gray-500">No activities found.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
         </div>
     </div>
 

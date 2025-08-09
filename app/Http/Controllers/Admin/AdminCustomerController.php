@@ -25,4 +25,13 @@ class AdminCustomerController extends Controller
 
         return view('admin.customers', compact('customers'));
     }
+
+    public function destroy($id)
+{
+    $customer = Tourist::findOrFail($id); // Replace with your model
+    $customer->delete();
+
+    return redirect()->route('admin.customers')->with('success', 'Customer deleted successfully.');
+}
+
 }

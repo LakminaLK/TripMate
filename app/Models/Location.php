@@ -9,11 +9,18 @@ class Location extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description', 'main_image'];
 
     public function activities()
     {
-        return $this->belongsToMany(Activity::class, 'activity_location');
+        return $this->belongsToMany(Activity::class, 'activity_location')
+        ->withTimestamps();
     }
+
+    public function images()
+{
+    return $this->hasMany(LocationImage::class);
+}
+
 }
 
