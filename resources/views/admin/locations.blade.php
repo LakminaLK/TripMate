@@ -15,11 +15,33 @@
     <!-- Top Navbar -->
     <div class="bg-white py-4 px-6 flex justify-between items-center shadow">
         <h1 class="text-2xl font-bold">TripMate</h1>
-        <div class="flex items-center space-x-4">
-            <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="text-red-600 hover:underline">Logout</button>
-            </form>
+
+        <!-- Profile Dropdown -->
+        <div x-data="{ open: false }" class="relative">
+            <!-- Profile Icon Button -->
+            <button @click="open = !open" 
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 focus:outline-none">
+                <img src="{{ asset('images/Profile.png') }}" 
+                    alt="Profile" 
+                    class="w-8 h-8 rounded-full object-cover">
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div x-show="open" 
+                @click.away="open = false" 
+                x-transition 
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                <a href="{{ route('admin.profile.edit') }}" 
+                class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                
+                <form method="POST" action="{{ route('admin.logout') }}">
+                    @csrf
+                    <button type="submit" 
+                            class="w-full text-left px-4 py-2 text-red-700 hover:bg-gray-100">
+                        Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -442,6 +464,7 @@
             closeModal();
         });
     </script>
-
+    <!-- Add Alpine.js -->
+<script src="//unpkg.com/alpinejs" defer></script>
 </body>
 </html>
