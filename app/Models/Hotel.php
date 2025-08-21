@@ -3,19 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 class Hotel extends Authenticatable
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
-    protected $guard = 'hotel';
+    protected $table = 'hotels';
 
     protected $fillable = [
-        'username', 'email', 'password',
+        'name',
+        'email',
+        'username',
+        'password',
+        'status',       // 'Active' | 'Inactive'
+        'location_id',
     ];
 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
+
+    // 🔕 Booking relation removed until the Booking model exists.
+    // public function bookings() { return $this->hasMany(Booking::class); }
 }

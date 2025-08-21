@@ -110,6 +110,6 @@ public function destroyMainImage(Request $request, Location $location)
     {
         $location->activities()->detach();
         $location->delete();
-        return back()->with('success', 'Location deleted.');
+        return back()->with('success', 'Location deleted successfully.');
     }
 }

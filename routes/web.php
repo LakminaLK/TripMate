@@ -116,7 +116,11 @@ require __DIR__ . '/auth.php';
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(function () {
     // Admin Activities Routes
     Route::resource('activities', ActivityController::class);
+    // routes/web.php
 });
+Route::delete('/admin/activities/{activity}/image', [ActivityController::class, 'destroyImage'])
+        ->name('admin.activities.image.destroy');
+
 
 Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 Route::put('password', [PasswordController::class, 'update'])->name('password.update');
@@ -148,6 +152,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(functi
     Route::put('/profile/username', [AdminProfileController::class, 'updateUsername'])
         ->name('profile.username.update');
 
+});
+
+// Admin – Hotels
+Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function () {
+    Route::get('/hotels', [\App\Http\Controllers\Admin\HotelController::class, 'index'])->name('hotels.index');
+    Route::post('/hotels', [\App\Http\Controllers\Admin\HotelController::class, 'store'])->name('hotels.store');
+    Route::put('/hotels/{hotel}', [\App\Http\Controllers\Admin\HotelController::class, 'update'])->name('hotels.update');
+    Route::delete('/hotels/{hotel}', [\App\Http\Controllers\Admin\HotelController::class, 'destroy'])->name('hotels.destroy');
+
+    // Optional: reset credentials for a hotel (if you want a “Reset Password” later)
+    Route::post('/hotels/{hotel}/reset-credentials', [\App\Http\Controllers\Admin\HotelController::class, 'resetCredentials'])
+        ->name('hotels.resetCreds');
 });
 
 

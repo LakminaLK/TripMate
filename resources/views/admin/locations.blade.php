@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Locations | TripMate</title>
 
-    {{-- Tailwind (same as Activities page) --}}
+    {{-- Tailwind --}}
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
     {{-- Favicon --}}
@@ -12,38 +12,39 @@
 </head>
 <body class="bg-gray-300 min-h-screen">
 
+    <!-- Expose flash for toasts -->
+    <script>
+      window.FLASH = {
+        success: @json(session('success')),
+        errors:  @json($errors->all()),
+      };
+    </script>
+
     <!-- Top Navbar -->
     <div class="bg-white py-4 px-6 flex justify-between items-center shadow">
         <h1 class="text-2xl font-bold">TripMate</h1>
 
         <!-- Profile Dropdown -->
         <div x-data="{ open: false }" class="relative">
-            <!-- Profile Icon Button -->
-            <button @click="open = !open" 
+            <button @click="open = !open"
                     class="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 focus:outline-none">
-                <img src="{{ asset('images/Profile.png') }}" 
-                    alt="Profile" 
-                    class="w-8 h-8 rounded-full object-cover">
+                <img src="{{ asset('images/Profile.png') }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
             </button>
 
-            <!-- Dropdown Menu -->
-            <div x-show="open" 
-                @click.away="open = false" 
-                x-transition 
-                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-                <a href="{{ route('admin.profile.edit') }}" 
-                class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                
+            <div x-show="open" x-transition @click.away="open = false"
+                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
-                    <button type="submit" 
-                            class="w-full text-left px-4 py-2 text-red-700 hover:bg-gray-100">
-                        Logout
-                    </button>
+                    <button type="submit" class="w-full text-left px-4 py-2 text-red-700 hover:bg-gray-100">Logout</button>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Toast stack (below navbar, right) -->
+    <div x-data="toast()" x-init="boot()"
+         class="fixed right-6 space-y-3" style="top: 82px; z-index: 9999;"></div>
 
     <!-- Main Layout -->
     <div class="flex">
@@ -69,7 +70,10 @@
                 Locations
             </a>
 
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Hotels (coming soon)</span>
+            <a href="{{ route('admin.hotels.index') }}"
+                class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                Hotels
+            </a>
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
         </div>
@@ -77,20 +81,6 @@
         <!-- Locations Content -->
         <div class="flex-1 p-10">
             <h2 class="text-2xl font-bold mb-6">Locations Management</h2>
-
-            <!-- Flash -->
-            @if(session('success'))
-                <div class="mb-4 bg-green-100 text-green-800 px-4 py-2 rounded">{{ session('success') }}</div>
-            @endif
-            @if($errors->any())
-                <div class="mb-4 bg-red-100 text-red-800 px-4 py-2 rounded">
-                    <ul class="list-disc pl-5">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             <!-- Add button -->
             <button id="add-location-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mb-4 inline-block">
@@ -102,7 +92,7 @@
                     <tr>
                         <th class="px-6 py-4 text-left">Location ID</th>
                         <th class="px-6 py-4 text-left">Main Image</th>
-                        <th class="px-6 py-4 text-left">Location</th>  {{-- NEW --}}
+                        <th class="px-6 py-4 text-left">Location</th>
                         <th class="px-6 py-4 text-left">Activities</th>
                         <th class="px-6 py-4 text-left">Actions</th>
                     </tr>
@@ -112,33 +102,26 @@
                         <tr class="border-t hover:bg-gray-50 transition duration-150 ease-in-out">
                             <td class="px-6 py-4 font-medium">{{ 'L' . str_pad($location->id, 3, '0', STR_PAD_LEFT) }}</td>
 
-                            <!-- Main Image -->
                             <td class="px-6 py-4">
                                 @if($location->main_image)
-                                    <img src="{{ asset('storage/'.$location->main_image) }}"
-                                        class="w-24 h-16 object-cover rounded border">
+                                    <img src="{{ asset('storage/'.$location->main_image) }}" class="w-24 h-16 object-cover rounded border">
                                 @else
                                     <span class="text-xs text-gray-400">No image</span>
                                 @endif
                             </td>
 
-                            <!-- Location name only -->
-                            <td class="px-6 py-4 font-medium">{{ $location->name }}</td>                            
+                            <td class="px-6 py-4 font-medium">{{ $location->name }}</td>
 
-                            <!-- Activities -->
                             <td class="px-6 py-4">
                                 <div class="flex flex-wrap gap-2">
                                     @forelse($location->activities as $act)
-                                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
-                                            {{ $act->name }}
-                                        </span>
+                                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">{{ $act->name }}</span>
                                     @empty
                                         <span class="text-xs text-gray-400">No activities linked</span>
                                     @endforelse
                                 </div>
                             </td>
 
-                            <!-- Actions (center aligned) -->
                             <td class="px-6 py-4 text-center align-middle" style="width: 150px;">
                                 <div class="flex items-center justify-center gap-2">
                                     <button
@@ -147,15 +130,15 @@
                                         data-name="{{ $location->name }}"
                                         data-description="{{ $location->description }}"
                                         data-activities='@json($location->activities->pluck("id"))'
-                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
-                                    >
+                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
                                         Edit
                                     </button>
 
-                                    <form action="{{ route('admin.locations.destroy', $location->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this location?');">
+                                    {{-- Custom-confirm delete (no native confirm()) --}}
+                                    <form action="{{ route('admin.locations.destroy', $location->id) }}" method="POST" class="inline js-delete-form" data-name="{{ $location->name }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
+                                        <button type="button" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm js-delete-btn">
                                             Delete
                                         </button>
                                     </form>
@@ -176,23 +159,16 @@
         </div>
     </div>
 
-    <!-- Modal (scrollable) -->
+    <!-- Add/Edit Modal (scrollable) -->
     <div id="location-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden">
-        <!-- viewport scroll container -->
         <div class="w-full h-full overflow-y-auto">
-            <!-- modal card -->
-            <div class="bg-white p-6 rounded-md shadow-lg w-11/12 md:w-1/2 lg:w-1/3 mx-auto my-10"
-                 style="max-height:85vh; overflow-y:auto;">
+            <div class="bg-white p-6 rounded-md shadow-lg w-11/12 md:w-1/2 lg:w-1/3 mx-auto my-10" style="max-height:85vh; overflow-y:auto;">
                 <h3 class="text-xl font-bold mb-4" id="modal-title">Add New Location</h3>
 
-                <!-- Location Form (Create/Update) -->
                 <form id="location-form" action="{{ route('admin.locations.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <!-- Method Spoofing (only when editing) -->
-                    <div id="method-field" class="hidden">
-                        @method('PUT')
-                    </div>
+                    <div id="method-field" class="hidden">@method('PUT')</div>
 
                     <div class="mb-4">
                         <label for="name" class="block text-sm font-medium text-gray-700">Location Name</label>
@@ -214,7 +190,7 @@
                         <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or ⌘ (Mac) to select multiple.</p>
                     </div>
 
-                    {{-- Main image upload --}}
+                    {{-- Main image --}}
                     <div class="mb-4">
                         <label for="main_image" class="block text-sm font-medium text-gray-700">Main Image</label>
                         <input type="file" id="main_image" name="main_image" accept="image/*" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
@@ -226,18 +202,16 @@
                         <img id="selected-main-img" src="" class="w-24 h-16 object-cover rounded border" alt="">
                     </div>
 
-                    {{-- Current MAIN image (edit only) – with red "×" overlay like gallery --}}
+                    {{-- Current MAIN image (edit only) --}}
                     <div id="current-main-wrap" class="mt-3 hidden">
                         <div class="text-sm font-medium mb-2">Current Main Image</div>
                         <div class="inline-block relative">
                             <img id="current-main-img" src="" class="w-24 h-16 object-cover rounded border" alt="">
-                            <button type="button"
-                                    id="delete-main-btn"
-                                    class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded px-1.5 py-0.5">×</button>
+                            <button type="button" id="delete-main-btn" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded px-1.5 py-0.5">×</button>
                         </div>
                     </div>
 
-                    {{-- Gallery images upload --}}
+                    {{-- Gallery images --}}
                     <div class="mb-2 mt-4">
                         <label for="gallery" class="block text-sm font-medium text-gray-700">Additional Images</label>
                         <input type="file" id="gallery" name="gallery[]" multiple accept="image/*" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
@@ -266,16 +240,43 @@
         </div>
     </div>
 
+    {{-- Custom Confirm Modal (centered with slight dim) --}}
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden">
+      <!-- Slightly dimmed overlay (blocks clicks) -->
+      <div class="absolute inset-0 bg-black bg-opacity-20 z-10"></div>
+
+      <!-- Centered dialog -->
+      <div class="absolute inset-0 flex items-center justify-center z-20">
+        <div class="bg-white rounded-xl shadow-2xl ring-1 ring-black/5 overflow-hidden w-[90%] max-w-md">
+          <div class="px-5 py-4 flex items-start gap-3">
+            <svg class="w-6 h-6 shrink-0 text-red-600" viewBox="0 0 24 24" fill="none">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z" fill="currentColor" opacity=".12"/>
+              <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+              <h3 class="text-base font-semibold text-gray-900">Delete location?</h3>
+              <p class="text-sm text-gray-600 mt-1">
+                Are you sure you want to delete <span id="confirm-name" class="font-medium text-gray-900">this location</span>?
+                This action cannot be undone.
+              </p>
+            </div>
+          </div>
+          <div class="px-5 pb-5 pt-2 flex items-center justify-end gap-2">
+            <button id="confirm-cancel" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button id="confirm-yes" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Data maps for images --}}
     <script>
-        // location_id -> main image URL or null
         const LOCATION_MAIN = @json(
             $locations->mapWithKeys(fn($loc) => [
                 $loc->id => $loc->main_image ? asset('storage/'.$loc->main_image) : null
             ])
         );
 
-        // location_id -> [{id, url}]
         const LOCATION_GALLERIES = @json(
             $locations->mapWithKeys(fn($loc) => [
                 $loc->id => $loc->images->map(fn($img) => [
@@ -291,19 +292,31 @@
     </script>
 
     <script>
-        // Helpers to lock/unlock page scroll when modal is open
+        // Lock/unlock page scroll WITHOUT layout jump (compensate scrollbar width)
+        function lockScroll(lock) {
+            const body = document.body;
+            const doc  = document.documentElement;
+            if (lock) {
+                const sbw = window.innerWidth - doc.clientWidth; // scrollbar width
+                if (sbw > 0) body.style.paddingRight = sbw + 'px';
+                body.style.overflow = 'hidden';
+            } else {
+                body.style.overflow = '';
+                body.style.paddingRight = '';
+            }
+        }
+
+        // Add/Edit modal helpers
         function openModal() {
             document.getElementById('location-modal').classList.remove('hidden');
-            document.documentElement.style.overflow = 'hidden';
-            document.body.style.overflow = 'hidden';
+            lockScroll(true);
         }
         function closeModal() {
             document.getElementById('location-modal').classList.add('hidden');
-            document.documentElement.style.overflow = '';
-            document.body.style.overflow = '';
+            lockScroll(false);
         }
 
-        // ---- New selection previews ----
+        // New selection previews
         const mainInput            = document.getElementById('main_image');
         const selectedMainWrap     = document.getElementById('selected-main-wrap');
         const selectedMainImg      = document.getElementById('selected-main-img');
@@ -412,6 +425,7 @@
                         mainWrap.classList.add('hidden');
                         mainImg.src = '';
                         LOCATION_MAIN[id] = null;
+                        window.pushToast?.('Main image removed.');
                     };
                 } else {
                     mainWrap.classList.add('hidden');
@@ -448,6 +462,7 @@
                             const idx  = list.findIndex(x => x.id == imgId);
                             if (idx >= 0) list.splice(idx, 1);
                             if (!list.length) wrap.classList.add('hidden');
+                            window.pushToast?.('Additional image removed.');
                         };
                         grid.appendChild(card);
                     });
@@ -459,12 +474,110 @@
             });
         });
 
-        // Close
-        document.getElementById('close-modal-btn').addEventListener('click', function () {
-            closeModal();
-        });
+        // Close Add/Edit modal
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+        // ===== Custom Confirm (Delete) =====
+        (function () {
+          let pendingForm = null;
+          const modal      = document.getElementById('confirm-modal');
+          const nameSpan   = document.getElementById('confirm-name');
+          const btnYes     = document.getElementById('confirm-yes');
+          const btnCancel  = document.getElementById('confirm-cancel');
+
+          function openConfirm(name) {
+            nameSpan.textContent = name || 'this location';
+            modal.classList.remove('hidden');
+            btnCancel.focus();
+            lockScroll(true);  // lock background without layout shift
+          }
+          function closeConfirm() {
+            modal.classList.add('hidden');
+            lockScroll(false);
+            pendingForm = null;
+          }
+
+          // Close when clicking the overlay
+          modal.addEventListener('click', (e) => {
+            const overlay = modal.firstElementChild; // the dimmed overlay
+            if (e.target === overlay) closeConfirm();
+          });
+
+          // Hook all Delete buttons
+          document.querySelectorAll('.js-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              pendingForm = btn.closest('form');
+              const name = pendingForm?.dataset?.name || '';
+              openConfirm(name);
+            });
+          });
+
+          btnCancel.addEventListener('click', closeConfirm);
+          btnYes.addEventListener('click', () => {
+            if (pendingForm) pendingForm.submit();
+            // let navigation happen; no need to close explicitly
+          });
+        })();
     </script>
-    <!-- Add Alpine.js -->
-<script src="//unpkg.com/alpinejs" defer></script>
+
+    <!-- Alpine.js -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+    <!-- Toast component -->
+    <script>
+      function toast() {
+        return {
+          boot() {
+            if (window.FLASH?.success) this.push(window.FLASH.success, 'success');
+            if (Array.isArray(window.FLASH?.errors) && window.FLASH.errors.length) {
+              window.FLASH.errors.forEach(e => this.push(e, 'error'));
+            }
+            window.pushToast = (msg, type='success') => this.push(msg, type);
+          },
+          push(message, type='success') {
+            const id = 't' + Math.random().toString(36).slice(2);
+            const colors = type === 'error'
+              ? {bar:'bg-red-500', icon:'#ef4444'}
+              : {bar:'bg-emerald-500', icon:'#10b981'};
+
+            const el = document.createElement('div');
+            el.id = id;
+            el.className =
+              'group relative w-[360px] max-w-[90vw] bg-white rounded-xl shadow-lg ring-1 ring-black/5 overflow-hidden ' +
+              'transition transform duration-200';
+            el.innerHTML = `
+              <div class="absolute left-0 top-0 h-full w-1 ${colors.bar}"></div>
+              <div class="p-3 pl-4 pr-10 flex items-start gap-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z" fill="${colors.icon}" opacity=".12"/>
+                  <path d="M12 8v5M12 16h.01" stroke="${colors.icon}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="text-sm text-gray-800 leading-snug">${message}</div>
+                <button onclick="document.getElementById('${id}')?.remove()"
+                        class="absolute right-2 top-2 text-gray-400 hover:text-gray-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            `;
+
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-6px)';
+            this.$root.appendChild(el);
+            requestAnimationFrame(() => {
+              el.style.opacity = '1';
+              el.style.transform = 'translateY(0)';
+            });
+
+            setTimeout(() => {
+              el.style.opacity = '0';
+              el.style.transform = 'translateY(-6px)';
+              setTimeout(() => el.remove(), 180);
+            }, 3000);
+          }
+        }
+      }
+    </script>
 </body>
 </html>

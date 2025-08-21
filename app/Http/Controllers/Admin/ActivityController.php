@@ -9,92 +9,134 @@ use Illuminate\Support\Facades\Storage;
 
 class ActivityController extends Controller
 {
-    // Show all activities (index)
+    /**
+     * Convert a stored image path to a path relative to the "public" disk,
+     * so we can safely call Storage::disk('public')->delete($path).
+     * Handles:
+     *  - backslashes -> forward slashes
+     *  - "public/" or "app/public/" prefixes
+     *  - "storage/" (URL-style) -> remove it
+     *  - full URLs / absolute paths -> return null (we won't try to delete)
+     */
+    private function normalizePublicDiskPath(?string $path): ?string
+    {
+        if (!$path) return null;
+
+        $p = str_replace('\\', '/', $path);
+
+        // If it's a URL or an absolute path, don't attempt filesystem delete.
+        if (preg_match('#^https?://#', $p) || str_starts_with($p, '/')) {
+            return null;
+        }
+
+        // Strip common prefixes to make it relative to "public" disk
+        if (str_starts_with($p, 'public/'))      $p = substr($p, 7);
+        if (str_starts_with($p, 'app/public/'))  $p = substr($p, 11);
+        if (str_starts_with($p, 'storage/'))     $p = substr($p, 8); // from URL style to disk path
+
+        return $p;
+    }
+
+    // Show all activities
     public function index()
     {
-        $activities = Activity::all(); // Fetch all activities from the database
+        $activities = Activity::all();
         return view('admin.activities', compact('activities'));
     }
 
-    // Show the form to create a new activity
+    // Show the form to create (not used if you use the modal)
     public function create()
     {
-        return view('admin.activities.create'); // Render the create activity view
+        return view('admin.activities.create');
     }
 
-    // Store a new activity in the database
+    // Store a new activity
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status'      => 'required|in:active,inactive',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:4096',
         ]);
 
-        // Handle file upload for activity image (if uploaded)
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/images');
-        }
+        // Save path relative to the "public" disk: e.g. "images/abc.jpg"
+        $imagePath = $request->hasFile('image')
+            ? $request->file('image')->store('images', 'public')
+            : null;
 
-        // Store the new activity
         Activity::create([
-            'name' => $request->name,
+            'name'        => $request->name,
             'description' => $request->description,
-            'status' => $request->status,
-            'image' => $imagePath, // Save image path in the database
+            'status'      => $request->status,
+            'image'       => $imagePath,
         ]);
 
-        return redirect()->route('admin.activities.index')->with('success', 'Activity created successfully!');
+        return redirect()->route('admin.activities.index')
+            ->with('success', 'Activity created successfully!');
     }
 
-    // Update an existing activity in the database
+    // Update an activity
     public function update(Request $request, Activity $activity)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status'      => 'required|in:active,inactive',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:4096',
         ]);
 
-        // Handle file upload for activity image (if uploaded)
-        if ($request->hasFile('image')) {
-            // Delete the old image if it exists
-            if ($activity->image) {
-                // Remove old image from storage
-                Storage::delete('public/images/' . $activity->image);
-            }
+        $data = [
+            'name'        => $request->name,
+            'description' => $request->description,
+            'status'      => $request->status,
+        ];
 
-            // Store the new image and update the activity image path
-            $imagePath = $request->file('image')->store('public/images');
-            $activity->image = $imagePath; // Update image path in the database
+        if ($request->hasFile('image')) {
+            // Delete old file if we can resolve a public-disk path
+            if ($activity->image) {
+                $old = $this->normalizePublicDiskPath($activity->image);
+                if ($old) {
+                    Storage::disk('public')->delete($old);
+                }
+            }
+            // Store new file relative to "public" disk
+            $data['image'] = $request->file('image')->store('images', 'public');
         }
 
-        // Update the activity
-        $activity->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'status' => $request->status,
-        ]);
+        $activity->update($data);
 
-        return redirect()->route('admin.activities.index')->with('success', 'Activity updated successfully!');
+        return redirect()->route('admin.activities.index')
+            ->with('success', 'Activity updated successfully!');
     }
 
-    // Delete an activity from the database
+    // Delete an activity
     public function destroy(Activity $activity)
     {
-        // Delete the associated image file if it exists
         if ($activity->image) {
-            // Ensure the image exists before attempting to delete
-            if (Storage::exists('public/images/' . $activity->image)) {
-                Storage::delete('public/images/' . $activity->image); // Delete the file using Storage facade
+            $old = $this->normalizePublicDiskPath($activity->image);
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
             }
         }
 
-        // Delete the activity
         $activity->delete();
 
-        // Redirect to activities list with success message
-        return redirect()->route('admin.activities.index')->with('success', 'Activity deleted successfully!');
+        return redirect()->route('admin.activities.index')
+            ->with('success', 'Activity deleted successfully!');
+    }
+
+    // Delete only the image of an activity (AJAX from the edit modal)
+    public function destroyImage(Activity $activity)
+    {
+        if ($activity->image) {
+            $old = $this->normalizePublicDiskPath($activity->image);
+            if ($old) {
+                Storage::disk('public')->delete($old);
+            }
+            $activity->update(['image' => null]);
+        }
+
+        return back()->with('success', 'Activity image removed.');
     }
 }
