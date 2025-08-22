@@ -9,6 +9,7 @@
 
 {{-- Make body focusable so we can steal focus on Chrome --}}
 <body class="bg-gray-300 min-h-screen antialiased" tabindex="-1">
+    <div class="mt-16"> <!-- Added wrapper with top margin -->
 
 <!-- Expose flash for toasts -->
 <script>
@@ -19,10 +20,23 @@
 </script>
 
 <!-- Top Navbar (same style as dashboard) -->
-<div class="bg-white py-4 px-6 flex justify-between items-center shadow">
-  <h1 class="text-2xl font-bold">TripMate</h1>
+<div class="bg-white h-16 px-6 flex justify-between items-center shadow fixed top-0 w-full z-30">
+    <!-- Logo + Menu Area -->
+    <div class="flex items-center gap-4">
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleSidebar()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        
+        <div class="flex items-center gap-2">
+            <img src="{{ asset('images/tm1.png') }}" alt="TripMate Logo" class="h-8 w-8">
+            <h1 class="text-2xl font-bold">TripMate</h1>
+        </div>
+    </div>
 
-  <!-- Profile Dropdown -->
+    <!-- Profile Dropdown -->
   <div x-data="{ open:false }" class="relative">
     <button @click="open=!open"
             class="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 focus:outline-none">
@@ -288,5 +302,6 @@
     }
   }
 </script>
+    </div> <!-- Close wrapper -->
 </body>
 </html>

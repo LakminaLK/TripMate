@@ -11,6 +11,7 @@
     <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
 </head>
 <body class="bg-gray-300 min-h-screen">
+    <div class="mt-16"> <!-- Added wrapper with top margin -->
 
     <!-- Expose flash for toasts -->
     <script>
@@ -21,8 +22,21 @@
     </script>
 
     <!-- Top Navbar -->
-    <div class="bg-white py-4 px-6 flex justify-between items-center shadow">
-        <h1 class="text-2xl font-bold">TripMate</h1>
+    <div class="bg-white h-16 px-6 flex justify-between items-center shadow fixed top-0 w-full z-30">
+        <!-- Logo + Menu Area -->
+        <div class="flex items-center gap-4">
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleSidebar()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            
+            <div class="flex items-center gap-2">
+                <img src="{{ asset('images/tm1.png') }}" alt="TripMate Logo" class="h-8 w-8">
+                <h1 class="text-2xl font-bold">TripMate</h1>
+            </div>
+        </div>
 
         <!-- Profile Dropdown -->
         <div x-data="{ open: false }" class="relative">
@@ -47,15 +61,13 @@
          class="fixed right-6 space-y-3" style="top: 82px; z-index: 9999;"></div>
 
     <!-- Main Layout -->
-    <div class="flex">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
-            <a href="{{ route('admin.dashboard') }}"
-               class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Dashboard
-            </a>
-
-            <a href="{{ route('admin.customers') }}"
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <div class="w-64 bg-gray-200 fixed top-0 left-0 h-full p-4 space-y-4 text-sm font-medium pt-20 overflow-y-auto hidden md:block">
+      <a href="{{ route('admin.dashboard') }}"
+         class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+        Dashboard
+      </a>            <a href="{{ route('admin.customers') }}"
                class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
                 Customers
             </a>
@@ -78,14 +90,78 @@
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
         </div>
 
-        <!-- Locations Content -->
-        <div class="flex-1 p-10">
-            <h2 class="text-2xl font-bold mb-6">Locations Management</h2>
+        <!-- Mobile Sidebar Toggle -->
+        <button class="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-lg" onclick="toggleSidebar()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
 
-            <!-- Add button -->
-            <button id="add-location-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mb-4 inline-block">
-                Add New Location
-            </button>
+        <!-- Mobile Sidebar -->
+        <div id="mobileSidebar" class="fixed inset-0 bg-gray-800 bg-opacity-50 z-40 hidden md:hidden" onclick="toggleSidebar()">
+            <div class="w-64 bg-gray-200 h-full p-4 space-y-4 text-sm font-medium pt-20" onclick="event.stopPropagation()">
+                <a href="{{ route('admin.dashboard') }}"
+                   class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                    Dashboard
+                </a>
+                <a href="{{ route('admin.customers') }}"
+                   class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                    Customers
+                </a>
+                <a href="{{ route('admin.activities.index') }}"
+                   class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                    Activities
+                </a>
+                <a href="{{ route('admin.locations.index') }}"
+                   class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                    Locations
+                </a>
+                <a href="{{ route('admin.hotels.index') }}"
+                   class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+                    Hotels
+                </a>
+                <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
+                <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
+            </div>
+        </div>
+
+        <!-- Locations Content -->
+        <div class="flex-1 md:ml-64 p-4 md:p-10 pt-32">
+            <div class="mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold">Locations Management</h2>
+                    <div class="flex flex-wrap items-center gap-2 md:gap-3">
+                    <!-- Filter pills -->
+                    <div class="flex items-center gap-3">
+                        @php $status = strtolower(request('status','all')); @endphp
+                        <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'all'])) }}"
+                           class="px-5 py-2 rounded-full {{ $status==='all'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">All</a>
+                        <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'active'])) }}"
+                           class="px-5 py-2 rounded-full {{ $status==='active'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Active</a>
+                        <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'inactive'])) }}"
+                           class="px-5 py-2 rounded-full {{ $status==='inactive'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Inactive</a>
+                    </div>
+
+                    <!-- Search + Add button -->
+                    <div class="flex items-center gap-3">
+                        <form method="GET" class="relative">
+                            <input type="text" name="q" value="{{ request('q') }}" placeholder="Search Location..."
+                                   class="pl-9 pr-3 py-2 w-64 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                            />
+                            <svg class="w-5 h-5 text-gray-400 absolute left-2.5 top-2.5" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </form>
+
+                        <button id="add-location-btn" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Add New Location
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <table class="min-w-full bg-white border border-gray-300 rounded-xl overflow-hidden shadow">
                 <thead class="bg-gray-100 text-gray-700 text-sm uppercase tracking-wider">
@@ -521,7 +597,17 @@
     </script>
 
     <!-- Alpine.js -->
-    <script src="//unpkg.com/alpinejs" defer></script>
+        <script src="//unpkg.com/alpinejs" defer></script>
+
+    <!-- Mobile Sidebar Script -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            sidebar.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
 
     <!-- Toast component -->
     <script>
@@ -579,5 +665,6 @@
         }
       }
     </script>
+    </div> <!-- Close wrapper -->
 </body>
 </html>

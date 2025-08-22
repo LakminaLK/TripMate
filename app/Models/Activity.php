@@ -17,5 +17,7 @@ class Activity extends Model
         return $this->belongsToMany(Location::class, 'activity_location')
         ->withTimestamps();
     }
+
+        
 }
 

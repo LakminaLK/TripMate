@@ -7,6 +7,7 @@
   <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
 </head>
 <body class="bg-gray-300 min-h-screen">
+    <div class="mt-16"> <!-- Added wrapper with top margin -->
 
   {{-- Expose flash for toasts --}}
   <script>
@@ -17,8 +18,22 @@
   </script>
 
   <!-- Top Navbar -->
-  <div class="bg-white py-4 px-6 flex justify-between items-center shadow">
-    <h1 class="text-2xl font-bold">TripMate</h1>
+      <!-- Top Navbar -->
+    <div class="bg-white h-16 px-6 flex justify-between items-center shadow fixed top-0 w-full z-30">
+    <!-- Logo + Menu Area -->
+    <div class="flex items-center gap-4">
+      <!-- Mobile Menu Button -->
+      <button class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleSidebar()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      
+      <div class="flex items-center gap-2">
+        <img src="{{ asset('images/tm1.png') }}" alt="TripMate Logo" class="h-8 w-8">
+        <h1 class="text-2xl font-bold">TripMate</h1>
+      </div>
+    </div>
 
     <!-- Profile Dropdown -->
     <div x-data="{ open: false }" class="relative">
@@ -42,9 +57,9 @@
   <div x-data="toast()" x-init="boot()"
        class="fixed right-6 space-y-3" style="top:82px; z-index:9999;"></div>
 
-  <div class="flex">
+  <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <div class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
+    <div class="w-64 bg-gray-200 fixed top-0 left-0 h-full p-4 space-y-4 text-sm font-medium pt-20 overflow-y-auto hidden md:block">
       <a href="{{ route('admin.dashboard') }}"
          class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
         Dashboard
@@ -74,28 +89,63 @@
       <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
     </div>
 
-    <!-- Content -->
-    <div class="flex-1 p-10">
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold mb-4">Hotels Management</h2>
+    <!-- Mobile Sidebar Toggle -->
+    <button class="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-lg" onclick="toggleSidebar()">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
 
-        <div class="flex items-center justify-between">
+    <!-- Mobile Sidebar -->
+    <div id="mobileSidebar" class="fixed inset-0 bg-gray-800 bg-opacity-50 z-40 hidden md:hidden" onclick="toggleSidebar()">
+      <div class="w-64 bg-gray-200 h-full p-4 space-y-4 text-sm font-medium pt-20" onclick="event.stopPropagation()">
+        <a href="{{ route('admin.dashboard') }}"
+           class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+          Dashboard
+        </a>
+        <a href="{{ route('admin.customers') }}"
+           class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+          Customers
+        </a>
+        <a href="{{ route('admin.activities.index') }}"
+           class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+          Activities
+        </a>
+        <a href="{{ route('admin.locations.index') }}"
+           class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+          Locations
+        </a>
+        <a href="{{ route('admin.hotels.index') }}"
+           class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+          Hotels
+        </a>
+        <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
+        <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 md:ml-64 p-4 md:p-10 pt-32">
+      <div class="mb-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm mb-6">
+          <h2 class="text-xl md:text-2xl font-bold">Hotels Management</h2>
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
           <!-- Filter pills -->
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
             @php $status = strtolower(request('status','all')); @endphp
             <a href="{{ route('admin.hotels.index', array_merge(request()->except('page'), ['status'=>'all'])) }}"
-               class="px-5 py-2 rounded-full {{ $status==='all'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">All</a>
+               class="text-sm px-4 md:px-5 py-2 rounded-full {{ $status==='all'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">All</a>
             <a href="{{ route('admin.hotels.index', array_merge(request()->except('page'), ['status'=>'active'])) }}"
-               class="px-5 py-2 rounded-full {{ $status==='active'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Active</a>
+               class="text-sm px-4 md:px-5 py-2 rounded-full {{ $status==='active'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Active</a>
             <a href="{{ route('admin.hotels.index', array_merge(request()->except('page'), ['status'=>'inactive'])) }}"
-               class="px-5 py-2 rounded-full {{ $status==='inactive'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Inactive</a>
+               class="text-sm px-4 md:px-5 py-2 rounded-full {{ $status==='inactive'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Inactive</a>
           </div>
 
           <!-- Search + Add button -->
-          <div class="flex items-center gap-3">
-            <form method="GET" class="relative">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <form method="GET" class="relative flex-1 sm:flex-none">
               <input type="text" name="q" value="{{ request('q') }}" placeholder="Search Hotel..."
-                     class="pl-9 pr-3 py-2 w-64 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                     class="w-full sm:w-64 pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
               <svg class="w-5 h-5 text-gray-400 absolute left-2.5 top-2.5" viewBox="0 0 24 24" fill="none">
                 <path d="m21 21-3.5-3.5M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
@@ -103,26 +153,31 @@
               </svg>
             </form>
 
-            <button id="add-hotel-btn"
-                    class="bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-black">Add Hotel</button>
+            <button id="add-hotel-btn" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add New Hotel
+            </button>
           </div>
         </div>
       </div>
 
       <!-- Table -->
-      <table class="min-w-full bg-white border border-gray-300 rounded-xl overflow-hidden shadow">
-        <thead class="bg-gray-100 text-gray-700 text-sm uppercase tracking-wider">
-          <tr>
-            <th class="px-6 py-4 text-left">Hotel ID</th>
-            <th class="px-6 py-4 text-left">Hotel Name</th>
-            <th class="px-6 py-4 text-left">Email</th>
-            <th class="px-6 py-4 text-left">Location</th>
-            <th class="px-6 py-4 text-left">Status</th>
-            <th class="px-6 py-4 text-left">Bookings</th>
-            <th class="px-6 py-4 text-left">Total Revenue($)</th>
-            <th class="px-6 py-4 text-left">Actions</th>
-          </tr>
-        </thead>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 rounded-xl overflow-hidden shadow">
+          <thead class="bg-gray-100 text-gray-700 text-sm uppercase tracking-wider">
+            <tr>
+              <th class="px-4 md:px-6 py-4 text-left">Hotel ID</th>
+              <th class="px-4 md:px-6 py-4 text-left">Hotel Name</th>
+              <th class="hidden md:table-cell px-6 py-4 text-left">Email</th>
+              <th class="hidden md:table-cell px-6 py-4 text-left">Location</th>
+              <th class="px-4 md:px-6 py-4 text-left">Status</th>
+              <th class="hidden md:table-cell px-6 py-4 text-left">Bookings</th>
+              <th class="hidden md:table-cell px-6 py-4 text-left">Total Revenue($)</th>
+              <th class="px-4 md:px-6 py-4 text-left">Actions</th>
+            </tr>
+          </thead>
         <tbody class="text-gray-800 text-sm">
           @forelse($hotels as $h)
             <tr class="border-t hover:bg-gray-50 transition">
@@ -356,6 +411,12 @@
       btnYes.addEventListener('click', () => { if (pendingForm) pendingForm.submit(); });
     })();
 
+    // Mobile Sidebar Toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('mobileSidebar');
+      sidebar.classList.toggle('hidden');
+    }
+
     // Toasts
     function toast() {
       return {
@@ -393,5 +454,6 @@
       }
     }
   </script>
+  </div> <!-- Close wrapper -->
 </body>
 </html>
