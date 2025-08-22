@@ -179,6 +179,15 @@ Route::get('/explore/locations/{location}/hotels', [TouristExploreController::cl
 
 Route::get('/', [HomeController::class, 'index'])->name('landing');
 
+use App\Http\Controllers\Hotel\HotelProfileController;
+
+Route::middleware('auth:hotel')->group(function () {
+    Route::get('/profile', [HotelProfileController::class, 'edit'])->name('hotel.profile.edit');
+    Route::put('/profile/username', [HotelProfileController::class, 'updateUsername'])->name('hotel.profile.username.update');
+    Route::put('/profile/password', [HotelProfileController::class, 'updatePassword'])->name('hotel.profile.password.update');
+});
+
+
 
 
 

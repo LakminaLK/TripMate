@@ -43,9 +43,13 @@ class HotelAuthController extends Controller
 
 
 
-    public function logout()
-    {
-        Session::flush();
-        return redirect()->route('hotel.login');
-    }
+    public function logout(Request $request)
+{
+    Auth::guard('hotel')->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()->route('hotel.login');
+}
+
 }
