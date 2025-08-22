@@ -139,4 +139,6 @@ class ActivityController extends Controller
 
         return back()->with('success', 'Activity image removed.');
     }
+
+    
 }

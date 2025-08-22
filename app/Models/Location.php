@@ -22,5 +22,10 @@ class Location extends Model
     return $this->hasMany(LocationImage::class);
 }
 
+public function hotels()
+{
+    return $this->hasMany(Hotel::class);
+}
+
 }
 

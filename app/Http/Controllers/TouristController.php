@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Activity;
 
 class TouristController extends Controller
 {
@@ -10,5 +11,7 @@ class TouristController extends Controller
     {
         return view('tourist.home');
     }
+
+    
 }
 

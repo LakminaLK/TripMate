@@ -166,5 +166,22 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         ->name('hotels.resetCreds');
 });
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ExploreController;
+
+use App\Http\Controllers\Tourist\ExploreController as TouristExploreController;
+
+Route::get('/explore', [TouristExploreController::class, 'index'])->name('tourist.explore');
+Route::get('/explore/activities/{activity}', [TouristExploreController::class, 'showActivity'])
+     ->name('tourist.activity.show');
+Route::get('/explore/locations/{location}/hotels', [TouristExploreController::class, 'hotelsByLocation'])
+     ->name('tourist.location.hotels');
+
+Route::get('/', [HomeController::class, 'index'])->name('landing');
+
+
+
+
+
 
 

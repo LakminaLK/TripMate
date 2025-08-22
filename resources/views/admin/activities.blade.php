@@ -65,9 +65,9 @@
             </a>
 
             <a href="{{ route('admin.hotels.index') }}"
-              class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-              Hotels
-            </a>
+            class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
+            Hotels
+          </a>
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
             <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
         </div>
@@ -215,29 +215,31 @@
 
     {{-- Robust image map + endpoints (safe even if route missing) --}}
     @php
-        use Illuminate\Support\Facades\Route as RouteFacade;
+    $ACTIVITY_IMAGE = [];
+    foreach ($activities as $a) {
+        $raw = $a->image;
+        if (!$raw) { $ACTIVITY_IMAGE[$a->id] = null; continue; }
 
-        $ACTIVITY_IMAGE = [];
-        foreach ($activities as $a) {
-            $path = $a->image;
-            if (!$path) { $ACTIVITY_IMAGE[$a->id] = null; continue; }
+        $p = ltrim(str_replace('\\','/',$raw), '/');
 
-            // normalize: remove leading "public/"
-            if (strpos($path, 'public/') === 0) {
-                $path = substr($path, 7);
-            }
-
-            if (preg_match('#^https?://#', $path) || strpos($path, '/') === 0) {
-                $url = $path; // full URL or absolute path
-            } else {
-                $url = asset((strpos($path, 'storage/') === 0) ? $path : 'storage/'.$path);
-            }
-            $ACTIVITY_IMAGE[$a->id] = $url;
+        if (preg_match('#^https?://#', $p)) {
+            $url = $p; // full URL
+        } elseif (str_starts_with($p, 'storage/')) {
+            $url = asset($p); // already a web path
+        } elseif (str_starts_with($p, 'public/')) {
+            $url = asset('storage/' . substr($p, 7));
+        } else {
+            // "images/..." or "activities/..." etc saved on public disk
+            $url = asset('storage/' . $p);
         }
 
-        $hasDestroyRoute = RouteFacade::has('admin.activities.image.destroy');
-        $destroyUrl = $hasDestroyRoute ? route('admin.activities.image.destroy', ':act') : null;
-    @endphp
+        $ACTIVITY_IMAGE[$a->id] = $url;
+    }
+
+    $hasDestroyRoute = \Illuminate\Support\Facades\Route::has('admin.activities.image.destroy');
+    $destroyUrl = $hasDestroyRoute ? route('admin.activities.image.destroy', ':act') : null;
+@endphp
+
 
     <script>
         // Map: activity_id -> image URL or null

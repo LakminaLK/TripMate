@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TripMate - Your Ultimate Travel Companion</title>
+    <title>Explore | TripMate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         [x-cloak] { display: none !important; }
+        .custom-shadow { box-shadow: 0 0 50px -12px rgb(0 0 0 / 0.25); }
         
         /* Professional animations */
         .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
@@ -21,10 +22,6 @@
         .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .hover-scale:hover { transform: scale(1.02); }
-        
-        /* Professional gradients */
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .glass { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.1); }
         
         @keyframes fadeIn { to { opacity: 1; } }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
@@ -40,7 +37,7 @@
     </style>
     <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
 </head>
-<body class="bg-white text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 
 @php
     use Illuminate\Support\Facades\Auth;
@@ -48,10 +45,8 @@
 @endphp
 
 <!-- ✅ Professional Navbar -->
-<header x-data="{ isOpen: false, scrolled: false }" 
-        @scroll.window="scrolled = window.pageYOffset > 50"
-        :class="scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'"
-        class="fixed top-0 w-full z-50 transition-all duration-300">
+<header x-data="{ isOpen: false }" 
+        class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-lg transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
             <!-- Logo & Brand -->
@@ -63,44 +58,37 @@
                     </div>
                 </div>
                 <div>
-                    <h1 :class="scrolled ? 'text-gray-900' : 'text-white'" 
-                        class="text-xl font-bold transition-colors">
+                    <h1 class="text-xl font-bold text-gray-900">
                         Trip<span class="text-blue-600">Mate</span>
                     </h1>
-                    <p :class="scrolled ? 'text-gray-500' : 'text-white/70'" 
-                       class="text-xs transition-colors">Your Travel Companion</p>
+                    <p class="text-xs text-gray-500">Your Travel Companion</p>
                 </div>
             </a>
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center space-x-8">
                 <a href="{{ route('landing') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Home
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#about" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     About
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="{{ route('tourist.explore') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Explore
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#emergency" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Emergency
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#contact" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Contact us
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
@@ -112,8 +100,7 @@
                     <!-- Profile Dropdown -->
                     <div x-data="{ open: false }" class="relative" @click.away="open = false">
                         <button @click="open = !open"
-                                :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300">
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-all duration-300">
                             <i class="fas fa-user-circle text-2xl"></i>
                         </button>
 
@@ -149,7 +136,6 @@
                                     <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
                                     My Bookings
                                 </a>
-                                <hr class="my-2">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" 
@@ -163,8 +149,7 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" 
-                       :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                       class="font-medium transition-colors">
+                       class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                         Login
                     </a>
                     <a href="{{ route('register') }}" 
@@ -172,184 +157,131 @@
                         Sign Up
                     </a>
                 @endif
-
-                <!-- Mobile menu button -->
-                <button @click="isOpen = !isOpen" 
-                        :class="scrolled ? 'text-gray-700' : 'text-white'"
-                        class="md:hidden p-2 rounded-lg transition-colors">
-                    <i class="fas fa-bars text-xl" x-show="!isOpen"></i>
-                    <i class="fas fa-times text-xl" x-show="isOpen" x-cloak></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Navigation -->
-        <div x-show="isOpen" x-transition class="md:hidden bg-white rounded-b-2xl shadow-lg border-t">
-            <div class="px-4 py-6 space-y-4">
-                <a href="{{ route('landing') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                <a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium">About</a>
-                <a href="{{ route('tourist.explore') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Explore</a>
-                <a href="#emergency" class="block text-gray-700 hover:text-blue-600 font-medium">Emergency</a>
-                <a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium">Contact</a>
-                @guest
-                    <hr class="my-4">
-                    <a href="{{ route('login') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Login</a>
-                    <a href="{{ route('register') }}" class="block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-center font-medium">Sign Up</a>
-                @endguest
             </div>
         </div>
     </div>
 </header>
 
-<!-- ✅ Hero Section -->
-<section class="relative h-[70vh] bg-cover bg-center flex items-center justify-center text-white"
-         style="background-image: url('/images/2.jpeg');">
-    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-    <div class="relative z-10 text-center px-4" x-data x-init="$el.classList.add('animate-fade-in')">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-slide-up">
-            Weaving your Dreams into Unforgettable Adventure
-        </h1>
-        <p class="max-w-2xl mx-auto mb-6 animate-fade-in">
-            From beachside resorts to the most unique stays. See the top 1% of hotels from Traveler’s Choice.
-        </p>
-        <a href="{{ route('tourist.explore') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition animate-pop">
-            See more...
-        </a>
-    </div>
+<!-- Hero + filters -->
+<section class="bg-gradient-to-br from-blue-600 to-indigo-600 text-white relative overflow-hidden mt-[72px]">
+    <div class="absolute inset-0 bg-black/10"></div>
+    <div class="max-w-7xl mx-auto px-6 py-16 relative z-10">
+        <div class="animate-fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Explore Activities</h1>
+            <p class="text-white/90 text-lg max-w-2xl">Discover amazing experiences and activities across beautiful destinations. Search, filter by location, and find the perfect adventure for you.</p>
+        </div>
+
+        <form method="GET" x-data="{ location: '{{ $location ?? '' }}' }" 
+              class="mt-8 grid grid-cols-1 md:grid-cols-12 gap-4 animate-slide-up" 
+              x-init="setTimeout(() => $el.classList.add('opacity-100'), 100)">
+      <div class="md:col-span-5 relative">
+        <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Search activities…"
+               class="w-full rounded-xl border-0 px-4 py-3 focus:ring-2 focus:ring-white/60 text-gray-800" />
+        <svg class="w-5 h-5 absolute right-3 top-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"/>
+        </svg>
+      </div>
+
+      <div class="md:col-span-4">
+        <select name="location" class="w-full rounded-xl border-0 px-4 py-3 text-gray-800 focus:ring-2 focus:ring-white/60">
+          <option value="">All locations</option>
+          @foreach($locations as $loc)
+            <option value="{{ $loc->id }}" @selected(($location ?? null) == $loc->id)>{{ $loc->name }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <select name="sort" class="w-full rounded-xl border-0 px-4 py-3 text-gray-800 focus:ring-2 focus:ring-white/60">
+          <option value="">Sort: Latest</option>
+          <option value="price_asc"  @selected(($priceSort ?? '')==='price_asc')>Price: Low → High</option>
+          <option value="price_desc" @selected(($priceSort ?? '')==='price_desc')>Price: High → Low</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-1">
+        <button class="w-full rounded-xl bg-white text-blue-700 font-semibold px-4 py-3 hover:bg-blue-50">
+          Go
+        </button>
+      </div>
+    </form>
+  </div>
 </section>
 
-<!-- ✅ Welcome Section -->
-<section class="py-12 px-6 max-w-7xl mx-auto text-center">
-    <h2 class="text-3xl font-bold mb-4">Welcome to Trip Mate</h2>
-    <p class="text-gray-600 max-w-3xl mx-auto mb-8">
-        Like you, we are travelers. Exploration runs in our blood. It’s who we are, and why we do what we do. We are passionate, curious and deeply committed to sustainably exploring our incredible world. Like you, we are part of a global community, excited to embrace and discover our planet, our home and uncover the rich cultures, histories, wildlife and natural beauty that make our travels so special. At Trip Mate, we create transformative travel experiences that fulfill that deep-seated urge for connecting and learning. So, ask yourself this – where will your passion for travel take you?
-    </p>
-    <!-- <a href="{{ route('tourist.explore') }}" class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Explore Now</a> -->
-</section>
+<!-- Grid -->
+<main class="max-w-7xl mx-auto px-6 -mt-8 pb-16">
+    @if($activities->count())
+        <div x-data="{ 
+            init() {
+                let observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('opacity-100', 'translate-y-0');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
 
-<!-- ✅ Popular Activities with Animation -->
-<section class="max-w-7xl mx-auto px-6 pb-16" x-data="{ 
-    shownActivities: [],
-    init() {
-        this.observeActivities();
-    },
-    observeActivities() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    this.shownActivities.push(entry.target.dataset.id);
-                }
-            });
-        }, { threshold: 0.2 });
-
-        document.querySelectorAll('.activity-card').forEach(card => {
-            observer.observe(card);
-        });
-    }
-}">
-    <!-- <div class="flex flex-col items-center text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Discover Amazing Experiences
-        </h2>
-        <p class="text-gray-600 max-w-2xl mb-8">
-            Explore our handpicked selection of unforgettable activities and create memories that last a lifetime.
-        </p>
-    </div> -->
-
-    @php $list = ($homeActivities ?? collect())->take(6); @endphp
-    @if($list->count())
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            @foreach($list as $index => $a)
+                document.querySelectorAll('.activity-card').forEach(card => {
+                    observer.observe(card);
+                    card.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700');
+                });
+            }
+        }" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($activities as $a)
                 @php
-                    $raw = $a->image;
+                    $raw  = $a->image;
                     $path = $raw ? (strpos($raw, 'public/') === 0 ? substr($raw, 7) : $raw) : null;
-                    $img = $path
+                    $img  = $path
                         ? (preg_match('#^https?://#', $path) || strpos($path, '/') === 0
                             ? $path
                             : asset('storage/'.ltrim($path, '/')))
                         : asset('images/placeholder.jpg');
                 @endphp
-                
-                <a href="{{ route('tourist.explore', ['activity' => $a->id]) }}" 
-                   class="activity-card group relative block rounded-2xl overflow-hidden shadow-lg transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
-                   data-id="{{ $a->id }}"
-                   :class="{ 'opacity-0 translate-y-8': !shownActivities.includes('{{ $a->id }}'), 'opacity-100 translate-y-0': shownActivities.includes('{{ $a->id }}') }"
-                   style="transition-delay: {{ $index * 100 }}ms">
-                    <!-- Image Container -->
-                    <div class="relative h-64 overflow-hidden">
-                        <img src="{{ $img }}" 
-                             alt="{{ $a->name }}"
-                             class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110">
-                        
-                        <!-- Overlay with gradient -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-70 transition-opacity group-hover:opacity-90"></div>
 
-                        <!-- Price Badge -->
-                        @if(!is_null($a->price))
-                            <div class="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full shadow-lg">
-                                <span class="text-blue-600 font-semibold">${{ number_format($a->price, 2) }}</span>
-                            </div>
-                        @endif
-
-                        <!-- Content overlay -->
-                        <div class="absolute inset-0 p-6 flex flex-col justify-end text-white">
-                            <h3 class="text-xl font-bold mb-2 transform transition-transform group-hover:-translate-y-2">
-                                {{ $a->name }}
-                            </h3>
-                            <p class="text-white/90 text-sm line-clamp-2 transform transition-transform group-hover:-translate-y-2 transition-delay-75">
-                                {{ $a->description }}
-                            </p>
-
-                            <!-- Animated arrow -->
-                            <div class="mt-4 inline-flex items-center text-blue-400 transform translate-y-8 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-                                <span class="font-medium mr-2">Explore Locations</span>
-                                <i class="fas fa-arrow-right transform transition-transform group-hover:translate-x-2"></i>
+                <article class="activity-card bg-white rounded-2xl shadow-lg hover:shadow-xl ring-1 ring-black/5 overflow-hidden group animate-scale">
+                    <a href="{{ route('tourist.activity.show', $a->id) }}" class="block">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="{{ $img }}" 
+                                class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" 
+                                alt="{{ $a->name }}">
+                            @if(!is_null($a->price))
+                                <div class="absolute bottom-3 right-3 bg-white/90 backdrop-blur rounded-full px-3 py-1 text-sm font-semibold transform group-hover:scale-105 transition-transform">
+                                    ${{ number_format($a->price, 2) }}
+                                </div>
+                            @endif
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-lg line-clamp-1 group-hover:text-blue-600 transition-colors">{{ $a->name }}</h3>
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ $a->description }}</p>
+                            <div class="mt-3 flex items-center justify-between">
+                                <div class="text-xs text-gray-500">
+                                    {{ $a->locations->pluck('name')->take(2)->join(', ') }}
+                                    @if($a->locations->count() > 2) +{{ $a->locations->count() - 2 }} @endif
+                                </div>
+                                <span class="text-blue-600 text-sm font-medium">View Details →</span>
                             </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </article>
             @endforeach
         </div>
 
-        <!-- View All Button -->
-        <div class="text-center mt-12">
-            <a href="{{ route('tourist.explore') }}" 
-               class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full 
-                      font-medium hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                <span>Explore All Activities</span>
-                <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
-            </a>
+        <div class="mt-8">
+            {{ $activities->links() }}
         </div>
     @else
-        <div class="bg-white rounded-2xl p-12 text-center shadow-lg">
-            <i class="fas fa-hiking text-6xl text-blue-200 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">No Activities Available</h3>
-            <p class="text-gray-600">We're working on adding exciting new activities. Check back soon!</p>
+        <div class="bg-white rounded-xl p-8 text-center shadow ring-1 ring-black/5 animate-fade-in">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <p class="text-gray-600">No activities found. Try adjusting your filters.</p>
+            <a href="{{ route('tourist.explore') }}" class="mt-4 inline-block text-blue-600 hover:underline">Clear all filters</a>
         </div>
     @endif
-</section>
-
-<!-- ✅ FAQs -->
-<section class="bg-gray-50 py-12 px-6">
-    <h3 class="text-2xl font-bold text-center mb-8">Frequently Asked Questions [FAQs]</h3>
-    <div class="max-w-3xl mx-auto space-y-4">
-        @foreach ([
-            'How do I create a booking?',
-            'What is the cancellation Policy?',
-            'How can I find out more about Sri Lankan destinations?',
-            'How do I contact you for support?'
-        ] as $faq)
-            <div x-data="{ open: false }" class="bg-white shadow rounded-md p-4">
-                <button @click="open = !open" class="w-full text-left font-semibold">
-                    {{ $faq }}
-                </button>
-                <p x-show="open" x-transition class="mt-2 text-sm text-gray-600">
-                    Answer coming soon. You can update this later!
-                </p>
-            </div>
-        @endforeach
-    </div>
-</section>
+</main>
 
 <!-- ✅ Professional Footer -->
 <footer class="bg-gradient-to-b from-gray-900 to-gray-950 text-white pt-16 pb-8 mt-auto relative overflow-hidden">
@@ -492,16 +424,35 @@
     </div>
 </footer>
 
-<!-- ✅ Custom Tailwind Animations -->
-<style>
-    .animate-fade-in { animation: fadeIn 1s ease-out forwards; opacity: 0; }
-    .animate-slide-up { animation: slideUp 1s ease-out forwards; opacity: 0; }
-    .animate-pop { animation: pop 0.3s ease-out forwards; }
+<script>
+    // Smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
 
-    @keyframes fadeIn { to { opacity: 1; } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-</style>
+    // Add scroll-triggered animations
+    const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.animate-on-scroll');
+        elements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const isVisible = rect.top <= window.innerHeight * 0.8;
+            if (isVisible) {
+                el.classList.add('animate-fade-in');
+            }
+        });
+    };
+
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll(); // Initial check
+</script>
 
 </body>
 </html>
