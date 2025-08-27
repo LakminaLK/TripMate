@@ -29,4 +29,14 @@ class CustomAuthenticate extends Middleware
 
         return null;
     }
+
+    public function handle($request, \Closure $next, ...$guards)
+    {
+        // Check if the user is already authenticated as an admin
+        if ($request->is('admin/login') && auth('admin')->check()) {
+            return redirect()->route('admin.dashboard'); // Redirect to admin dashboard
+        }
+
+        return parent::handle($request, $next, ...$guards);
+    }
 }

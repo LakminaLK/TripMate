@@ -57,44 +57,37 @@
                     </div>
                 </div>
                 <div>
-                    <h1 :class="scrolled ? 'text-gray-900' : 'text-white'" 
-                        class="text-xl font-bold transition-colors">
+                    <h1 class="text-xl font-bold text-gray-900">
                         Trip<span class="text-blue-600">Mate</span>
                     </h1>
-                    <p :class="scrolled ? 'text-gray-500' : 'text-white/70'" 
-                       class="text-xs transition-colors">Your Travel Companion</p>
+                    <p class="text-xs text-gray-500">Your Travel Companion</p>
                 </div>
             </a>
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center space-x-8">
                 <a href="{{ route('landing') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Home
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#about" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     About
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="{{ route('tourist.explore') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Explore
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
-                <a href="#emergency" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                <a href="{{ route('emergency-services.index') }}" 
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Emergency
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#contact" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Contact us
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
@@ -106,8 +99,7 @@
                     <!-- Profile Dropdown -->
                     <div x-data="{ open: false }" class="relative" @click.away="open = false">
                         <button @click="open = !open"
-                                :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300">
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-all duration-300">
                             <i class="fas fa-user-circle text-2xl"></i>
                         </button>
 
@@ -156,12 +148,11 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" 
-                       :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                       class="font-medium transition-colors">
+                       class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                         Login
                     </a>
                     <a href="{{ route('register') }}" 
-                       class="bg-white/10 backdrop-blur text-white px-6 py-2 rounded-full font-medium hover:bg-white/20 transition-all duration-300">
+                       class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                         Sign Up
                     </a>
                 @endif

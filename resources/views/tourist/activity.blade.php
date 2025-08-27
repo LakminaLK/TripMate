@@ -10,14 +10,52 @@
     <style>
         [x-cloak] { display: none !important; }
         
-        /* Professional animations */
+         /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
+
+        /* Animations */
         .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
         .slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
         .slide-in-left { animation: slideInLeft 0.8s ease-out forwards; opacity: 0; transform: translateX(-50px); }
         .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
         .float { animation: float 3s ease-in-out infinite; }
         
-        /* Smooth transitions */
+        /* Image Hover Effects */
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        
+        .image-container img {
+            transform: scale(1.01);
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .image-container:hover img {
+            transform: scale(1.1);
+        }
+        
+        .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, 
+                rgba(0, 0, 0, 0.8) 0%,
+                rgba(0, 0, 0, 0.6) 30%,
+                rgba(0, 0, 0, 0.2) 60%,
+                rgba(0, 0, 0, 0) 100%);
+            opacity: 0.7;
+            transition: opacity 0.5s ease;
+        }
+        
+        .image-container:hover .image-overlay {
+            opacity: 0.9;
+        }
+
+        /* Other Transitions */
         .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .hover-scale:hover { transform: scale(1.02); }
@@ -42,7 +80,7 @@
         class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-lg transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
-                        <!-- Logo & Brand -->
+            <!-- Logo & Brand -->
             <a href="{{ route('landing') }}" class="flex items-center space-x-3 group">
                 <div class="relative">
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
@@ -51,46 +89,37 @@
                     </div>
                 </div>
                 <div>
-                    <h1 :class="scrolled ? 'text-gray-900' : 'text-white'" 
-                        class="text-xl font-bold transition-colors">
+                    <h1 class="text-xl font-bold text-gray-900">
                         Trip<span class="text-blue-600">Mate</span>
                     </h1>
-                    <p :class="scrolled ? 'text-gray-500' : 'text-white/70'" 
-                       class="text-xs transition-colors">Your Travel Companion</p>
+                    <p class="text-xs text-gray-500">Your Travel Companion</p>
                 </div>
             </a>
-
-                                    </a>
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center space-x-8">
                 <a href="{{ route('landing') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Home
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#about" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     About
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="{{ route('tourist.explore') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Explore
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
-                <a href="#emergency" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                <a href="{{ route('emergency-services.index') }}"
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Emergency
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#contact" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
                     Contact us
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
@@ -102,8 +131,7 @@
                     <!-- Profile Dropdown -->
                     <div x-data="{ open: false }" class="relative" @click.away="open = false">
                         <button @click="open = !open"
-                                :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300">
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-all duration-300">
                             <i class="fas fa-user-circle text-2xl"></i>
                         </button>
 
@@ -152,12 +180,11 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" 
-                       :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                       class="font-medium transition-colors">
+                       class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                         Login
                     </a>
                     <a href="{{ route('register') }}" 
-                       class="bg-white/10 backdrop-blur text-white px-6 py-2 rounded-full font-medium hover:bg-white/20 transition-all duration-300">
+                       class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                         Sign Up
                     </a>
                 @endif
@@ -169,21 +196,17 @@
 <!-- Activity Details Section -->
 <div class="max-w-7xl mx-auto px-6 py-12 mt-[72px]">
     <div class="bg-white rounded-3xl shadow-lg ring-1 ring-black/5 overflow-hidden">
-        <!-- Image Gallery Section -->
         <div class="grid lg:grid-cols-2 gap-0">
-            <div class="relative h-[500px] group">
-                @php
-                    $img = $activity->main_image ? asset('storage/'.$activity->main_image) : asset('images/placeholder.jpg');
-                @endphp
-                <img src="{{ $img }}" 
-                     alt="{{ $activity->name }}" 
-                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                
-                <!-- Price Badge -->
+            <!-- Activity Image with Enhanced Hover Effect -->
+            <div class="image-container h-[500px]">
+                <img src="{{ $activity->image_url }}"
+                     alt="{{ $activity->name }}"
+                     class="w-full h-full object-cover">
+                <div class="image-overlay"></div>
+
                 @if(!is_null($activity->price))
-                    <div class="absolute top-6 right-6">
-                        <div class="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                    <div class="absolute top-6 right-6 z-10">
+                        <div class="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg transform transition-transform duration-300 hover:scale-105">
                             <span class="text-blue-600 font-bold text-lg">
                                 ${{ number_format($activity->price, 2) }}
                             </span>
@@ -191,40 +214,40 @@
                         </div>
                     </div>
                 @endif
-            </div>
 
-            <!-- Details Section -->
-            <div class="p-10 flex flex-col h-full">
-                <h1 class="text-3xl font-bold mb-2">{{ $activity->name }}</h1>
-                
-                <!-- Activity Stats -->
-                <div class="flex items-center space-x-6 mb-6 text-sm text-gray-600">
-                    <div class="flex items-center">
-                        <i class="fas fa-clock text-blue-600 mr-2"></i>
-                        <span>4 hours</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fas fa-users text-blue-600 mr-2"></i>
-                        <span>Small group</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fas fa-star text-yellow-400 mr-2"></i>
-                        <span>4.8 (120 reviews)</span>
+                <!-- Activity Quick Info -->
+                <div class="absolute bottom-6 left-6 right-6 z-10 text-white space-y-4">
+                    <div class="flex items-center space-x-4 text-sm">
+                        <div class="flex items-center bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
+                            <i class="fas fa-clock text-blue-400 mr-2"></i>
+                            <span>4 hours</span>
+                        </div>
+                        <div class="flex items-center bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
+                            <i class="fas fa-users text-blue-400 mr-2"></i>
+                            <span>Small group</span>
+                        </div>
+                        <div class="flex items-center bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
+                            <i class="fas fa-star text-yellow-400 mr-2"></i>
+                            <span>4.8 (120)</span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Description -->
+            <!-- Details -->
+            <div class="p-10 flex flex-col h-full">
+                <h1 class="text-3xl font-bold mb-2">{{ $activity->name }}</h1>
+
                 <div class="prose max-w-none mb-8">
                     <p class="text-gray-600 leading-relaxed">{{ $activity->description }}</p>
                 </div>
 
-                <!-- Locations Section -->
                 <div class="mt-auto">
                     <h2 class="text-xl font-semibold mb-4">Available Locations</h2>
                     @if($locations->count())
                         <div class="grid sm:grid-cols-2 gap-4">
                             @foreach($locations as $loc)
-                                <a href="{{ route('tourist.location.hotels', $loc->id) }}"
+                                <a href="{{ route('tourist.location.show', $loc->id) }}"
                                    class="group block rounded-xl border border-gray-200 hover:border-blue-500 bg-white hover:bg-blue-50/50 transition-all duration-300 p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
@@ -241,9 +264,7 @@
                     @else
                         <div class="text-center py-8 px-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                             <div class="text-gray-500">No locations are currently available for this activity.</div>
-                            <button class="mt-3 text-blue-600 hover:text-blue-700 font-medium">
-                                Notify me when available
-                            </button>
+                            <button class="mt-3 text-blue-600 hover:text-blue-700 font-medium">Notify me when available</button>
                         </div>
                     @endif
                 </div>
@@ -266,7 +287,12 @@
             <!-- Brand Section -->
             <div class="space-y-8">
                 <div class="flex items-center space-x-4">
-                    
+                    <!-- <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-75"></div>
+                        <div class="relative bg-gray-900 p-2 rounded-xl">
+                            <img src="{{ asset('images/logoo.png') }}" alt="TripMate" class="h-10 w-10">
+                        </div>
+                    </div> -->
                     <div>
                         <h3 class="text-2xl font-bold">Trip<span class="text-blue-500">Mate</span></h3>
                         <p class="text-gray-400 text-sm">Your Ultimate Travel Companion</p>
@@ -387,9 +413,6 @@
         </div>
     </div>
 </footer>
-
-</body>
-</html>
 
 </body>
 </html>

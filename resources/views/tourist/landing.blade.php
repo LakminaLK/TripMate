@@ -92,7 +92,7 @@
                     Explore
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
-                <a href="#emergency" 
+                <a href="{{ route('emergency-services.index') }}" 
                    :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
                    class="font-medium transition-colors relative group">
                     Emergency
@@ -189,7 +189,7 @@
                 <a href="{{ route('landing') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Home</a>
                 <a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium">About</a>
                 <a href="{{ route('tourist.explore') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Explore</a>
-                <a href="#emergency" class="block text-gray-700 hover:text-blue-600 font-medium">Emergency</a>
+                <a href="{{ route('emergency-services.index') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Emergency</a>
                 <a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium">Contact</a>
                 @guest
                     <hr class="my-4">
@@ -270,7 +270,7 @@
                         : asset('images/placeholder.jpg');
                 @endphp
                 
-                <a href="{{ route('tourist.explore', ['activity' => $a->id]) }}" 
+                <a href="{{ route('tourist.activity.show', ['activity' => $a->id]) }}" 
                    class="activity-card group relative block rounded-2xl overflow-hidden shadow-lg transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
                    data-id="{{ $a->id }}"
                    :class="{ 'opacity-0 translate-y-8': !shownActivities.includes('{{ $a->id }}'), 'opacity-100 translate-y-0': shownActivities.includes('{{ $a->id }}') }"
