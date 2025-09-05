@@ -38,9 +38,26 @@ class ActivityController extends Controller
     }
 
     // Show all activities
-    public function index()
+    public function index(Request $request)
     {
-        $activities = Activity::all();
+        $status = $request->get('status'); // 'all'|'active'|'inactive'
+        $search = $request->get('q');
+
+        $query = Activity::query();
+
+        if ($status && in_array(strtolower($status), ['active', 'inactive'])) {
+            $query->where('status', ucfirst($status));
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('description', 'like', "%$search%");
+            });
+        }
+
+        $activities = $query->orderBy('id')->paginate(10)->withQueryString();
+        
         return view('admin.activities', compact('activities'));
     }
 

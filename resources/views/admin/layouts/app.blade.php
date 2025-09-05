@@ -1,21 +1,34 @@
-<!-- resources/views/admin/layout/app.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - TripMate</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>@yield('title', 'Admin Dashboard') | TripMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
+    @stack('head-scripts')
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans">
-
-    {{-- Optional Admin Navbar --}}
-    @includeIf('admin.layout.navbar')
-
-    <div class="min-h-screen p-6">
-        @yield('content')
+<body class="bg-gradient-to-br from-amber-50 to-yellow-100 min-h-screen font-sans">
+    <div class="mt-20">
+        
+        @stack('flash-scripts')
+        
+        @include('admin.components.navbar')
+        
+        @include('admin.components.toast')
+        
+        <div class="flex min-h-screen">
+            @include('admin.components.sidebar')
+            @include('admin.components.mobile-sidebar')
+            
+            <!-- Main Content -->
+            <div class="flex-1 md:ml-64 p-4 md:p-10 pt-20">
+                @yield('content')
+            </div>
+        </div>
     </div>
-
+    
+    @include('admin.components.scripts')
+    @stack('scripts')
 </body>
 </html>

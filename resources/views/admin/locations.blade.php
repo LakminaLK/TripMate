@@ -1,169 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Locations | TripMate</title>
+@extends('admin.layouts.app')
 
-    {{-- Tailwind --}}
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+@section('title', 'Locations')
 
-    {{-- Favicon --}}
-    <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
-</head>
-<body class="bg-gray-300 min-h-screen">
-    <div class="mt-16"> <!-- Added wrapper with top margin -->
+@push('flash-scripts')
+<!-- Expose flash for toasts -->
+<script>
+  window.FLASH = {
+    success: @json(session('success')),
+    errors:  @json($errors->all()),
+  };
+</script>
+@endpush
 
-    <!-- Expose flash for toasts -->
-    <script>
-      window.FLASH = {
-        success: @json(session('success')),
-        errors:  @json($errors->all()),
-      };
-    </script>
-
-    <!-- Top Navbar -->
-    <div class="bg-white h-16 px-6 flex justify-between items-center shadow fixed top-0 w-full z-30">
-        <!-- Logo + Menu Area -->
-        <div class="flex items-center gap-4">
-            <!-- Mobile Menu Button -->
-            <button class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleSidebar()">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-            
+@section('content')
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center gap-4">
+            <h1 class="text-2xl font-semibold text-gray-900">Locations Management</h1>
+            <!-- Filter pills -->
             <div class="flex items-center gap-2">
-                <img src="{{ asset('images/tm1.png') }}" alt="TripMate Logo" class="h-8 w-8">
-                <h1 class="text-2xl font-bold">TripMate</h1>
+                @php $status = strtolower(request('status','all')); @endphp
+                <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'all'])) }}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ $status==='all'?'bg-gray-900 text-white':'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">All</a>
+                <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'active'])) }}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ $status==='active'?'bg-gray-900 text-white':'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">Active</a>
+                <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'inactive'])) }}"
+                   class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ $status==='inactive'?'bg-gray-900 text-white':'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">Inactive</a>
             </div>
         </div>
-
-        <!-- Profile Dropdown -->
-        <div x-data="{ open: false }" class="relative">
-            <button @click="open = !open"
-                    class="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 focus:outline-none">
-                <img src="{{ asset('images/Profile.png') }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+        
+        <!-- Search + Add button -->
+        <div class="flex items-center gap-3">
+            <form method="GET" class="relative">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Search Location..."
+                       class="pl-9 pr-3 py-2 w-full sm:w-64 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                />
+                <svg class="w-5 h-5 text-gray-400 absolute left-2.5 top-2.5" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </form>
+            
+            <button id="add-location-btn" class="px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add New Location
             </button>
-
-            <div x-show="open" x-transition @click.away="open = false"
-                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-                <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                <form method="POST" action="{{ route('admin.logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full text-left px-4 py-2 text-red-700 hover:bg-gray-100">Logout</button>
-                </form>
-            </div>
         </div>
     </div>
 
-    <!-- Toast stack (below navbar, right) -->
-    <div x-data="toast()" x-init="boot()"
-         class="fixed right-6 space-y-3" style="top: 82px; z-index: 9999;"></div>
-
-    <!-- Main Layout -->
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <div class="w-64 bg-gray-200 fixed top-0 left-0 h-full p-4 space-y-4 text-sm font-medium pt-20 overflow-y-auto hidden md:block">
-      <a href="{{ route('admin.dashboard') }}"
-         class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-        Dashboard
-      </a>            <a href="{{ route('admin.customers') }}"
-               class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Customers
-            </a>
-
-            <a href="{{ route('admin.activities.index') }}"
-               class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Activities
-            </a>
-
-            <a href="{{ route('admin.locations.index') }}"
-               class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Locations
-            </a>
-
-            <a href="{{ route('admin.hotels.index') }}"
-                class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                Hotels
-            </a>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
-            <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
-        </div>
-
-        <!-- Mobile Sidebar Toggle -->
-        <button class="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-lg" onclick="toggleSidebar()">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-
-        <!-- Mobile Sidebar -->
-        <div id="mobileSidebar" class="fixed inset-0 bg-gray-800 bg-opacity-50 z-40 hidden md:hidden" onclick="toggleSidebar()">
-            <div class="w-64 bg-gray-200 h-full p-4 space-y-4 text-sm font-medium pt-20" onclick="event.stopPropagation()">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.customers') }}"
-                   class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                    Customers
-                </a>
-                <a href="{{ route('admin.activities.index') }}"
-                   class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                    Activities
-                </a>
-                <a href="{{ route('admin.locations.index') }}"
-                   class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                    Locations
-                </a>
-                <a href="{{ route('admin.hotels.index') }}"
-                   class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-                    Hotels
-                </a>
-                <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
-                <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
-            </div>
-        </div>
-
-        <!-- Locations Content -->
-        <div class="flex-1 md:ml-64 p-4 md:p-10 pt-32">
-            <div class="mb-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm mb-6">
-                    <h2 class="text-xl md:text-2xl font-bold">Locations Management</h2>
-                    <div class="flex flex-wrap items-center gap-2 md:gap-3">
-                    <!-- Filter pills -->
-                    <div class="flex items-center gap-3">
-                        @php $status = strtolower(request('status','all')); @endphp
-                        <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'all'])) }}"
-                           class="px-5 py-2 rounded-full {{ $status==='all'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">All</a>
-                        <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'active'])) }}"
-                           class="px-5 py-2 rounded-full {{ $status==='active'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Active</a>
-                        <a href="{{ route('admin.locations.index', array_merge(request()->except('page'), ['status'=>'inactive'])) }}"
-                           class="px-5 py-2 rounded-full {{ $status==='inactive'?'bg-gray-400 text-white':'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Inactive</a>
-                    </div>
-
-                    <!-- Search + Add button -->
-                    <div class="flex items-center gap-3">
-                        <form method="GET" class="relative">
-                            <input type="text" name="q" value="{{ request('q') }}" placeholder="Search Location..."
-                                   class="pl-9 pr-3 py-2 w-64 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400"
-                            />
-                            <svg class="w-5 h-5 text-gray-400 absolute left-2.5 top-2.5" viewBox="0 0 24 24" fill="none">
-                                <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </form>
-
-                        <button id="add-location-btn" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            Add New Location
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <table class="min-w-full bg-white border border-gray-300 rounded-xl overflow-hidden shadow">
+    <!-- Main Content Table -->
+    <table class="min-w-full bg-white border border-gray-300 rounded-xl overflow-hidden shadow">
                 <thead class="bg-gray-100 text-gray-700 text-sm uppercase tracking-wider">
                     <tr>
                         <th class="px-6 py-4 text-left">Location ID</th>
@@ -232,8 +119,6 @@
             <div class="mt-4">
                 {{ $locations->links() }}
             </div>
-        </div>
-    </div>
 
     <!-- Add/Edit Modal (scrollable) -->
     <div id="location-modal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden">
@@ -344,7 +229,9 @@
         </div>
       </div>
     </div>
+@endsection
 
+@push('scripts')
     {{-- Data maps for images --}}
     <script>
         const LOCATION_MAIN = @json(
@@ -365,9 +252,7 @@
         const GALLERY_DELETE_URL = "{{ route('admin.locations.images.destroy', ':id') }}";
         const MAIN_DELETE_URL    = "{{ route('admin.locations.main.destroy', ':loc') }}";
         const CSRF_TOKEN         = "{{ csrf_token() }}";
-    </script>
 
-    <script>
         // Lock/unlock page scroll WITHOUT layout jump (compensate scrollbar width)
         function lockScroll(lock) {
             const body = document.body;
@@ -418,7 +303,7 @@
             });
         }
 
-        mainInput.addEventListener('change', function () {
+        mainInput?.addEventListener('change', function () {
             if (this.files && this.files[0]) {
                 const url = URL.createObjectURL(this.files[0]);
                 selectedMainImg.src = url;
@@ -429,12 +314,12 @@
             }
         });
 
-        galleryInput.addEventListener('change', function () {
+        galleryInput?.addEventListener('change', function () {
             renderGallerySelection(this.files);
         });
 
         // Create
-        document.getElementById('add-location-btn').addEventListener('click', function () {
+        document.getElementById('add-location-btn')?.addEventListener('click', function () {
             document.getElementById('modal-title').textContent = "Add New Location";
             document.getElementById('location-form').action = "{{ route('admin.locations.store') }}";
             document.getElementById('location-form').reset();
@@ -551,7 +436,7 @@
         });
 
         // Close Add/Edit modal
-        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+        document.getElementById('close-modal-btn')?.addEventListener('click', closeModal);
 
         // ===== Custom Confirm (Delete) =====
         (function () {
@@ -588,83 +473,11 @@
             });
           });
 
-          btnCancel.addEventListener('click', closeConfirm);
-          btnYes.addEventListener('click', () => {
+          btnCancel?.addEventListener('click', closeConfirm);
+          btnYes?.addEventListener('click', () => {
             if (pendingForm) pendingForm.submit();
             // let navigation happen; no need to close explicitly
           });
         })();
     </script>
-
-    <!-- Alpine.js -->
-        <script src="//unpkg.com/alpinejs" defer></script>
-
-    <!-- Mobile Sidebar Script -->
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('mobileSidebar');
-            sidebar.classList.toggle('hidden');
-        }
-    </script>
-</body>
-</html>
-
-    <!-- Toast component -->
-    <script>
-      function toast() {
-        return {
-          boot() {
-            if (window.FLASH?.success) this.push(window.FLASH.success, 'success');
-            if (Array.isArray(window.FLASH?.errors) && window.FLASH.errors.length) {
-              window.FLASH.errors.forEach(e => this.push(e, 'error'));
-            }
-            window.pushToast = (msg, type='success') => this.push(msg, type);
-          },
-          push(message, type='success') {
-            const id = 't' + Math.random().toString(36).slice(2);
-            const colors = type === 'error'
-              ? {bar:'bg-red-500', icon:'#ef4444'}
-              : {bar:'bg-emerald-500', icon:'#10b981'};
-
-            const el = document.createElement('div');
-            el.id = id;
-            el.className =
-              'group relative w-[360px] max-w-[90vw] bg-white rounded-xl shadow-lg ring-1 ring-black/5 overflow-hidden ' +
-              'transition transform duration-200';
-            el.innerHTML = `
-              <div class="absolute left-0 top-0 h-full w-1 ${colors.bar}"></div>
-              <div class="p-3 pl-4 pr-10 flex items-start gap-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z" fill="${colors.icon}" opacity=".12"/>
-                  <path d="M12 8v5M12 16h.01" stroke="${colors.icon}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="text-sm text-gray-800 leading-snug">${message}</div>
-                <button onclick="document.getElementById('${id}')?.remove()"
-                        class="absolute right-2 top-2 text-gray-400 hover:text-gray-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-            `;
-
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(-6px)';
-            this.$root.appendChild(el);
-            requestAnimationFrame(() => {
-              el.style.opacity = '1';
-              el.style.transform = 'translateY(0)';
-            });
-
-            setTimeout(() => {
-              el.style.opacity = '0';
-              el.style.transform = 'translateY(-6px)';
-              setTimeout(() => el.remove(), 180);
-            }, 3000);
-          }
-        }
-      }
-    </script>
-    </div> <!-- Close wrapper -->
-</body>
-</html>
+@endpush

@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Profile | TripMate</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
-</head>
+@extends('admin.layouts.app')
 
-{{-- Make body focusable so we can steal focus on Chrome --}}
-<body class="bg-gray-300 min-h-screen antialiased" tabindex="-1">
-    <div class="mt-16"> <!-- Added wrapper with top margin -->
+@section('title', 'Admin Profile')
 
+@push('flash-scripts')
 <!-- Expose flash for toasts -->
 <script>
   window.FLASH = {
@@ -18,77 +10,15 @@
     errors:  @json($errors->all()),
   };
 </script>
+@endpush
 
-<!-- Top Navbar (same style as dashboard) -->
-<div class="bg-white h-16 px-6 flex justify-between items-center shadow fixed top-0 w-full z-30">
-    <!-- Logo + Menu Area -->
-    <div class="flex items-center gap-4">
-        <!-- Mobile Menu Button -->
-        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleSidebar()">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-        
-        <div class="flex items-center gap-2">
-            <img src="{{ asset('images/tm1.png') }}" alt="TripMate Logo" class="h-8 w-8">
-            <h1 class="text-2xl font-bold">TripMate</h1>
-        </div>
-    </div>
+@section('content')
+    @include('admin.components.page-header', [
+        'title' => 'Admin Profile'
+    ])
 
-    <!-- Profile Dropdown -->
-  <div x-data="{ open:false }" class="relative">
-    <button @click="open=!open"
-            class="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 focus:outline-none">
-      <img src="{{ asset('images/Profile.png') }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
-    </button>
-    <div x-show="open" x-transition @click.away="open=false"
-         class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-      <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-      <form method="POST" action="{{ route('admin.logout') }}">
-        @csrf
-        <button type="submit" class="w-full text-left px-4 py-2 text-red-700 hover:bg-gray-100">Logout</button>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="flex">
-  <!-- Sidebar (same style as dashboard) -->
-  <aside class="w-64 bg-gray-200 h-screen p-4 space-y-4 text-sm font-medium">
-    <a href="{{ route('admin.dashboard') }}"
-       class="{{ request()->routeIs('admin.dashboard') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-      Dashboard
-    </a>
-    <a href="{{ route('admin.customers') }}"
-       class="{{ request()->routeIs('admin.customers') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-      Customers
-    </a>
-    <a href="{{ route('admin.activities.index') }}"
-       class="{{ request()->routeIs('admin.activities.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-      Activities
-    </a>
-    <a href="{{ route('admin.locations.index') }}"
-       class="{{ request()->routeIs('admin.locations.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-      Locations
-    </a>
-    <a href="{{ route('admin.hotels.index') }}"
-        class="{{ request()->routeIs('admin.hotels.*') ? 'bg-white font-semibold' : '' }} block px-2 py-1 hover:bg-gray-100 rounded">
-        Hotels
-      </a>
-    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Bookings</span>
-    <span class="block px-2 py-1 text-gray-400 cursor-not-allowed">Reviews</span>
-  </aside>
-
-  <!-- Content -->
-  <main class="flex-1 p-10">
     <div class="max-w-7xl mx-auto">
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold tracking-tight">Admin Profile</h2>
-        <p class="text-sm text-gray-600 mt-1">Manage your account details and password.</p>
-      </div>
-
-      <!-- Two columns: left (stacked) + right -->
+        
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- LEFT: stacked cards -->
         <div class="lg:col-span-2 space-y-6">
@@ -301,7 +231,11 @@
       }
     }
   }
-</script>
-    </div> <!-- Close wrapper -->
-</body>
-</html>
+@endsection
+
+@push('scripts')
+    <!-- Custom scripts for profile page -->
+    <script>
+        // Profile page specific JavaScript functionality
+    </script>
+@endpush

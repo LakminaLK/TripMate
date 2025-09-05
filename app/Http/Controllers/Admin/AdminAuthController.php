@@ -29,8 +29,9 @@ class AdminAuthController extends Controller
 
         // ✅ Attempt login with the 'admin' guard
         $credentials = $request->only('username', 'password');
+        $remember = $request->has('remember'); // Check if remember me is checked
 
-        if (Auth::guard('admin')->attempt($credentials)) {
+        if (Auth::guard('admin')->attempt($credentials, $remember)) {
             // ✅ Login successful
             return redirect()->route('admin.dashboard');
         }
@@ -38,7 +39,7 @@ class AdminAuthController extends Controller
         // ❌ Login failed - show error
         return back()->withErrors([
             'login' => 'Invalid username or password.',
-        ])->withInput();
+        ])->withInput($request->only('username')); // Keep username but not password
     }
 
     /**
