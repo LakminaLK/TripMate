@@ -12,7 +12,7 @@
             padding: 20px;
         }
         .header {
-            background-color: #2D3748;
+            background-color: #047857;
             color: white;
             padding: 20px;
             text-align: center;
@@ -24,17 +24,10 @@
             border: 1px solid #e2e8f0;
             border-radius: 0 0 5px 5px;
         }
-        .credentials {
-            background-color: #f7fafc;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border-left: 4px solid #4299e1;
-        }
         .btn {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #4299e1;
+            padding: 12px 24px;
+            background-color: #047857;
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -46,33 +39,38 @@
             color: #718096;
             text-align: center;
         }
+        .warning {
+            background-color: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Welcome to TripMate</h1>
+        <h1>Reset Your Password</h1>
     </div>
     
     <div class="content">
         <p>Dear {{ $hotel->name }},</p>
 
-        <p>Your hotel profile has been successfully created on TripMate. Below are your login credentials:</p>
+        <p>We received a request to reset the password for your TripMate hotel account. To proceed with the password reset, click the button below:</p>
 
-        <div class="credentials">
-            <p><strong>Username:</strong> {{ $username }}</p>
-            <p><strong>Password:</strong> {{ $password }}</p>
+        <div style="text-align: center;">
+            <a href="{{ route('hotel.password.reset', ['token' => $token, 'email' => $hotel->email]) }}" class="btn">Reset Password</a>
         </div>
 
-        <p><strong>Important Security Notice:</strong></p>
-        <ul>
-            <li>Please change your password after your first login</li>
-            <li>Keep these credentials confidential</li>
-            <li>Never share your login information with others</li>
-        </ul>
+        <div class="warning">
+            <p><strong>Important:</strong></p>
+            <ul>
+                <li>This link will expire in 60 minutes</li>
+                <li>If you didn't request a password reset, please ignore this email</li>
+            </ul>
+        </div>
 
-        <a href="{{ $loginUrl }}" class="btn">Login to Your Account</a>
-
-        <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+        <p>For security reasons, this password reset link can only be used once. If you need to reset your password again, please visit our website and request another reset.</p>
 
         <div class="footer">
             <p>Best regards,<br>The TripMate Team</p>

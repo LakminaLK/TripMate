@@ -56,6 +56,7 @@
                         <th class="px-6 py-4 text-left">Location ID</th>
                         <th class="px-6 py-4 text-left">Main Image</th>
                         <th class="px-6 py-4 text-left">Location</th>
+                        <th class="px-6 py-4 text-left">Status</th>
                         <th class="px-6 py-4 text-left">Activities</th>
                         <th class="px-6 py-4 text-left">Actions</th>
                     </tr>
@@ -76,6 +77,12 @@
                             <td class="px-6 py-4 font-medium">{{ $location->name }}</td>
 
                             <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $location->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ ucfirst($location->status ?? 'active') }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-4">
                                 <div class="flex flex-wrap gap-2">
                                     @forelse($location->activities as $act)
                                         <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">{{ $act->name }}</span>
@@ -92,6 +99,7 @@
                                         data-id="{{ $location->id }}"
                                         data-name="{{ $location->name }}"
                                         data-description="{{ $location->description }}"
+                                        data-status="{{ $location->status ?? 'active' }}"
                                         data-activities='@json($location->activities->pluck("id"))'
                                         class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
                                         Edit
@@ -139,6 +147,14 @@
                     <div class="mb-4">
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                         <textarea id="description" name="description" class="mt-1 p-2 w-full border border-gray-300 rounded-md"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select id="status" name="status" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
                     </div>
 
                     <div class="mb-4">
@@ -349,9 +365,11 @@
                 const id = this.dataset.id;
                 const name = this.dataset.name || "";
                 const description = this.dataset.description || "";
+                const status = this.dataset.status || "active";
                 const activities = JSON.parse(this.dataset.activities || "[]").map(Number);
 
                 document.getElementById('modal-title').textContent = "Edit Location";
+                document.getElementById('status').value = status;
                 document.getElementById('name').value = name;
                 document.getElementById('description').value = description;
                 document.getElementById('location-form').action = `/admin/locations/${id}`;

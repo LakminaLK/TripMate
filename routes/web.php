@@ -30,6 +30,7 @@ use App\Http\Controllers\ProfileController;
 // Hotel
 use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\Hotel\HotelProfileController;
+use App\Http\Controllers\Hotel\Auth\PasswordResetController;
 
 /* =========================================================================
 |  LANDING (public)
@@ -75,6 +76,32 @@ Route::post('/verify-otp', [RegisteredUserController::class, 'verifyOtp'])->name
 |  DEFAULT AUTH ROUTES (Breeze/Jetstream/etc)
 | ========================================================================= */
 require __DIR__ . '/auth.php';
+
+/* =========================================================================
+|  HOTEL ROUTES
+| ========================================================================= */
+Route::prefix('hotel')->name('hotel.')->group(function () {
+    Route::get('/login', [HotelAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [HotelAuthController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [HotelAuthController::class, 'logout'])->name('logout');
+    
+    // Password Reset Routes
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])
+        ->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
+        ->name('password.store');
+
+    // Protected Hotel Routes
+    Route::middleware('auth:hotel')->group(function () {
+        Route::get('/dashboard', [HotelProfileController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profile', [HotelProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [HotelProfileController::class, 'update'])->name('profile.update');
+    });
+});
 
 /* =========================================================================
 |  EMERGENCY SERVICES

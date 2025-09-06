@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="flex justify-between items-center text-sm">
-                    <a href="#" class="text-green-600 hover:text-green-700 font-medium hover:underline transition-colors duration-200 flex items-center space-x-1">
+                    <a href="{{ route('hotel.password.request') }}" class="text-green-600 hover:text-green-700 font-medium hover:underline transition-colors duration-200 flex items-center space-x-1">
                         <i class="fas fa-key text-xs"></i>
                         <span>Forgot Password?</span>
                     </a>

@@ -17,8 +17,13 @@ class LocationController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('q');
+        $status = strtolower($request->get('status', 'all'));
+        
         $locations = Location::when($search, function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
+            })
+            ->when($status !== 'all', function ($q) use ($status) {
+                $q->where('status', $status);
             })
             ->with('activities:id,name')
             ->orderBy('name')
@@ -31,7 +36,7 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request)
 {
-    $location = Location::create($request->only('name','description'));
+    $location = Location::create($request->only('name', 'description', 'status'));
 
     // main image
     if ($request->hasFile('main_image')) {
@@ -52,11 +57,9 @@ class LocationController extends Controller
     return back()->with('success', 'Location created successfully.');
 }
 
-public function update(UpdateLocationRequest $request, Location $location)
-{
-    $location->update($request->only('name','description'));
-
-    // replace main image if new one uploaded
+    public function update(UpdateLocationRequest $request, Location $location)
+    {
+        $location->update($request->only('name', 'description', 'status'));    // replace main image if new one uploaded
     if ($request->hasFile('main_image')) {
         if ($location->main_image && Storage::disk('public')->exists($location->main_image)) {
             Storage::disk('public')->delete($location->main_image);

@@ -20,6 +20,7 @@ class Location extends Model
         'latitude',
         'longitude',
         'google_place_id',
+        'status',
     ];
 
     /**

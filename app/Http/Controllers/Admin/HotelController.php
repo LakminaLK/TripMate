@@ -39,14 +39,27 @@ class HotelController extends Controller
         return view('admin.hotels', compact('hotels', 'locations'));
     }
 
+    private function generateUniqueUsername() {
+        do {
+            // Generate a random username with format 'hotel_xxxxx' where x is alphanumeric
+            $username = 'hotel_' . strtolower(Str::random(5));
+        } while (Hotel::where('username', $username)->exists());
+        
+        return $username;
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
             'name'        => 'required|string|max:255',
             'email'       => 'required|email|max:255|unique:hotels,email',
             'location_id' => 'required|exists:locations,id',
-            'status'      => 'nullable|in:Active,Inactive',
+            'status'      => 'required|in:Active,Inactive',
         ]);
+
+        // Generate random username and password
+        $username = $this->generateUniqueUsername();
+        $password = Str::password(12, true, true, true, false); // 12 chars with letters, numbers, symbols
 
         $base     = Str::slug($data['name']);
         $username = $this->uniqueUsername($base);

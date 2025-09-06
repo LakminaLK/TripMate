@@ -16,6 +16,7 @@ class StoreLocationRequest extends FormRequest
     return [
         'name'         => ['required','string','max:255','unique:locations,name'],
         'description'  => ['nullable','string'],
+        'status'       => ['required','string','in:active,inactive'],
         'activities'   => ['required','array','min:1'],
         'activities.*' => ['integer','exists:activities,id'],
 
