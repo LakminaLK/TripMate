@@ -42,8 +42,8 @@ class HotelController extends Controller
     private function generateUniqueUsername() {
         do {
             // Generate a random username with format 'hotel_xxxxx' where x is alphanumeric
-            $username = 'hotel_' . strtolower(Str::random(5));
-        } while (Hotel::where('username', $username)->exists());
+            $username = 'hotel_' . Str::random(5, 'abcdefghijklmnopqrstuvwxyz');
+        } while (Hotel::whereRaw('BINARY username = ?', [$username])->exists());
         
         return $username;
     }

@@ -55,7 +55,14 @@ class PasswordResetController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email|exists:hotels,email',
-            'password' => 'required|confirmed|min:8',
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z]).+$/'
+            ],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase and one lowercase letter.'
         ]);
 
         // Verify token

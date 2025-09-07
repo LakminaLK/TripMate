@@ -10,6 +10,12 @@ use Illuminate\Validation\Rule;
 
 class HotelProfileController extends Controller
 {
+    public function dashboard()
+    {
+        $hotel = auth('hotel')->user();
+        return view('hotel.dashboard', compact('hotel'));
+    }
+
     public function edit()
     {
         $hotel = auth('hotel')->user();
@@ -22,7 +28,14 @@ class HotelProfileController extends Controller
 
         $data = $request->validate([
             'current_password' => ['required'],
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'password' => [
+                'required', 
+                'confirmed', 
+                Password::min(8),
+                'regex:/^(?=.*[a-z])(?=.*[A-Z]).+$/'
+            ],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase and one lowercase letter.'
         ]);
 
         if (! Hash::check($data['current_password'], $hotel->password)) {
@@ -39,10 +52,20 @@ class HotelProfileController extends Controller
     {
         $hotel = auth('hotel')->user();
 
+        // Custom validation for case-sensitive uniqueness
+        $existingHotel = \App\Models\Hotel::whereRaw('BINARY username = ?', [$request->username])
+            ->where('id', '!=', $hotel->id)
+            ->first();
+        
+        if ($existingHotel) {
+            return back()->withErrors(['username' => 'This username is already taken.']);
+        }
+
         $data = $request->validate([
             'username' => [
-                'required','string','max:255',
-                Rule::unique('hotels', 'username')->ignore($hotel->id),
+                'required',
+                'string',
+                'max:255',
             ],
         ]);
 

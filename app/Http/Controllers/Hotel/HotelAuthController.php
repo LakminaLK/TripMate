@@ -23,18 +23,38 @@ class HotelAuthController extends Controller
 }
 
     public function login(Request $request)
-{
-    $request->validate([
-        'username' => 'required',
-        'password' => 'required',
-    ]);
+    {
+        // Validate input fields
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'username' => 'required',
+            'password' => ['required', 'regex:/^(?=.*[a-z])(?=.*[A-Z]).+$/'],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase and one lowercase letter.',
+            'username.required' => 'Username is required.',
+            'password.required' => 'Password is required.'
+        ]);
 
-    $credentials = $request->only('username', 'password');
+        if ($validator->fails()) {
+            return back()
+                ->withInput($request->except('password'))
+                ->with('error', $validator->errors()->first());
+        }
 
-    if (Auth::guard('hotel')->attempt($credentials)) {
-        $request->session()->regenerate();
-        return redirect()->route('hotel.dashboard');  // ✅ correct redirect
-    }
+        // Find the hotel by exact username match using binary comparison
+        $hotel = \App\Models\Hotel::whereRaw('BINARY username = ?', [$request->username])->first();
+        
+        if ($hotel && Hash::check($request->password, $hotel->password)) {
+            Auth::guard('hotel')->login($hotel);
+            $request->session()->regenerate();
+            
+            return redirect()
+                ->route('hotel.dashboard')
+                ->with('success', 'Welcome back, ' . $hotel->name);
+        }
+
+        return back()
+            ->withInput($request->except('password'))
+            ->with('error', 'The provided username or password is incorrect. Please note that usernames are case-sensitive.');
 
     return back()->withErrors([
         'username' => 'Invalid credentials.',

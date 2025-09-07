@@ -30,6 +30,7 @@ use App\Http\Controllers\ProfileController;
 // Hotel
 use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\Hotel\HotelProfileController;
+use App\Http\Controllers\Hotel\HotelManagementController;
 use App\Http\Controllers\Hotel\Auth\PasswordResetController;
 
 /* =========================================================================
@@ -99,7 +100,16 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
     Route::middleware('auth:hotel')->group(function () {
         Route::get('/dashboard', [HotelProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [HotelProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [HotelProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/username', [HotelProfileController::class, 'updateUsername'])->name('profile.username.update');
+        Route::put('/profile/password', [HotelProfileController::class, 'updatePassword'])->name('profile.password.update');
+        
+        // Hotel Management Routes
+        Route::get('/management', [HotelManagementController::class, 'index'])->name('management.index');
+        Route::get('/management/edit', [HotelManagementController::class, 'edit'])->name('management.edit');
+        Route::put('/management', [HotelManagementController::class, 'update'])->name('management.update');
+        Route::delete('/management/images/{imageId}', [HotelManagementController::class, 'deleteImage'])->name('management.image.delete');
+        Route::delete('/management/main-image', [HotelManagementController::class, 'deleteMainImage'])->name('management.main-image.delete');
+        Route::post('/management/toggle-status', [HotelManagementController::class, 'toggleStatus'])->name('management.toggle-status');
     });
 });
 
