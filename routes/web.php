@@ -31,6 +31,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\Hotel\HotelProfileController;
 use App\Http\Controllers\Hotel\HotelManagementController;
+use App\Http\Controllers\Hotel\RoomController;
 use App\Http\Controllers\Hotel\Auth\PasswordResetController;
 
 /* =========================================================================
@@ -110,6 +111,10 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
         Route::delete('/management/images/{imageId}', [HotelManagementController::class, 'deleteImage'])->name('management.image.delete');
         Route::delete('/management/main-image', [HotelManagementController::class, 'deleteMainImage'])->name('management.main-image.delete');
         Route::post('/management/toggle-status', [HotelManagementController::class, 'toggleStatus'])->name('management.toggle-status');
+        
+        // Room Management Routes
+        Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+        Route::put('/rooms', [RoomController::class, 'updateRoomCounts'])->name('rooms.update');
     });
 });
 

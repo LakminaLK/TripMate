@@ -16,7 +16,7 @@
             ],
             
             [
-                'route' => '#',
+                'route' => 'hotel.rooms.index',
                 'routePattern' => 'hotel.rooms.*',
                 'label' => 'Rooms',
                 'icon' => 'fas fa-bed'

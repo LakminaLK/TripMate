@@ -47,6 +47,18 @@ class Hotel extends Authenticatable
         return $this->belongsToMany(Facility::class, 'hotel_facilities');
     }
 
+    public function hotelRooms()
+    {
+        return $this->hasMany(HotelRoom::class);
+    }
+
+    public function roomTypes()
+    {
+        return $this->belongsToMany(RoomType::class, 'hotel_rooms')
+                    ->withPivot('room_count', 'price_per_night', 'is_available', 'notes')
+                    ->withTimestamps();
+    }
+
     // 🔕 Booking relation removed until the Booking model exists.
     // public function bookings() { return $this->hasMany(Booking::class); }
 }
