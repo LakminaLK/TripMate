@@ -63,32 +63,40 @@
                             $currentPrice = $hotelRoom ? $hotelRoom->price_per_night : '';
                         @endphp
                         
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-green-300 transition-colors">
-                            <div class="flex items-start justify-between mb-3">
-                                <div class="flex items-center">
+                        <div class="bg-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center flex-1">
                                     @if($roomType->icon)
-                                        <i class="{{ $roomType->icon }} text-green-600 text-xl mr-2"></i>
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors">
+                                            <i class="{{ $roomType->icon }} text-green-600 text-lg"></i>
+                                        </div>
                                     @else
-                                        <i class="fas fa-bed text-green-600 text-xl mr-2"></i>
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-bed text-green-600 text-lg"></i>
+                                        </div>
                                     @endif
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">{{ $roomType->name }}</h4>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900 text-sm">{{ $roomType->name }}</h4>
                                         @if($roomType->description)
-                                            <p class="text-xs text-gray-600 mt-1">{{ Str::limit($roomType->description, 60) }}</p>
+                                            <p class="text-xs text-gray-600 mt-1 leading-relaxed">{{ Str::limit($roomType->description, 65) }}</p>
                                         @endif
                                     </div>
                                 </div>
                                 @if($roomType->max_occupancy)
-                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                        Max {{ $roomType->max_occupancy }} guests
-                                    </span>
+                                    <div class="flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full shadow-sm ml-3">
+                                        <i class="fas fa-users text-xs mr-1.5"></i>
+                                        <span class="text-xs font-semibold whitespace-nowrap">
+                                            Max {{ $roomType->max_occupancy }} {{ $roomType->max_occupancy == 1 ? 'guest' : 'guests' }}
+                                        </span>
+                                    </div>
                                 @endif
                             </div>
                             
-                            <div class="space-y-3">
+                            <div class="space-y-4">
                                 <!-- Room Count -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-hashtag text-gray-400 mr-1"></i>
                                         Number of Rooms
                                     </label>
                                     <input type="number" 
@@ -96,32 +104,34 @@
                                            value="{{ $currentCount }}"
                                            min="0" 
                                            max="999"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                                            placeholder="0">
                                 </div>
                                 
                                 <!-- Price Per Night -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Price per Night (Optional)
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-dollar-sign text-gray-400 mr-1"></i>
+                                        Price per Night
                                     </label>
                                     <div class="relative">
-                                        <span class="absolute left-3 top-2 text-gray-500">$</span>
+                                        <span class="absolute left-4 top-3.5 text-gray-500 text-sm">$</span>
                                         <input type="number" 
                                                name="prices[{{ $roomType->id }}]" 
                                                value="{{ $currentPrice }}"
                                                min="0" 
                                                max="999999.99"
                                                step="0.01"
-                                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                                                placeholder="0.00">
                                     </div>
                                 </div>
                                 
                                 @if($roomType->base_price)
-                                    <p class="text-xs text-gray-500">
-                                        Suggested: ${{ number_format($roomType->base_price, 2) }}
-                                    </p>
+                                    <div class="flex items-center text-xs text-gray-500 bg-gray-100 rounded-lg px-3 py-2 mt-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mr-1.5"></i>
+                                        <span>Suggested: <span class="font-semibold text-gray-700">${{ number_format($roomType->base_price, 2) }}</span></span>
+                                    </div>
                                 @endif
                             </div>
                         </div>

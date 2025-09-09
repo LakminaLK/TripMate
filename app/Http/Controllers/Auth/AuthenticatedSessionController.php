@@ -38,11 +38,25 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::guard('tourist')->user();
         $role = $user->role;
 
-        // Redirect based on role
+        // Check if there's a redirect URL
+        $intendedUrl = $request->get('redirect');
+
+        // Redirect based on role or intended URL
         if ($role === 'admin') {
             return redirect('/admin/dashboard');
         } elseif ($role === 'hotel') {
             return redirect('/hotel/dashboard');
+        }
+
+        // For tourists, check if there's intended booking data, then redirect to payment
+        if (session('intended_booking_data')) {
+            return redirect()->route('tourist.payment.create')
+                ->with('success', 'Welcome back, ' . $user->name . '! Please complete your booking.');
+        }
+
+        // Check if there's a redirect URL
+        if ($intendedUrl && filter_var($intendedUrl, FILTER_VALIDATE_URL) && parse_url($intendedUrl, PHP_URL_HOST) === request()->getHost()) {
+            return redirect($intendedUrl)->with('success', 'Welcome back, ' . $user->name . '!');
         }
 
         // ✅ Tourist role: redirect to landing page with optional toast

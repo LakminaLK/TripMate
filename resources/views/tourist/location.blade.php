@@ -47,7 +47,32 @@
   </script>
   @endif
   
-  <style>[x-cloak]{display:none!important}</style>
+  <style>
+    [x-cloak] { display: none !important; }
+    
+    /* Professional animations */
+    .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+    .slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
+    
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Image gallery custom styles */
+    .gallery-overlay {
+        background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
+  </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
@@ -165,7 +190,20 @@
 <main class="max-w-7xl mx-auto px-6 mt-[72px] py-10 space-y-10">
 
   {{-- Location Hero Section with Improved UI --}}
-  <section x-data="{ activeImage: '{{ $main }}', showGallery: false }" class="space-y-8">
+  <section x-data="{ 
+    activeImage: '{{ $main }}', 
+    showGallery: false, 
+    showImageModal: false,
+    modalImage: '',
+    gallery: [
+      '{{ $main }}',
+      @if(!empty($gallery))
+        @foreach($gallery as $image)
+          '{{ $image }}',
+        @endforeach
+      @endif
+    ]
+  }" class="space-y-8 fade-in">
     <div class="bg-white rounded-3xl shadow-lg overflow-hidden ring-1 ring-black/5">
       <!-- Main Image Display -->
       <div class="relative h-[75vh]">
@@ -173,37 +211,21 @@
         
         <!-- Gradient Overlay -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
-        
-        <!-- Location Name Badge -->
-        <div class="absolute top-6 left-6 flex space-x-3">
-          <div class="bg-black/70 backdrop-blur-md text-white px-5 py-2.5 rounded-full flex items-center shadow-lg">
-            <i class="fa fa-map-marker-alt mr-2.5 text-blue-400"></i>
-            <span class="font-medium">{{ $location->name }}</span>
-          </div>
-          @if($location->latitude && $location->longitude)
-          <a href="https://www.google.com/maps?q={{ $location->latitude }},{{ $location->longitude }}" 
-             target="_blank"
-             class="bg-blue-600/90 backdrop-blur-md text-white px-5 py-2.5 rounded-full flex items-center shadow-lg hover:bg-blue-700/90 transition-colors">
-            <i class="fas fa-map mr-2"></i>
-            <span class="font-medium">View on Map</span>
-          </a>
-          @endif
-        </div>
 
         <!-- Interactive Map Preview -->
         @if($location->latitude && $location->longitude)
-        <div class="absolute top-6 right-6 w-72 h-48 rounded-xl overflow-hidden shadow-lg">
+        <div class="absolute top-6 right-6 w-80 h-52 rounded-xl overflow-hidden shadow-xl border-2 border-white/20">
           <div id="location-preview-map" class="w-full h-full"></div>
         </div>
         @endif
 
         <!-- Image Navigation -->
-        <div class="absolute inset-x-6 bottom-6 flex justify-between items-center">
+        <div class="absolute inset-x-6 bottom-6 flex justify-start items-center">
           <button @click="showGallery = !showGallery" 
                   class="group bg-black/70 backdrop-blur-md text-white px-5 py-2.5 rounded-full 
                          hover:bg-black/80 transition-all duration-300 flex items-center space-x-3 shadow-lg">
             <i class="fas fa-images text-blue-400 group-hover:scale-110 transition-transform"></i>
-            <span class="font-medium">Browse Gallery</span>
+            <span class="font-medium">View Gallery</span>
           </button>
         </div>
       </div>
@@ -215,65 +237,200 @@
            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 p-6 bg-gray-50 border-t">
         <!-- Main Image Thumbnail -->
         <button @click="activeImage = '{{ $main }}'" 
+                @dblclick="showImageModal = true; modalImage = '{{ $main }}'"
                 class="relative rounded-xl overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300
-                       shadow hover:shadow-lg transform hover:-translate-y-0.5"
+                       shadow hover:shadow-lg transform hover:-translate-y-0.5 hover:scale-105"
                 :class="{ 'ring-2 ring-offset-2': activeImage === '{{ $main }}' }">
           <img src="{{ $main }}" class="w-full h-24 object-cover" alt="Main">
+          <div class="absolute inset-0 gallery-overlay opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <i class="fas fa-search-plus text-white text-lg"></i>
+          </div>
         </button>
         
         <!-- Additional Images -->
         @if(!empty($gallery))
           @foreach($gallery as $image)
           <button @click="activeImage = '{{ $image }}'"
+                  @dblclick="showImageModal = true; modalImage = '{{ $image }}'"
                   class="relative rounded-xl overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300
-                         shadow hover:shadow-lg transform hover:-translate-y-0.5"
+                         shadow hover:shadow-lg transform hover:-translate-y-0.5 hover:scale-105"
                   :class="{ 'ring-2 ring-offset-2': activeImage === '{{ $image }}' }">
             <img src="{{ $image }}" class="w-full h-24 object-cover" alt="Gallery">
+            <div class="absolute inset-0 gallery-overlay opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <i class="fas fa-search-plus text-white text-lg"></i>
+            </div>
           </button>
           @endforeach
         @endif
       </div>
+      
+      <!-- Image Modal -->
+      <div x-show="showImageModal" 
+           x-transition:enter="transition ease-out duration-300" 
+           x-transition:enter-start="opacity-0" 
+           x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" 
+           x-transition:leave-start="opacity-100" 
+           x-transition:leave-end="opacity-0"
+           class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+           @click="showImageModal = false"
+           x-cloak>
+        <div class="relative max-w-7xl max-h-[90vh] w-full mx-4">
+          <!-- Close Button -->
+          <button @click="showImageModal = false" 
+                  class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors z-10">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+          
+          <!-- Image -->
+          <img :src="modalImage" 
+               class="w-full h-full object-contain rounded-lg shadow-2xl" 
+               alt="Full Size Image"
+               @click.stop>
+          
+          <!-- Navigation Controls -->
+          <div class="absolute inset-y-0 left-0 flex items-center">
+            <button @click.stop="
+              let currentIndex = gallery.indexOf(modalImage);
+              let newIndex = currentIndex > 0 ? currentIndex - 1 : gallery.length - 1;
+              modalImage = gallery[newIndex];
+            " class="bg-black/50 hover:bg-black/70 text-white p-3 rounded-r-lg transition-colors">
+              <i class="fas fa-chevron-left text-xl"></i>
+            </button>
+          </div>
+          
+          <div class="absolute inset-y-0 right-0 flex items-center">
+            <button @click.stop="
+              let currentIndex = gallery.indexOf(modalImage);
+              let newIndex = currentIndex < gallery.length - 1 ? currentIndex + 1 : 0;
+              modalImage = gallery[newIndex];
+            " class="bg-black/50 hover:bg-black/70 text-white p-3 rounded-l-lg transition-colors">
+              <i class="fas fa-chevron-right text-xl"></i>
+            </button>
+          </div>
+          
+          <!-- Image Counter -->
+          <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full">
+            <span x-text="gallery.indexOf(modalImage) + 1"></span> / <span x-text="gallery.length"></span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Enhanced Location Details -->
-    <div class="bg-white rounded-3xl shadow-lg p-8 ring-1 ring-black/5">
-      <div class="max-w-3xl mx-auto">
-        <h1 class="text-4xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent 
-                   leading-tight text-center">
+    <div class="bg-white rounded-3xl shadow-lg ring-1 ring-black/5 overflow-hidden slide-up">
+      <!-- Header Section -->
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200 px-8 py-6">
+        <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent 
+                   leading-tight">
           {{ $location->name }}
         </h1>
-        
-        <div class="prose max-w-none space-y-6">
-          <p class="text-gray-700 text-lg leading-relaxed">{{ $location->description }}</p>
-          
-          @if(!empty($location->additional_description))
-            <p class="text-gray-700 text-lg leading-relaxed">{{ $location->additional_description }}</p>
-          @endif
+        <div class="flex items-center text-gray-600">
+          <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
+          <span class="font-medium">{{ $location->city ?? 'Sri Lanka' }}</span>
         </div>
+      </div>
 
-        @if(!empty($things))
-          <div class="mt-12">
-            <h2 class="text-2xl font-semibold mb-6 flex items-center text-gray-900">
-              <i class="fas fa-clipboard-list text-blue-500 mr-3"></i>
-              Good to Know
-            </h2>
-            <div class="grid sm:grid-cols-2 gap-6">
-              @foreach($things as $item)
-                <div class="flex items-start space-x-3 p-4 rounded-xl bg-blue-50/50 hover:bg-blue-50 
-                            transition-colors duration-300">
-                  <i class="fas fa-check-circle text-blue-500 mt-1"></i>
-                  <span class="text-gray-700">{{ $item }}</span>
+      <!-- Content Section -->
+      <div class="p-8">
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- Main Description -->
+          <div class="lg:col-span-2 space-y-6">
+            <div>
+              <h2 class="text-2xl font-semibold mb-4 flex items-center text-gray-900">
+                <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                About This Location
+              </h2>
+              <div class="prose max-w-none">
+                <div class="bg-gray-50 rounded-xl p-6 border-l-4 border-blue-500">
+                  <p class="text-gray-700 text-lg leading-relaxed mb-4">{{ $location->description }}</p>
+                  
+                  @if(!empty($location->additional_description))
+                    <p class="text-gray-700 text-lg leading-relaxed">{{ $location->additional_description }}</p>
+                  @endif
                 </div>
-              @endforeach
+              </div>
+            </div>
+
+            @if(!empty($things))
+              <div>
+                <h2 class="text-2xl font-semibold mb-6 flex items-center text-gray-900">
+                  <i class="fas fa-clipboard-list text-green-500 mr-3"></i>
+                  Good to Know
+                </h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                  @foreach($things as $item)
+                    <div class="flex items-start space-x-3 p-4 rounded-xl bg-green-50 hover:bg-green-100 
+                                transition-all duration-300 border border-green-200 transform hover:-translate-y-1 hover:shadow-md fade-in"
+                         style="animation-delay: {{ $loop->index * 0.05 }}s;">
+                      <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                      <span class="text-gray-700 font-medium">{{ $item }}</span>
+                    </div>
+                  @endforeach
+                </div>
+              </div>
+            @endif
+          </div>
+
+          <!-- Location Info Sidebar -->
+          <div class="lg:col-span-1">
+            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200">
+              <h3 class="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+                <i class="fas fa-location-dot text-blue-500 mr-2"></i>
+                Location Details
+              </h3>
+              
+              <div class="space-y-4">
+                <!-- Coordinates if available -->
+                @if($location->latitude && $location->longitude)
+                  <div class="flex items-center space-x-3">
+                    <i class="fas fa-globe text-blue-500"></i>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Coordinates</p>
+                      <p class="text-xs text-gray-600">{{ number_format($location->latitude, 6) }}, {{ number_format($location->longitude, 6) }}</p>
+                    </div>
+                  </div>
+                @endif
+
+                <!-- Hotels count -->
+                @if($hotels->count() > 0)
+                  <div class="flex items-center space-x-3">
+                    <i class="fas fa-hotel text-green-500"></i>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Available Hotels</p>
+                      <p class="text-xs text-gray-600">{{ $hotels->count() }} {{ Str::plural('hotel', $hotels->count()) }} nearby</p>
+                    </div>
+                  </div>
+                @endif
+
+                <!-- Action Buttons -->
+                <div class="pt-4 border-t border-blue-200 space-y-3">
+                  @if($location->latitude && $location->longitude)
+                    <a href="https://www.google.com/maps?q={{ $location->latitude }},{{ $location->longitude }}" 
+                       target="_blank"
+                       class="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 
+                              text-white px-4 py-3 rounded-lg transition-colors font-medium">
+                      <i class="fas fa-map"></i>
+                      <span>View on Google Maps</span>
+                    </a>
+                  @endif
+                  
+                  <button class="w-full flex items-center justify-center space-x-2 bg-white hover:bg-gray-50 
+                                 text-blue-600 border-2 border-blue-600 px-4 py-3 rounded-lg transition-colors font-medium">
+                    <i class="fas fa-heart"></i>
+                    <span>Add to Favorites</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        @endif
+        </div>
       </div>
     </div>
   </section>
 
   {{-- Enhanced Hotels Section --}}
-  <section id="hotels" class="bg-white rounded-3xl shadow-lg p-8 ring-1 ring-black/5">
+  <section id="hotels" class="bg-white rounded-3xl shadow-lg p-8 ring-1 ring-black/5 slide-up">
     <div class="flex flex-col sm:flex-row items-center justify-between mb-12 gap-4">
       <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
         Available Hotels
@@ -292,20 +449,19 @@
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
         @foreach($hotels as $h)
           @php
-            $hImg = $h->image_url ?? null;
-            if (!$hImg) {
-              $raw = $h->image ?? null;
-              if ($raw) {
-                $path = str_starts_with($raw,'public/') ? substr($raw,7) : $raw;
-                $hImg = preg_match('#^https?://#',$path) || str_starts_with($path,'/') ? $path : asset('storage/'.ltrim($path,'/'));
-              } else {
-                $hImg = asset('images/hotel-placeholder.jpg');
-              }
+            $hImg = null;
+            // Check for main_image first
+            if ($h->main_image) {
+              $hImg = asset('storage/' . $h->main_image);
+            } else {
+              // Fallback to placeholder
+              $hImg = asset('images/hotel-placeholder.jpg');
             }
           @endphp
 
           <article class="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 
-                         overflow-hidden ring-1 ring-black/5 hover:ring-blue-500/20">
+                         overflow-hidden ring-1 ring-black/5 hover:ring-blue-500/20 fade-in" 
+                   style="animation-delay: {{ $loop->index * 0.1 }}s;">
             <div class="aspect-[4/3] relative overflow-hidden">
               <img src="{{ $hImg }}" alt="{{ $h->name }}" 
                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
@@ -314,15 +470,23 @@
               <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                 <div class="absolute inset-x-4 bottom-4 flex items-center justify-between text-white">
                   <div class="flex items-center bg-black/60 backdrop-blur-md px-4 py-2 rounded-full">
-                    <i class="fa fa-star text-yellow-400 mr-2"></i>
-                    <span class="font-medium">
-                      @if($h->rating)
-                        {{ number_format($h->rating, 1) }}
-                        <span class="text-sm opacity-75">({{ $h->reviews_count ?? 0 }})</span>
-                      @else
-                        New
-                      @endif
-                    </span>
+                    @if($h->star_rating && $h->star_rating > 0)
+                      <div class="flex items-center space-x-1">
+                        @for($i = 1; $i <= 5; $i++)
+                          @if($i <= $h->star_rating)
+                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                          @else
+                            <i class="fas fa-star text-gray-400 text-sm"></i>
+                          @endif
+                        @endfor
+                        <span class="font-medium ml-2">{{ $h->star_rating }}-Star</span>
+                      </div>
+                    @else
+                      <div class="flex items-center">
+                        <i class="fa fa-hotel text-blue-400 mr-2"></i>
+                        <span class="font-medium">New Hotel</span>
+                      </div>
+                    @endif
                   </div>
                   @if($h->price_range)
                     <span class="bg-blue-600/90 backdrop-blur-md px-4 py-2 rounded-full font-medium">
@@ -334,9 +498,17 @@
             </div>
 
             <div class="p-6">
-              <h3 class="font-bold text-xl mb-3 group-hover:text-blue-600 transition-colors">
-                {{ $h->name }}
-              </h3>
+              @if(Route::has('tourist.hotels.show'))
+                <a href="{{ route('tourist.hotels.show', $h->id) }}">
+                  <h3 class="font-bold text-xl mb-3 group-hover:text-blue-600 transition-colors hover:text-blue-600 cursor-pointer">
+                    {{ $h->name }}
+                  </h3>
+                </a>
+              @else
+                <h3 class="font-bold text-xl mb-3 group-hover:text-blue-600 transition-colors">
+                  {{ $h->name }}
+                </h3>
+              @endif
               
               @if(!empty($h->city) || !empty($h->address))
                 <div class="flex items-start space-x-3 text-gray-600 mb-4">
@@ -374,14 +546,14 @@
                   <a href="{{ route('tourist.hotels.show', $h->id) }}"
                      class="group inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 
                             text-white px-6 py-2.5 rounded-full font-medium hover:shadow-lg transition duration-300">
-                    <span>Book Now</span>
+                    <span>View Details</span>
                     <i class="fas fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
                   </a>
                 @else
                   <button class="inline-flex items-center space-x-2 bg-gradient-to-r from-gray-600 to-gray-700 
                                 text-white px-6 py-2.5 rounded-full font-medium opacity-75 cursor-not-allowed"
                           disabled>
-                    <span>Book Now</span>
+                    <span>View Details</span>
                     <i class="fas fa-arrow-right"></i>
                   </button>
                 @endif
@@ -547,12 +719,5 @@
     </div>
 </footer>
 
-<style>
-/* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
-</style>
 </body>
 </html>

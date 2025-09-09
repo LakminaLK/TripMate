@@ -172,7 +172,7 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
-        <div class="animate-fade-in max-w-3xl">
+        <div class="fade-in max-w-3xl">
             <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
                 Discover Amazing
                 <span class="bg-gradient-to-r from-blue-200 to-indigo-200 text-transparent bg-clip-text">Adventures</span>
@@ -183,7 +183,7 @@
         </div>
 
         <form method="GET" class="mt-12 relative max-w-3xl mx-auto">
-            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-3 shadow-xl animate-slide-up">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-3 shadow-xl slide-up">
                 <div class="flex items-center">
                     <div class="flex-1 relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -238,7 +238,8 @@
                         : asset('images/placeholder.jpg');
                 @endphp
 
-                <article class="activity-card bg-white rounded-2xl shadow-lg hover:shadow-xl ring-1 ring-black/5 overflow-hidden group animate-scale">
+                <article class="activity-card bg-white rounded-2xl shadow-lg hover:shadow-xl ring-1 ring-black/5 overflow-hidden group hover-lift fade-in" 
+                         style="animation-delay: {{ $loop->index * 0.1 }}s;">
                     <a href="{{ route('tourist.activity.show', $a->id) }}" class="block">
                         <div class="relative h-56 overflow-hidden">
                             <img src="{{ $img }}" 
@@ -272,10 +273,10 @@
             {{ $activities->links() }}
         </div>
     @else
-        <div class="bg-white rounded-2xl p-12 text-center shadow-xl ring-1 ring-black/5 animate-fade-in max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl p-12 text-center shadow-xl ring-1 ring-black/5 scale-in max-w-2xl mx-auto">
             <div class="relative w-24 h-24 mx-auto mb-8">
                 <div class="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
-                <div class="relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-full p-6">
+                <div class="relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-full p-6 float">
                     <svg class="w-full h-full text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>

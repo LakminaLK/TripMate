@@ -316,17 +316,17 @@
 
 <body class="bg-gray-50 min-h-screen pt-20">
     <!-- Hero Section -->
-    <section class="relative h-[60vh] bg-cover bg-center flex items-center justify-center text-white mb-12"
+    <section class="relative h-[60vh] bg-cover bg-center flex items-center justify-center text-white mb-12 fade-in"
              style="background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.8)), url('/images/emergency.jpg');">
         <div class="absolute inset-0 bg-gradient-to-br from-blue-600/80 via-indigo-600/80 to-purple-700/80"></div>
         
         <!-- Background decorative elements -->
         <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl float"></div>
+            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl float" style="animation-delay: 1.5s;"></div>
         </div>
 
-        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto slide-up">
                 <!-- <div class="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 mb-6">
                     <i class="fas fa-shield-alt text-red-400 mr-2"></i>
                     <span class="text-sm font-medium">Emergency Services Locator</span>
@@ -382,7 +382,7 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Filter Section -->
-        <div class="mb-12" id="services">
+        <div class="mb-12 scale-in" id="services">
             <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-3">Emergency Services Filter</h2>

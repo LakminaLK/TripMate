@@ -1,6 +1,9 @@
 @extends('hotel.layouts.app')
 
-@section('title', 'Edit Hotel Details')
+@sectio        <!-- Hidden fields for removed form elements -->
+        <input type="hidden" name="location_id" value="{{ old('location_id', $hotel->location_id) }}">
+        <input type="hidden" name="website" value="{{ old('website', $hotel->website) }}">
+        <input type="hidden" name="status" value="{{ old('status', $hotel->status ?? 'active') }}">tle', 'Edit Hotel Details')
 
 @push('flash-scripts')
 <!-- Expose flash for toasts -->
@@ -66,7 +69,7 @@
                                 id="description"
                                 name="description"
                                 rows="4"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                 placeholder="Describe your hotel, its amenities, location, and what makes it special..."
                             >{{ old('description', $hotel->description) }}</textarea>
                             @error('description')
@@ -85,7 +88,7 @@
                                     id="address"
                                     name="address"
                                     value="{{ old('address', $hotel->address) }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                     placeholder="123 Main Street"
                                 >
                                 @error('address')
@@ -107,7 +110,7 @@
                                         id="phone"
                                         name="phone"
                                         value="{{ old('phone', str_replace('+94', '', $hotel->phone ?? '')) }}"
-                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                         placeholder="771234567"
                                         maxlength="9"
                                         pattern="[0-9]{9}"
@@ -119,6 +122,31 @@
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+                        </div>
+                        
+                        <!-- Star Rating -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2" for="star_rating">
+                                <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                Hotel Star Rating
+                            </label>
+                            <select
+                                id="star_rating"
+                                name="star_rating"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white appearance-none"
+                                style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41IiBkPSJtNiA5IDQgNCA0LTQiLz48L3N2Zz4='); background-position: right 12px center; background-repeat: no-repeat; background-size: 16px;"
+                            >
+                                <option value="">Select Star Rating</option>
+                                @for($i = 1; $i <= 5; $i++)
+                                    <option value="{{ $i }}" {{ old('star_rating', $hotel->star_rating) == $i ? 'selected' : '' }}>
+                                        {{ $i }} Star{{ $i > 1 ? 's' : '' }} {{ str_repeat('⭐', $i) }}
+                                    </option>
+                                @endfor
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Select the official star rating of your hotel (1-5 stars)</p>
+                            @error('star_rating')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -143,7 +171,7 @@
                                 id="map_url"
                                 name="map_url"
                                 value="{{ old('map_url', $hotel->map_url) }}"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                 placeholder="Paste Google Maps share link (e.g., https://maps.app.goo.gl/...)"
                             >
                             @error('map_url')
@@ -204,7 +232,7 @@
                                 id="main_image"
                                 name="main_image"
                                 accept="image/*"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                 onchange="previewMainImage(this)"
                             >
                             <!-- Main Image Preview -->
@@ -213,7 +241,7 @@
                                 <img id="main_image_preview_img" src="" alt="Main image preview" 
                                      class="w-full h-32 object-cover rounded-lg border">
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">JPG, PNG or JPEG (Max 2MB)</p>
+                            <p class="text-xs text-gray-500 mt-1">JPG, PNG, JPEG or WebP (Max 2MB)</p>
                             @error('main_image')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -228,7 +256,7 @@
                                 <div class="mb-4">
                                     <p class="text-sm text-gray-600 mb-2">Current images ({{ $hotel->images->count() }}):</p>
                                     <div class="grid grid-cols-3 gap-2">
-                                        @foreach($hotel->images->take(6) as $image)
+                                        @foreach($hotel->images as $image)
                                             <div class="relative group">
                                                 <img src="{{ asset('storage/' . $image->image_path) }}" 
                                                      alt="{{ $image->alt_text }}" 
@@ -241,9 +269,6 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    @if($hotel->images->count() > 6)
-                                        <p class="text-xs text-gray-500 mt-2">+{{ $hotel->images->count() - 6 }} more images</p>
-                                    @endif
                                 </div>
                             @endif
                             <input
@@ -252,7 +277,7 @@
                                 name="additional_images[]"
                                 accept="image/*"
                                 multiple
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                 onchange="previewAdditionalImages(this)"
                             >
                             <!-- Additional Images Preview -->
@@ -260,7 +285,7 @@
                                 <p class="text-sm font-medium text-gray-700 mb-2">New Additional Images Preview:</p>
                                 <div id="additional_images_grid" class="grid grid-cols-3 gap-2"></div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Select multiple images (Max 10 files, 2MB each)</p>
+                            <p class="text-xs text-gray-500 mt-1">Select multiple images (2MB each) - JPG, PNG, JPEG or WebP</p>
                             @error('additional_images')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -353,8 +378,8 @@ function previewAdditionalImages(input) {
     if (input.files && input.files.length > 0) {
         preview.classList.remove('hidden');
         
-        // Limit to 10 images for preview
-        const filesToShow = Math.min(input.files.length, 10);
+        // Show up to 20 images for preview (or all if less than 20)
+        const filesToShow = Math.min(input.files.length, 20);
         
         for (let i = 0; i < filesToShow; i++) {
             const file = input.files[i];
@@ -379,13 +404,13 @@ function previewAdditionalImages(input) {
             reader.readAsDataURL(file);
         }
         
-        // Show count if more than 10 files
-        if (input.files.length > 10) {
+        // Show count if more than 20 files
+        if (input.files.length > 20) {
             const countDiv = document.createElement('div');
             countDiv.className = 'col-span-3 text-center py-2';
             countDiv.innerHTML = `
                 <span class="text-xs text-gray-500">
-                    +${input.files.length - 10} more images selected
+                    +${input.files.length - 20} more images selected
                 </span>
             `;
             grid.appendChild(countDiv);

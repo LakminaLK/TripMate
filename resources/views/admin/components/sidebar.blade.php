@@ -31,11 +31,16 @@
                 'routePattern' => 'admin.hotels.*',
                 'label' => 'Hotels',
                 'icon' => 'fas fa-hotel'
+            ],
+            [
+                'route' => 'admin.bookings.index',
+                'routePattern' => 'admin.bookings.*',
+                'label' => 'Bookings',
+                'icon' => 'fas fa-calendar-check'
             ]
         ];
         
         $disabledItems = [
-            ['label' => 'Bookings', 'icon' => 'fas fa-booking'],
             ['label' => 'Reviews', 'icon' => 'fas fa-star']
         ];
     @endphp

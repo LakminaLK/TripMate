@@ -22,7 +22,7 @@
                     'icon' => 'fas fa-bed'
                 ],
                 [
-                    'route' => '#',
+                    'route' => 'hotel.bookings.index',
                     'routePattern' => 'hotel.bookings.*',
                     'label' => 'Bookings',
                     'icon' => 'fas fa-calendar-check'

@@ -23,6 +23,17 @@
         .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
         .float { animation: float 3s ease-in-out infinite; }
         
+        /* Smooth transitions */
+        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .hover-scale:hover { transform: scale(1.02); }
+        
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
+        @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        
         /* Image Hover Effects */
         .image-container {
             position: relative;
@@ -195,10 +206,10 @@
 
 <!-- Activity Details Section -->
 <div class="max-w-7xl mx-auto px-6 py-12 mt-[72px]">
-    <div class="bg-white rounded-3xl shadow-lg ring-1 ring-black/5 overflow-hidden">
+    <div class="bg-white rounded-3xl shadow-lg ring-1 ring-black/5 overflow-hidden fade-in">
         <div class="grid lg:grid-cols-2 gap-0">
             <!-- Activity Image with Enhanced Hover Effect -->
-            <div class="image-container h-[500px]">
+            <div class="image-container h-[500px] slide-in-left">
                 <img src="{{ $activity->image_url }}"
                      alt="{{ $activity->name }}"
                      class="w-full h-full object-cover">
@@ -235,7 +246,7 @@
             </div>
 
             <!-- Details -->
-            <div class="p-10 flex flex-col h-full">
+            <div class="p-10 flex flex-col h-full slide-up">
                 <h1 class="text-3xl font-bold mb-2">{{ $activity->name }}</h1>
 
                 <div class="prose max-w-none mb-8">
@@ -248,7 +259,8 @@
                         <div class="grid sm:grid-cols-2 gap-4">
                             @foreach($locations as $loc)
                                 <a href="{{ route('tourist.location.show', $loc->id) }}"
-                                   class="group block rounded-xl border border-gray-200 hover:border-blue-500 bg-white hover:bg-blue-50/50 transition-all duration-300 p-4">
+                                   class="group block rounded-xl border border-gray-200 hover:border-blue-500 bg-white hover:bg-blue-50/50 transition-all duration-300 p-4 hover-lift fade-in"
+                                   style="animation-delay: {{ $loop->index * 0.1 }}s;">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <div class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -262,8 +274,8 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-8 px-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                            <div class="text-gray-500">No locations are currently available for this activity.</div>
+                        <div class="text-center py-8 px-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 scale-in">
+                            <div class="text-gray-500 float">No locations are currently available for this activity.</div>
                             <button class="mt-3 text-blue-600 hover:text-blue-700 font-medium">Notify me when available</button>
                         </div>
                     @endif

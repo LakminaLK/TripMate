@@ -28,15 +28,56 @@
         @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
         
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
+        /* Custom blue scrollbar */
+        ::-webkit-scrollbar { 
+            width: 8px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: #f1f1f1; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(45deg, #667eea, #764ba2); 
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+            transform: scale(1.1);
+        }
+        
+        .blue-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f1f1f1;
+        }
+        
+        /* Image gallery custom styles */
+        .gallery-overlay {
+            background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+        }
+        
+        /* Enhanced image hover effects */
+        .image-hover-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .image-hover-container img {
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .image-hover-container:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
     <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col blue-scrollbar">
 
 @php
     use Illuminate\Support\Facades\Auth;
@@ -161,7 +202,7 @@
     </div>
 </header>
 
-<section class="max-w-7xl mx-auto px-6 py-10 mt-[72px]">
+<section class="max-w-7xl mx-auto px-6 py-10 mt-[72px] slide-up">
   <div class="mb-6">
     <h1 class="text-2xl font-bold">Hotels in {{ $location->name }}</h1>
     <p class="text-gray-600">Showing active hotels only.</p>
@@ -173,19 +214,27 @@
         @if($hotels->count())
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($hotels as $h)
-                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group fade-in">
+                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group fade-in hover-lift" 
+                         style="animation-delay: {{ $loop->index * 0.1 }}s;">
                         <!-- Hotel Image -->
-                        <div class="relative h-48 overflow-hidden">
+                        <div class="relative h-48 overflow-hidden image-hover-container">
                             <img src="{{ asset('images/hotel-placeholder.jpg') }}" 
                                  alt="{{ $h->name }}" 
-                                 class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110">
+                                 class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute inset-0 gallery-overlay opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
                             <div class="absolute bottom-4 left-4">
                                 <div class="flex items-center space-x-1 text-white">
                                     @for($i = 0; $i < 5; $i++)
                                         <i class="fas fa-star {{ $i < 4 ? 'text-yellow-400' : 'text-gray-400' }}"></i>
                                     @endfor
                                     <span class="ml-2 text-sm">(48 reviews)</span>
+                                </div>
+                            </div>
+                            <!-- View Details Overlay -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full font-medium transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                    <i class="fas fa-eye mr-2"></i>View Details
                                 </div>
                             </div>
                         </div>
@@ -237,8 +286,8 @@
                 {{ $hotels->links() }}
             </div>
         @else
-            <div class="bg-white rounded-2xl p-12 text-center shadow-lg">
-                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="bg-white rounded-2xl p-12 text-center shadow-lg scale-in">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 float">
                     <i class="fas fa-hotel text-4xl text-blue-600"></i>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">No Hotels Available</h3>

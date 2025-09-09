@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\LocationController as AdminLocationController;   
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminCustomerController;
+use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\HotelController as AdminHotelController;
 
@@ -18,13 +19,14 @@ use App\Http\Controllers\Admin\HotelController as AdminHotelController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Tourist\ExploreController as TouristExploreController;
 use App\Http\Controllers\Tourist\LocationController as TouristLocationController; // ⬅ alias
+use App\Http\Controllers\Tourist\HotelController as TouristHotelController;
 use App\Http\Controllers\EmergencyServiceController;
 
 // Auth (shared)
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\ProfileController;
 
 // Hotel
@@ -32,6 +34,7 @@ use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\Hotel\HotelProfileController;
 use App\Http\Controllers\Hotel\HotelManagementController;
 use App\Http\Controllers\Hotel\RoomController;
+use App\Http\Controllers\Hotel\BookingController;
 use App\Http\Controllers\Hotel\Auth\PasswordResetController;
 
 /* =========================================================================
@@ -56,6 +59,16 @@ Route::prefix('explore')->name('tourist.')->group(function () {
     // (Optional) legacy list of hotels only for a location
     Route::get('/locations/{location}/hotels', [TouristExploreController::class, 'hotelsByLocation'])
         ->name('location.hotels');
+
+    // Hotel details page
+    Route::get('/hotels/{hotel}', [TouristHotelController::class, 'show'])
+        ->name('hotels.show');
+    
+    // Hotel availability checking routes
+    Route::post('/hotels/{hotel}/check-availability', [TouristHotelController::class, 'checkAvailability'])
+        ->name('hotels.check-availability');
+    Route::get('/hotels/{hotel}/rooms/{roomType}/availability', [TouristHotelController::class, 'getRoomAvailability'])
+        ->name('hotels.room-availability');
 });
 
 /* =========================================================================
@@ -69,6 +82,24 @@ Route::middleware('auth:tourist')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile/remove-image', [ProfileController::class, 'removeImage'])->name('profile.removeImage');
+});
+
+// Booking management - handle authentication manually to avoid redirect loops
+Route::prefix('bookings')->name('tourist.bookings.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Tourist\BookingController::class, 'index'])->name('index');
+    Route::get('/view', [App\Http\Controllers\Tourist\BookingController::class, 'viewBookings'])->name('view');
+    Route::get('/{booking}', [App\Http\Controllers\Tourist\BookingController::class, 'show'])->name('show');
+});
+
+// Payment routes - handle authentication manually to avoid redirect loops
+Route::prefix('payment')->name('tourist.payment.')->group(function () {
+    Route::match(['GET', 'POST'], '/create', [App\Http\Controllers\Tourist\PaymentController::class, 'create'])->name('create');
+    Route::post('/process', [App\Http\Controllers\Tourist\PaymentController::class, 'process'])->name('process');
+    Route::get('/success/{booking}', [App\Http\Controllers\Tourist\PaymentController::class, 'success'])->name('success');
+    Route::get('/success-simple', function () {
+        return view('tourist.payment-success-simple');
+    })->name('success.simple');
+    Route::get('/failed', [App\Http\Controllers\Tourist\PaymentController::class, 'failed'])->name('failed');
 });
 
 // OTP verify for tourist registration
@@ -115,6 +146,11 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
         // Room Management Routes
         Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
         Route::put('/rooms', [RoomController::class, 'updateRoomCounts'])->name('rooms.update');
+        
+        // Booking Management Routes
+        Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+        Route::post('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
     });
 });
 
@@ -159,6 +195,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Customers
         Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers');
         Route::delete('/customers/delete/{id}', [AdminCustomerController::class, 'destroy'])->name('customers.delete');
+
+        // Bookings
+        Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
 
         // Hotels (Admin CRUD)
         Route::get('/hotels', [AdminHotelController::class, 'index'])->name('hotels.index');

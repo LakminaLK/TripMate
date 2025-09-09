@@ -35,7 +35,7 @@ class HotelManagementController extends Controller
         
         $request->validate([
             'description' => 'nullable|string|max:2000',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|regex:/^[0-9]{9}$/',
             'website' => 'nullable|url|max:255',
@@ -46,8 +46,8 @@ class HotelManagementController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
             'facilities' => 'nullable|array',
             'facilities.*' => 'exists:facilities,id',
-            'additional_images' => 'nullable|array|max:10',
-            'additional_images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'additional_images' => 'nullable|array',
+            'additional_images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $data = $request->only([
