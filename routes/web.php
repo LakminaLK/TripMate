@@ -64,6 +64,10 @@ Route::prefix('explore')->name('tourist.')->group(function () {
     Route::get('/hotels/{hotel}', [TouristHotelController::class, 'show'])
         ->name('hotels.show');
     
+    // Hotel reviews endpoint
+    Route::get('/hotels/{hotel}/reviews', [TouristHotelController::class, 'getAllReviews'])
+        ->name('hotels.reviews');
+    
     // Hotel availability checking routes
     Route::post('/hotels/{hotel}/check-availability', [TouristHotelController::class, 'checkAvailability'])
         ->name('hotels.check-availability');
@@ -89,6 +93,14 @@ Route::prefix('bookings')->name('tourist.bookings.')->group(function () {
     Route::get('/', [App\Http\Controllers\Tourist\BookingController::class, 'index'])->name('index');
     Route::get('/view', [App\Http\Controllers\Tourist\BookingController::class, 'viewBookings'])->name('view');
     Route::get('/{booking}', [App\Http\Controllers\Tourist\BookingController::class, 'show'])->name('show');
+});
+
+// Review routes - handle authentication manually to avoid redirect loops
+Route::prefix('reviews')->name('tourist.reviews.')->group(function () {
+    Route::post('/', [App\Http\Controllers\Tourist\ReviewController::class, 'store'])->name('store');
+    Route::get('/booking/{bookingId}', [App\Http\Controllers\Tourist\ReviewController::class, 'show'])->name('show');
+    Route::put('/{reviewId}', [App\Http\Controllers\Tourist\ReviewController::class, 'update'])->name('update');
+    Route::delete('/{reviewId}', [App\Http\Controllers\Tourist\ReviewController::class, 'destroy'])->name('destroy');
 });
 
 // Payment routes - handle authentication manually to avoid redirect loops

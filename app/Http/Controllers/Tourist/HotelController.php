@@ -36,9 +36,51 @@ class HotelController extends Controller
             ->with('roomType')
             ->get();
 
+        // Get approved reviews for this hotel (limit to 3 for display)
+        $reviews = \App\Models\Review::with('tourist')
+            ->where('hotel_id', $hotel->id)
+            ->where('is_approved', true)
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        // Get total review count and average rating
+        $totalReviews = \App\Models\Review::where('hotel_id', $hotel->id)
+            ->where('is_approved', true)
+            ->count();
+
+        $averageRating = \App\Models\Review::where('hotel_id', $hotel->id)
+            ->where('is_approved', true)
+            ->avg('rating');
+
         return view('tourist.hotel-details', [
             'hotel' => $hotel,
             'availableRooms' => $availableRooms,
+            'reviews' => $reviews,
+            'totalReviews' => $totalReviews,
+            'averageRating' => round($averageRating, 1)
+        ]);
+    }
+
+    /**
+     * Get all reviews for a hotel (AJAX endpoint)
+     */
+    public function getAllReviews(Hotel $hotel)
+    {
+        $reviews = \App\Models\Review::with('tourist')
+            ->where('hotel_id', $hotel->id)
+            ->where('is_approved', true)
+            ->latest()
+            ->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'reviews' => $reviews->items(),
+            'pagination' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'total' => $reviews->total()
+            ]
         ]);
     }
 

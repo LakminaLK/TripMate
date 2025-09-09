@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>My Bookings - TripMate</title>
     
     <!-- Tailwind CSS -->
@@ -158,11 +159,22 @@
                                     View Details
                                 </a>
                                 
-                                <a href="{{ route('tourist.hotels.show', $booking->hotel->id) }}" 
-                                   class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-center font-medium">
-                                    <i class="fas fa-hotel mr-2"></i>
-                                    View Hotel
-                                </a>
+                                @if($booking->status === 'completed')
+                                    @if($booking->review)
+                                        <!-- Review submitted -->
+                                        <button class="w-full bg-green-600 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-75 text-center font-medium" disabled>
+                                            <i class="fas fa-check mr-2"></i>
+                                            Review Submitted
+                                        </button>
+                                    @else
+                                        <!-- Write Review Button -->
+                                        <button onclick="openReviewModal({{ $booking->id }}, '{{ $booking->hotel->name }}')"
+                                                class="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-center font-medium">
+                                            <i class="fas fa-star mr-2"></i>
+                                            Write Review
+                                        </button>
+                                    @endif
+                                @endif
                                 
                                 @if($booking->booking_status === 'confirmed' && \Carbon\Carbon::parse($booking->check_in)->isFuture())
                                 <button class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
@@ -239,5 +251,234 @@
         }, 5000);
         @endif
     </script>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="reviewModalTitle" class="text-lg font-semibold text-gray-900">Write Review</h3>
+                    <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="reviewForm">
+                    <input type="hidden" id="reviewBookingId" name="booking_id">
+                    
+                    <!-- Hotel Name -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Hotel</label>
+                        <p id="reviewHotelName" class="text-gray-900 font-medium"></p>
+                    </div>
+                    
+                    <!-- Star Rating -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating *</label>
+                        <div class="flex items-center space-x-1">
+                            <div id="starRating" class="flex space-x-1">
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="1">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="2">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="3">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="4">★</button>
+                                <button type="button" class="star-btn text-2xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="5">★</button>
+                            </div>
+                            <span id="ratingText" class="ml-2 text-sm text-gray-600"></span>
+                        </div>
+                        <input type="hidden" id="ratingValue" name="rating" required>
+                    </div>
+                    
+                    <!-- Review Title -->
+                    <div class="mb-4">
+                        <label for="reviewTitle" class="block text-sm font-medium text-gray-700 mb-2">Review Title *</label>
+                        <input type="text" id="reviewTitle" name="title" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Summarize your experience..." required maxlength="255">
+                    </div>
+                    
+                    <!-- Review Description -->
+                    <div class="mb-6">
+                        <label for="reviewDescription" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                        <textarea id="reviewDescription" name="description" rows="4"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Share your detailed experience..." required minlength="10" maxlength="1000"></textarea>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span id="charCount">0</span>/1000 characters
+                        </div>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeReviewModal()" 
+                                class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submitReviewBtn"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Submit Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review JavaScript -->
+    <script>
+        // CSRF Token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        let currentRating = 0;
+        
+        // Rating system
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star-btn');
+            const ratingValue = document.getElementById('ratingValue');
+            const ratingText = document.getElementById('ratingText');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const rating = parseInt(this.dataset.rating);
+                    setRating(rating);
+                });
+                
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    highlightStars(rating);
+                });
+            });
+            
+            document.getElementById('starRating').addEventListener('mouseleave', function() {
+                highlightStars(currentRating);
+            });
+            
+            // Character count
+            const description = document.getElementById('reviewDescription');
+            const charCount = document.getElementById('charCount');
+            
+            description.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+            });
+            
+            // Form submission
+            document.getElementById('reviewForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitReview();
+            });
+        });
+        
+        function setRating(rating) {
+            currentRating = rating;
+            document.getElementById('ratingValue').value = rating;
+            highlightStars(rating);
+            updateRatingText(rating);
+        }
+        
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                }
+            });
+        }
+        
+        function updateRatingText(rating) {
+            const texts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+            document.getElementById('ratingText').textContent = texts[rating] || '';
+        }
+        
+        function openReviewModal(bookingId, hotelName) {
+            document.getElementById('reviewBookingId').value = bookingId;
+            document.getElementById('reviewHotelName').textContent = hotelName;
+            
+            // Reset form
+            document.getElementById('reviewForm').reset();
+            setRating(0);
+            document.getElementById('charCount').textContent = '0';
+            
+            // Show modal
+            document.getElementById('reviewModal').classList.remove('hidden');
+        }
+        
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
+        
+        async function submitReview() {
+            const formData = new FormData(document.getElementById('reviewForm'));
+            const submitBtn = document.getElementById('submitReviewBtn');
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                const response = await fetch('/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        booking_id: formData.get('booking_id'),
+                        rating: parseInt(formData.get('rating')),
+                        title: formData.get('title'),
+                        description: formData.get('description')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeReviewModal();
+                    
+                    // Show success message
+                    showSuccessMessage(data.message);
+                    
+                    // Reload page to show updated review status
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.error || 'Failed to submit review');
+                }
+                
+            } catch (error) {
+                console.error('Review submission error:', error);
+                alert('Error submitting review: ' + error.message);
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Review';
+            }
+        }
+        
+        function showSuccessMessage(message) {
+            // Create success alert
+            const alert = document.createElement('div');
+            alert.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+            alert.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
+
 </body>
 </html>

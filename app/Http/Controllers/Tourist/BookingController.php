@@ -25,7 +25,7 @@ class BookingController extends Controller
             return redirect()->route('login')->with('message', 'Please login to view your bookings.');
         }
 
-        $bookings = Booking::with('hotel')
+        $bookings = Booking::with(['hotel', 'review'])
             ->where('tourist_id', Auth::guard('tourist')->id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -63,7 +63,7 @@ class BookingController extends Controller
             return redirect()->route('login')->with('message', 'Please login to view your bookings.');
         }
 
-        $bookings = Booking::with('hotel.location')
+        $bookings = Booking::with(['hotel.location', 'review'])
             ->where('tourist_id', Auth::guard('tourist')->id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);

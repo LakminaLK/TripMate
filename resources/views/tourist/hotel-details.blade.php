@@ -426,45 +426,118 @@
                     </div>
 
                     <!-- Right Column - Contact & Actions -->
-                    <div class="lg:w-80 bg-gray-50 rounded-2xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-                        
-                        @if($hotel->email)
-                            <div class="flex items-center space-x-3 mb-3">
-                                <i class="fas fa-envelope text-blue-600"></i>
-                                <span class="text-gray-700">{{ $hotel->email }}</span>
-                            </div>
-                        @endif
-                        
-                        @if($hotel->phone)
-                            <div class="flex items-center space-x-3 mb-3">
-                                <i class="fas fa-phone text-blue-600"></i>
-                                <span class="text-gray-700">{{ $hotel->phone }}</span>
-                            </div>
-                        @endif
-                        
-                        @if($hotel->website)
-                            <div class="flex items-center space-x-3 mb-4">
-                                <i class="fas fa-globe text-blue-600"></i>
-                                <a href="{{ $hotel->website }}" target="_blank" class="text-blue-600 hover:underline">Visit Website</a>
-                            </div>
-                        @endif
+                    <div class="lg:w-80 space-y-6">
+                        <!-- Contact Information Section -->
+                        <div class="bg-gray-50 rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+                            
+                            @if($hotel->email)
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i class="fas fa-envelope text-blue-600"></i>
+                                    <span class="text-gray-700">{{ $hotel->email }}</span>
+                                </div>
+                            @endif
+                            
+                            @if($hotel->phone)
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <i class="fas fa-phone text-blue-600"></i>
+                                    <span class="text-gray-700">{{ $hotel->phone }}</span>
+                                </div>
+                            @endif
+                            
+                            @if($hotel->website)
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <i class="fas fa-globe text-blue-600"></i>
+                                    <a href="{{ $hotel->website }}" target="_blank" class="text-blue-600 hover:underline">Visit Website</a>
+                                </div>
+                            @endif
 
-                        @if($hotel->map_url || ($hotel->latitude && $hotel->longitude))
-                            <a href="{{ $hotel->map_url ?: 'https://www.google.com/maps/search/?api=1&query=' . $hotel->latitude . ',' . $hotel->longitude }}" 
-                               target="_blank"
-                               class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mb-4">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>View on Map</span>
-                            </a>
-                        @endif
+                            @if($hotel->map_url || ($hotel->latitude && $hotel->longitude))
+                                <a href="{{ $hotel->map_url ?: 'https://www.google.com/maps/search/?api=1&query=' . $hotel->latitude . ',' . $hotel->longitude }}" 
+                                   target="_blank"
+                                   class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mb-4">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>View on Map</span>
+                                </a>
+                            @endif
 
-                        <button onclick="callHotel('{{ $hotel->phone ?? '' }}')" 
-                                id="callButton"
-                                class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
-                            <i class="fas fa-phone"></i>
-                            <span>Call to Book</span>
-                        </button>
+                            <button onclick="callHotel('{{ $hotel->phone ?? '' }}')" 
+                                    id="callButton"
+                                    class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+                                <i class="fas fa-phone"></i>
+                                <span>Call to Book</span>
+                            </button>
+                        </div>
+
+                        <!-- Guest Reviews Section -->
+                        @if($totalReviews > 0)
+                            <div class="bg-white rounded-2xl p-6 border border-gray-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Guest Reviews</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="flex text-yellow-400">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                @if($i <= floor($averageRating))
+                                                    <i class="fas fa-star"></i>
+                                                @elseif($i - 0.5 <= $averageRating)
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                @else
+                                                    <i class="far fa-star"></i>
+                                                @endif
+                                            @endfor
+                                        </div>
+                                        <span class="text-sm text-gray-600">{{ $averageRating }}/5 ({{ $totalReviews }} {{ $totalReviews === 1 ? 'review' : 'reviews' }})</span>
+                                    </div>
+                                </div>
+
+                                <!-- Latest Reviews -->
+                                <div class="space-y-3">
+                                    @foreach($reviews as $review)
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <div class="flex items-start justify-between mb-2">
+                                                <div class="flex items-center space-x-2">
+                                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-sm font-medium text-blue-600">{{ substr($review->tourist->name, 0, 1) }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-medium text-gray-900">{{ $review->tourist->name }}</p>
+                                                        <div class="flex text-yellow-400 text-xs">
+                                                            @for($i = 1; $i <= 5; $i++)
+                                                                @if($i <= $review->rating)
+                                                                    <i class="fas fa-star"></i>
+                                                                @else
+                                                                    <i class="far fa-star"></i>
+                                                                @endif
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span class="text-xs text-gray-500">{{ $review->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <h4 class="text-sm font-medium text-gray-900 mb-1">{{ $review->title }}</h4>
+                                            <p class="text-xs text-gray-600 leading-relaxed">{{ Str::limit($review->description, 100) }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- See All Reviews Button -->
+                                @if($totalReviews > 3)
+                                    <button onclick="openAllReviewsModal()"
+                                            class="w-full mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
+                                        See All {{ $totalReviews }} Reviews
+                                    </button>
+                                @endif
+                            </div>
+                        @else
+                            <div class="bg-white rounded-2xl p-6 border border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Guest Reviews</h3>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-star text-gray-300 text-2xl mb-2"></i>
+                                    <p class="text-sm text-gray-500">No reviews yet</p>
+                                    <p class="text-xs text-gray-400">Be the first to leave a review!</p>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1314,6 +1387,199 @@ function scrollToSearch() {
         document.getElementById('check_in').focus();
     }, 500);
 }
+</script>
+
+<!-- All Reviews Modal -->
+<div id="allReviewsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900">All Reviews</h3>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <div class="flex text-yellow-400 text-sm">
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= floor($averageRating))
+                                    <i class="fas fa-star"></i>
+                                @elseif($i - 0.5 <= $averageRating)
+                                    <i class="fas fa-star-half-alt"></i>
+                                @else
+                                    <i class="far fa-star"></i>
+                                @endif
+                            @endfor
+                        </div>
+                        <span class="text-sm text-gray-600">{{ $averageRating }}/5 ({{ $totalReviews }} {{ $totalReviews === 1 ? 'review' : 'reviews' }})</span>
+                    </div>
+                </div>
+                <button onclick="closeAllReviewsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="allReviewsContent" class="p-6 overflow-y-auto max-h-[60vh]">
+                <div class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-2"></i>
+                    <p class="text-gray-600">Loading reviews...</p>
+                </div>
+            </div>
+            
+            <div id="reviewsPagination" class="hidden p-4 border-t border-gray-200">
+                <!-- Pagination will be inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews JavaScript -->
+<script>
+    let currentReviewPage = 1;
+    let isLoadingReviews = false;
+
+    function openAllReviewsModal() {
+        document.getElementById('allReviewsModal').classList.remove('hidden');
+        loadAllReviews(1);
+    }
+
+    function closeAllReviewsModal() {
+        document.getElementById('allReviewsModal').classList.add('hidden');
+        document.getElementById('allReviewsContent').innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-2"></i>
+                <p class="text-gray-600">Loading reviews...</p>
+            </div>
+        `;
+        document.getElementById('reviewsPagination').classList.add('hidden');
+    }
+
+    async function loadAllReviews(page = 1) {
+        if (isLoadingReviews) return;
+        
+        isLoadingReviews = true;
+        currentReviewPage = page;
+
+        try {
+            const response = await fetch(`/hotels/{{ $hotel->id }}/reviews?page=${page}`);
+            const data = await response.json();
+
+            if (data.success) {
+                renderAllReviews(data.reviews);
+                renderPagination(data.pagination);
+            } else {
+                throw new Error('Failed to load reviews');
+            }
+        } catch (error) {
+            console.error('Error loading reviews:', error);
+            document.getElementById('allReviewsContent').innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl mb-2"></i>
+                    <p class="text-gray-600">Failed to load reviews. Please try again.</p>
+                    <button onclick="loadAllReviews(${page})" class="mt-2 text-blue-600 hover:text-blue-700 underline">Retry</button>
+                </div>
+            `;
+        } finally {
+            isLoadingReviews = false;
+        }
+    }
+
+    function renderAllReviews(reviews) {
+        const content = document.getElementById('allReviewsContent');
+        
+        if (reviews.length === 0) {
+            content.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-star text-gray-300 text-2xl mb-2"></i>
+                    <p class="text-gray-600">No reviews found.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const reviewsHtml = reviews.map(review => {
+            const starsHtml = Array.from({length: 5}, (_, i) => {
+                return i < review.rating 
+                    ? '<i class="fas fa-star text-yellow-400"></i>'
+                    : '<i class="far fa-star text-yellow-400"></i>';
+            }).join('');
+
+            const reviewDate = new Date(review.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            return `
+                <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="text-sm font-medium text-blue-600">${review.tourist.name.charAt(0)}</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">${review.tourist.name}</p>
+                                <div class="flex text-sm">${starsHtml}</div>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-500">${reviewDate}</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">${review.title}</h4>
+                    <p class="text-gray-600 leading-relaxed">${review.description}</p>
+                </div>
+            `;
+        }).join('');
+
+        content.innerHTML = reviewsHtml;
+    }
+
+    function renderPagination(pagination) {
+        const paginationDiv = document.getElementById('reviewsPagination');
+        
+        if (pagination.last_page <= 1) {
+            paginationDiv.classList.add('hidden');
+            return;
+        }
+
+        let paginationHtml = '<div class="flex justify-center items-center space-x-2">';
+        
+        // Previous button
+        if (pagination.current_page > 1) {
+            paginationHtml += `
+                <button onclick="loadAllReviews(${pagination.current_page - 1})" 
+                        class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                    Previous
+                </button>
+            `;
+        }
+
+        // Page numbers
+        const startPage = Math.max(1, pagination.current_page - 2);
+        const endPage = Math.min(pagination.last_page, pagination.current_page + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === pagination.current_page;
+            paginationHtml += `
+                <button onclick="loadAllReviews(${i})" 
+                        class="px-3 py-1 text-sm border rounded ${isActive 
+                            ? 'bg-blue-600 text-white border-blue-600' 
+                            : 'border-gray-300 hover:bg-gray-50'}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        if (pagination.current_page < pagination.last_page) {
+            paginationHtml += `
+                <button onclick="loadAllReviews(${pagination.current_page + 1})" 
+                        class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                    Next
+                </button>
+            `;
+        }
+
+        paginationHtml += '</div>';
+        paginationDiv.innerHTML = paginationHtml;
+        paginationDiv.classList.remove('hidden');
+    }
 </script>
 
 </body>
