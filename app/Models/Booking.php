@@ -157,4 +157,42 @@ class Booking extends Model
         // Calculate available rooms
         return max(0, $hotelRoom->room_count - $bookedRooms);
     }
+
+    /**
+     * Revenue calculation methods
+     */
+    
+    /**
+     * Get admin commission amount (10%)
+     */
+    public function getAdminCommissionAttribute()
+    {
+        return $this->total_amount * 0.10;
+    }
+
+    /**
+     * Get hotel revenue amount (90%)
+     */
+    public function getHotelRevenueAttribute()
+    {
+        return $this->total_amount * 0.90;
+    }
+
+    /**
+     * Check if booking is confirmed for revenue calculation
+     */
+    public function isConfirmedForRevenue()
+    {
+        return in_array($this->status, ['confirmed', 'completed']) && 
+               in_array($this->booking_status, ['confirmed', 'completed']);
+    }
+
+    /**
+     * Scope to get only confirmed bookings for revenue
+     */
+    public function scopeForRevenue($query)
+    {
+        return $query->whereIn('status', ['confirmed', 'completed'])
+                    ->whereIn('booking_status', ['confirmed', 'completed']);
+    }
 }

@@ -37,12 +37,16 @@
                 'routePattern' => 'admin.bookings.*',
                 'label' => 'Bookings',
                 'icon' => 'fas fa-calendar-check'
+            ],
+            [
+                'route' => 'admin.revenue.index',
+                'routePattern' => 'admin.revenue.*',
+                'label' => 'Revenue',
+                'icon' => 'fas fa-chart-line'
             ]
         ];
         
-        $disabledItems = [
-            ['label' => 'Reviews', 'icon' => 'fas fa-star']
-        ];
+        
     @endphp
 
     @foreach($menuItems as $item)
@@ -53,12 +57,5 @@
         </a>
     @endforeach
 
-    <div class="pt-4 border-t border-gray-200 mt-4">
-        @foreach($disabledItems as $item)
-            <span class="flex items-center px-4 py-3 text-gray-400 cursor-not-allowed rounded-xl">
-                <i class="{{ $item['icon'] }} mr-3 text-gray-400"></i>
-                {{ $item['label'] }}
-            </span>
-        @endforeach
-    </div>
+    
 </div>

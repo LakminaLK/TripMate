@@ -28,6 +28,12 @@
                 'icon' => 'fas fa-calendar-check'
             ],
             [
+                'route' => 'hotel.revenue.index',
+                'routePattern' => 'hotel.revenue.*',
+                'label' => 'Revenue',
+                'icon' => 'fas fa-chart-line'
+            ],
+            [
                 'route' => '#',
                 'routePattern' => 'hotel.reviews.*',
                 'label' => 'Reviews',

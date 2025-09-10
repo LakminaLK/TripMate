@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\AdminRevenueController;
 use App\Http\Controllers\Admin\HotelController as AdminHotelController;
 
 // Tourist (public)
@@ -33,6 +34,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\Hotel\HotelProfileController;
 use App\Http\Controllers\Hotel\HotelManagementController;
+use App\Http\Controllers\Hotel\HotelRevenueController;
 use App\Http\Controllers\Hotel\RoomController;
 use App\Http\Controllers\Hotel\BookingController;
 use App\Http\Controllers\Hotel\Auth\PasswordResetController;
@@ -163,6 +165,10 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
         Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
         Route::post('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+        
+        // Revenue Management Routes
+        Route::get('/revenue', [HotelRevenueController::class, 'index'])->name('revenue.index');
+        Route::get('/revenue/report', [HotelRevenueController::class, 'report'])->name('revenue.report');
     });
 });
 
@@ -211,6 +217,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Bookings
         Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
 
+        // Revenue
+        Route::get('/revenue', [AdminRevenueController::class, 'index'])->name('revenue.index');
+        Route::get('/revenue/report', [AdminRevenueController::class, 'report'])->name('revenue.report');
+
         // Hotels (Admin CRUD)
         Route::get('/hotels', [AdminHotelController::class, 'index'])->name('hotels.index');
         Route::post('/hotels', [AdminHotelController::class, 'store'])->name('hotels.store');
@@ -243,6 +253,10 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
         Route::get('/profile', [HotelProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/username', [HotelProfileController::class, 'updateUsername'])->name('profile.username.update');
         Route::put('/profile/password', [HotelProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+        // Revenue
+        Route::get('/revenue', [HotelRevenueController::class, 'index'])->name('revenue.index');
+        Route::get('/revenue/report', [HotelRevenueController::class, 'report'])->name('revenue.report');
     });
 });
 
