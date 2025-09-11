@@ -53,25 +53,72 @@
     /* Professional animations */
     .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
     .slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
+    .slide-in-left { animation: slideInLeft 0.8s ease-out forwards; opacity: 0; transform: translateX(-50px); }
+    .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
+    .float { animation: float 3s ease-in-out infinite; }
     
-    @keyframes fadeIn {
-        to { opacity: 1; }
-    }
+    /* Smooth transitions */
+    .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    .hover-scale:hover { transform: scale(1.02); }
     
-    @keyframes slideUp {
-        to { opacity: 1; transform: translateY(0); }
-    }
+    /* Professional gradients */
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .glass { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.1); }
     
-    /* Image gallery custom styles */
-    .gallery-overlay {
-        background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
-    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
+    @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
     
     /* Custom scrollbar */
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
+    
+    /* Image gallery custom styles */
+    .gallery-overlay {
+        background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    }
+    
+    /* Interactive Elements */
+    .interactive-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .interactive-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Enhanced button effects */
+    .btn-enhanced {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .btn-enhanced:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn-enhanced:hover:before {
+        left: 100%;
+    }
+    
+    .btn-enhanced:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -115,79 +162,161 @@
 
 
 
-<!-- Navbar (same style you used on Explore/Activity pages) -->
-<header x-data="{ open:false }" class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur shadow">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <a href="{{ route('landing') }}" class="flex items-center space-x-3 group">
-        <div class="relative">
-          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100"></div>
-          <div class="relative bg-white p-2 rounded-xl">
-            <img src="{{ asset('images/logoo.png') }}" alt="TripMate" class="h-8 w-8">
-          </div>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold text-gray-900">Trip<span class="text-blue-600">Mate</span></h1>
-          <p class="text-xs text-gray-500">Your Travel Companion</p>
-        </div>
-      </a>
-
-      <nav class="hidden md:flex items-center space-x-8">
-        <a href="{{ route('landing') }}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-        <a href="#about" class="text-gray-700 hover:text-blue-600 font-medium">About</a>
-        <a href="{{ route('tourist.explore') }}" class="text-gray-700 hover:text-blue-600 font-medium">Explore</a>
-        <a href="{{ route('emergency-services.index') }}"class="text-gray-700 hover:text-blue-600 font-medium">Emergency</a>
-        <a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium">Contact us</a>
-      </nav>
-
-      <div class="flex items-center space-x-4">
-        @if ($tourist)
-          <div x-data="{ open:false }" class="relative">
-            <button @click="open=!open" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-gray-100">
-              <i class="fas fa-user-circle text-2xl"></i>
-            </button>
-            <div x-show="open" x-transition @click.away="open=false"
-                 class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border">
-              <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50">
-                <div class="flex items-center space-x-3">
-                  <div class="h-12 w-12 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-inner">
-                    @if($tourist->profile_photo_path)
-                      <img src="{{ asset('storage/'.$tourist->profile_photo_path) }}" class="w-full h-full object-cover" alt="">
-                    @else
-                      <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold h-full w-full flex items-center justify-center text-xl">
-                        {{ strtoupper(substr($tourist->name,0,1)) }}
-                      </div>
-                    @endif
-                  </div>
-                  <div>
-                    <p class="font-semibold text-gray-900">{{ $tourist->name }}</p>
-                    <p class="text-sm text-gray-600">{{ $tourist->email ?? 'Travel Enthusiast' }}</p>
-                  </div>
+<!-- ✅ Professional Navbar -->
+<header x-data="{ isOpen: false, scrolled: false }" 
+        @scroll.window="scrolled = window.pageYOffset > 50"
+        :class="scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white/95 backdrop-blur-md shadow-lg'"
+        class="fixed top-0 w-full z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo & Brand -->
+            <a href="{{ route('landing') }}" class="flex items-center space-x-3 group">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="relative bg-white p-2 rounded-xl">
+                        <img src="{{ asset('images/logoo.png') }}" alt="TripMate" class="h-8 w-8">
+                    </div>
                 </div>
-              </div>
-              <div class="py-2">
-                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50">
-                  <i class="fas fa-user-circle mr-3 text-blue-600"></i>View Profile
+                <div>
+                    <h1 :class="scrolled ? 'text-gray-900' : 'text-gray-900'" 
+                        class="text-xl font-bold transition-colors">
+                        Trip<span class="text-blue-600">Mate</span>
+                    </h1>
+                    <p :class="scrolled ? 'text-gray-500' : 'text-gray-500'" 
+                       class="text-xs transition-colors">Your Travel Companion</p>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="{{ route('landing') }}" 
+                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                   class="font-medium transition-colors relative group">
+                    Home
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
-                <form method="POST" action="{{ route('logout') }}">
-                  @csrf
-                  <button type="submit" class="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50">
-                    <i class="fas fa-sign-out-alt mr-3"></i>Logout
-                  </button>
-                </form>
-              </div>
+                <a href="#about" 
+                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                   class="font-medium transition-colors relative group">
+                    About
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="{{ route('tourist.explore') }}" 
+                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                   class="font-medium transition-colors relative group">
+                    Explore
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="{{ route('emergency-services.index') }}" 
+                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                   class="font-medium transition-colors relative group">
+                    Emergency
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="#contact" 
+                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                   class="font-medium transition-colors relative group">
+                    Contact us
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+            </nav>
+
+            <!-- Auth Section -->
+            <div class="flex items-center space-x-4">
+                @if ($tourist)
+                    <!-- Profile Dropdown -->
+                    <div x-data="{ open: false }" class="relative" @click.away="open = false">
+                        <button @click="open = !open"
+                                :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300">
+                            <i class="fas fa-user-circle text-2xl"></i>
+                        </button>
+
+                        <div x-show="open" x-transition
+                             class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                            <div class="p-4 bg-gradient-to-r from-blue-50 to-purple-50">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-12 w-12 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-inner">
+                                        @if($tourist->profile_photo_path)
+                                            <img src="{{ asset('storage/' . $tourist->profile_photo_path) }}" 
+                                                 alt="{{ $tourist->name }}" 
+                                                 class="h-full w-full object-cover">
+                                        @else
+                                            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold h-full w-full flex items-center justify-center text-xl">
+                                                {{ strtoupper(substr($tourist->name, 0, 1)) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900">{{ $tourist->name }}</p>
+                                        <p class="text-sm text-gray-600">{{ $tourist->email ?? 'Travel Enthusiast' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="py-2">
+                                <a href="{{ route('tourist.profile.show') }}" 
+                                   class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
+                                    <i class="fas fa-user-circle mr-3 text-blue-600"></i>
+                                    View Profile
+                                </a>
+                                <a href="{{ route('tourist.bookings.view') }}" 
+                                   class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
+                                    <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
+                                    My Bookings
+                                </a>
+                                <hr class="my-2">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors">
+                                        <i class="fas fa-sign-out-alt mr-3"></i>
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" 
+                       :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-700 hover:text-blue-600'"
+                       class="font-medium transition-colors">
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}" 
+                       class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Sign Up
+                    </a>
+                @endif
+
+                <!-- Mobile menu button -->
+                <button @click="isOpen = !isOpen" 
+                        :class="scrolled ? 'text-gray-700' : 'text-gray-700'"
+                        class="md:hidden p-2 rounded-lg transition-colors">
+                    <i class="fas fa-bars text-xl" x-show="!isOpen"></i>
+                    <i class="fas fa-times text-xl" x-show="isOpen" x-cloak></i>
+                </button>
             </div>
-          </div>
-        @else
-          <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
-          <a href="{{ route('register') }}" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg">Sign Up</a>
-        @endif
-      </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="isOpen" x-transition class="md:hidden bg-white rounded-b-2xl shadow-lg border-t">
+            <div class="px-4 py-6 space-y-4">
+                <a href="{{ route('landing') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                <a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium">About</a>
+                <a href="{{ route('tourist.explore') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Explore</a>
+                <a href="{{ route('emergency-services.index') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Emergency</a>
+                <a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium">Contact us</a>
+                @guest
+                    <hr class="my-4">
+                    <a href="{{ route('login') }}" class="block text-gray-700 hover:text-blue-600 font-medium">Login</a>
+                    <a href="{{ route('register') }}" class="block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-center font-medium">Sign Up</a>
+                @endguest
+            </div>
+        </div>
     </div>
-  </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-6 mt-[72px] py-10 space-y-10">
+<main class="max-w-7xl mx-auto px-6 pt-24 py-10 space-y-10">
 
   {{-- Location Hero Section with Improved UI --}}
   <section x-data="{ 

@@ -121,8 +121,16 @@ class BookingController extends Controller
             'status' => 'required|in:pending,confirmed,completed,cancelled'
         ]);
 
-        $oldStatus = $booking->status;
+        $oldStatus = $booking->status ?? $booking->booking_status ?? 'pending';
         $newStatus = $request->status;
+
+        // Implement status change business rules
+        if (!$this->isValidStatusTransition($oldStatus, $newStatus)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid status transition.'
+            ], 422);
+        }
 
         $booking->update([
             'status' => $newStatus,
@@ -200,5 +208,21 @@ class BookingController extends Controller
         }
         
         return $roomDetails;
+    }
+
+    /**
+     * Validate if the status transition is allowed
+     */
+    private function isValidStatusTransition($currentStatus, $newStatus)
+    {
+        // Define allowed transitions based on business rules
+        $allowedTransitions = [
+            'pending' => ['confirmed', 'cancelled'],  // Pending can go to confirmed or cancelled
+            'confirmed' => ['completed'],              // Confirmed can only go to completed
+            'completed' => [],                         // Completed bookings cannot be changed
+            'cancelled' => []                          // Cancelled bookings cannot be changed
+        ];
+
+        return in_array($newStatus, $allowedTransitions[$currentStatus] ?? []);
     }
 }

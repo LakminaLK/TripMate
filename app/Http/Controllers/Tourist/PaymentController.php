@@ -27,43 +27,132 @@ class PaymentController extends Controller
     {
         // Check if user is authenticated first
         if (!Auth::guard('tourist')->check()) {
-            // Store the intended payment data in session and redirect to login
-            if ($request->has('booking_data')) {
-                session(['intended_booking_data' => $request->booking_data]);
-            }
+            // Clear any existing payment session data on unauthenticated access
+            session()->forget([
+                'payment_booking_data', 
+                'payment_from_checkout', 
+                'payment_page_loaded',
+                'intended_booking_data',
+                'booking_summary',
+                'selected_rooms',
+                'booking_details',
+                'completed_bookings'
+            ]);
+            
             return redirect()->route('login')
                 ->with('message', 'Please login to continue with your booking');
         }
 
-        // Handle both GET and POST requests
-        $bookingData = null;
+        // CHECK FOR COMPLETED BOOKINGS: Prevent access after successful payment
+        if (session('completed_bookings')) {
+            // User has completed a booking and is trying to access payment page again
+            // Clear all payment-related session data
+            session()->forget([
+                'payment_booking_data', 
+                'payment_from_checkout', 
+                'payment_page_loaded',
+                'intended_booking_data',
+                'booking_summary',
+                'selected_rooms',
+                'booking_details',
+                'completed_bookings'
+            ]);
+            
+            return redirect()->route('landing')
+                ->with('info', 'You have already completed your booking. Starting a new booking process.');
+        }
+
+        // STRICT ACCESS CONTROL: Only allow POST requests with fresh booking data
+        $fromProceedToCheckout = false;
         
-        if ($request->isMethod('post')) {
-            // POST request with booking data
+        if ($request->isMethod('post') && $request->has('booking_data')) {
+            // This is a legitimate POST request from hotel details page
             $bookingData = json_decode($request->booking_data, true);
-        } elseif ($request->has('booking_data')) {
-            // GET request with booking data in query string
-            $bookingData = json_decode($request->booking_data, true);
+            $fromProceedToCheckout = true;
+            
+            // Clear any existing payment session data first
+            session()->forget([
+                'payment_booking_data', 
+                'payment_from_checkout', 
+                'payment_page_loaded',
+                'booking_summary',
+                'selected_rooms',
+                'booking_details',
+                'completed_bookings'  // Clear completed bookings when starting fresh
+            ]);
+            
+            // Store new booking data in session
+            session([
+                'payment_booking_data' => $request->booking_data,
+                'payment_from_checkout' => true,
+                'payment_page_loaded' => true // Mark as loaded immediately
+            ]);
+            
         } elseif (session('intended_booking_data')) {
-            // Get booking data from session (after login redirect)
+            // Special case: user came from login redirect
             $bookingData = json_decode(session('intended_booking_data'), true);
             session()->forget('intended_booking_data');
+            $fromProceedToCheckout = true;
+            
+            // Clear any existing payment session data first
+            session()->forget([
+                'payment_booking_data', 
+                'payment_from_checkout', 
+                'payment_page_loaded',
+                'booking_summary',
+                'selected_rooms',
+                'booking_details',
+                'completed_bookings'  // Clear completed bookings when starting fresh
+            ]);
+            
+            // Store in session
+            session([
+                'payment_booking_data' => json_encode($bookingData),
+                'payment_from_checkout' => true,
+                'payment_page_loaded' => true
+            ]);
+            
+        } else {
+            // Block ALL other access attempts
+            // This includes: GET requests, direct URL access, refreshes, bookmarks, etc.
+            
+            // Clear any existing payment session data
+            session()->forget([
+                'payment_booking_data', 
+                'payment_from_checkout', 
+                'payment_page_loaded',
+                'intended_booking_data',
+                'booking_summary',
+                'selected_rooms',
+                'booking_details',
+                'completed_bookings'
+            ]);
+            
+            // Always redirect to landing page
+            return redirect()->route('landing')
+                ->with('error', 'Access denied. Please select your rooms through the proper booking process.');
         }
         
         if (!$bookingData) {
-            return redirect()->back()->with('error', 'Invalid booking data');
+            // Clear payment session data
+            session()->forget(['payment_booking_data', 'payment_from_checkout']);
+            return redirect()->route('landing')
+                ->with('error', 'Invalid booking data. Please start your booking process again.');
         }
 
         // Validate the hotel and dates
         $hotel = Hotel::find($bookingData['hotel_id']);
         if (!$hotel) {
-            return redirect()->back()->with('error', 'Hotel not found');
+            // Clear payment session data
+            session()->forget(['payment_booking_data', 'payment_from_checkout']);
+            return redirect()->route('landing')
+                ->with('error', 'Hotel not found. Please start your booking process again.');
         }
 
         // Add user information
         $tourist = Auth::guard('tourist')->user();
         
-        return view('tourist.payment', compact('bookingData', 'hotel', 'tourist'));
+        return view('tourist.payment', compact('bookingData', 'hotel', 'tourist', 'fromProceedToCheckout'));
     }
 
     /**
@@ -161,7 +250,7 @@ class PaymentController extends Controller
                 'booking_status' => 'pending',  // Default status is pending
                 'payment_status' => 'paid',
                 'payment_method' => 'card',
-                'booking_reference' => 'BK' . strtoupper(uniqid()),
+                'booking_reference' => Booking::generateBookingReference(),
                 'payment_details' => json_encode([
                     'card_last_four' => substr($request->card_number, -4),
                     'card_name' => $request->card_name,
@@ -192,6 +281,26 @@ class PaymentController extends Controller
                 'booking_reference' => $booking->booking_reference
             ]);
 
+            // Clear payment session data after successful booking
+            session()->forget([
+                'payment_booking_data', 
+                'payment_from_checkout',
+                'intended_booking_data'
+            ]);
+
+            // Mark booking as completed to prevent back navigation to payment
+            session(['completed_bookings' => [$booking->id]]);
+
+            // Check if this is an AJAX request
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment successful! Your booking has been confirmed.',
+                    'booking_id' => $booking->id,
+                    'booking_reference' => $booking->booking_reference
+                ]);
+            }
+
             // Redirect to simple success page that doesn't require authentication
             return redirect()->route('tourist.payment.success.simple')
                 ->with('success', 'Payment successful! Your booking has been confirmed.')
@@ -205,6 +314,14 @@ class PaymentController extends Controller
                 'line' => $e->getLine(),
                 'file' => $e->getFile()
             ]);
+
+            // Check if this is an AJAX request
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
             
             return redirect()->back()
                 ->with('error', 'Payment failed: ' . $e->getMessage())
@@ -243,5 +360,27 @@ class PaymentController extends Controller
     public function failed()
     {
         return view('tourist.payment-failed');
+    }
+
+    /**
+     * Clear payment session and redirect to landing page
+     */
+    public function clearAndRedirect(Request $request)
+    {
+        // Clear ALL booking-related session data for complete cleanup
+        session()->forget([
+            'payment_booking_data', 
+            'payment_from_checkout',
+            'payment_page_loaded',
+            'intended_booking_data',
+            'booking_summary',
+            'selected_rooms',
+            'booking_details',
+            'completed_bookings'
+        ]);
+        
+        // Always redirect to landing page for maximum security
+        return redirect()->route('landing')
+            ->with('info', 'Booking session cleared. Please start your booking process again.');
     }
 }

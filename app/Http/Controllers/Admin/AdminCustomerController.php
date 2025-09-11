@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tourist;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 
 class AdminCustomerController extends Controller
@@ -12,7 +13,10 @@ class AdminCustomerController extends Controller
     {
         $search = $request->get('q');
         
-        $query = Tourist::query();
+        $query = Tourist::with(['bookings' => function($query) {
+            $query->where('status', '!=', 'cancelled')
+                  ->orWhereNull('status');
+        }]);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -26,6 +30,11 @@ class AdminCustomerController extends Controller
         $tourists = $query->orderBy('id')->paginate(10)->withQueryString();
 
         $customers = $tourists->getCollection()->map(function ($tourist) {
+            // Get non-cancelled bookings for this tourist
+            $confirmedBookings = $tourist->bookings->where('status', '!=', 'cancelled');
+            $bookingsCount = $confirmedBookings->count();
+            $totalSpent = $confirmedBookings->sum('total_amount');
+            
             return (object)[
                 'id' => $tourist->id,
                 'customer_id' => 'C' . str_pad($tourist->id, 3, '0', STR_PAD_LEFT),
@@ -33,8 +42,8 @@ class AdminCustomerController extends Controller
                 'email' => $tourist->email,
                 'mobile' => $tourist->mobile ?? 'N/A',
                 'location' => $tourist->location ?: 'Unknown',
-                'bookings_count' => '--',
-                'total_spent' => 'Rs. 0.00'
+                'bookings_count' => $bookingsCount,
+                'total_spent' => '$ ' . number_format($totalSpent, 2)
             ];
         });
 

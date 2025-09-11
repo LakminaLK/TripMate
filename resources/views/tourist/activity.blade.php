@@ -168,12 +168,12 @@
                                 </div>
                             </div>
                             <div class="py-2">
-                                <a href="{{ route('profile.edit') }}" 
+                                <a href="{{ route('tourist.profile.show') }}" 
                                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-user-circle mr-3 text-blue-600"></i>
                                     View Profile
                                 </a>
-                                <a href="#bookings" 
+                                <a href="{{ route('tourist.bookings.view') }}" 
                                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
                                     My Bookings

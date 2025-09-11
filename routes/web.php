@@ -30,6 +30,9 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\ProfileController;
 
+// Tourist
+use App\Http\Controllers\Tourist\ProfileController as TouristProfileController;
+
 // Hotel
 use App\Http\Controllers\Hotel\HotelAuthController;
 use App\Http\Controllers\Hotel\HotelProfileController;
@@ -84,7 +87,15 @@ Route::prefix('explore')->name('tourist.')->group(function () {
 Route::middleware('auth:tourist')->group(function () {
     Route::get('/tourist/home', fn () => view('tourist.dashboard'))->name('tourist.home');
 
-    // Tourist profile
+    // Tourist profile routes
+    Route::prefix('tourist')->name('tourist.')->group(function () {
+        Route::get('/profile', [TouristProfileController::class, 'show'])->name('profile.show');
+        Route::patch('/profile', [TouristProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/password', [TouristProfileController::class, 'updatePassword'])->name('password.update');
+        Route::delete('/profile/remove-image', [TouristProfileController::class, 'removeImage'])->name('profile.removeImage');
+    });
+
+    // Keep old routes for backward compatibility
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
@@ -98,6 +109,9 @@ Route::prefix('bookings')->name('tourist.bookings.')->group(function () {
     Route::get('/{booking}', [App\Http\Controllers\Tourist\BookingController::class, 'show'])->name('show');
 });
 
+// Individual booking receipt route
+Route::get('/booking-details/{booking}', [App\Http\Controllers\Tourist\BookingController::class, 'showReceipt'])->name('tourist.booking.details');
+
 // Review routes - handle authentication manually to avoid redirect loops
 Route::prefix('reviews')->name('tourist.reviews.')->group(function () {
     Route::post('/', [App\Http\Controllers\Tourist\ReviewController::class, 'store'])->name('store');
@@ -108,13 +122,38 @@ Route::prefix('reviews')->name('tourist.reviews.')->group(function () {
 
 // Payment routes - handle authentication manually to avoid redirect loops
 Route::prefix('payment')->name('tourist.payment.')->group(function () {
-    Route::match(['GET', 'POST'], '/create', [App\Http\Controllers\Tourist\PaymentController::class, 'create'])->name('create');
+    // Handle manual GET access attempts - redirect to landing page
+    Route::get('/create', function () {
+        // Clear any payment-related session data
+        session()->forget([
+            'payment_booking_data', 
+            'payment_from_checkout', 
+            'payment_page_loaded',
+            'intended_booking_data',
+            'booking_summary',
+            'selected_rooms',
+            'booking_details',
+            'completed_bookings'
+        ]);
+        
+        return redirect()->route('landing')
+            ->with('error', 'Access denied. Please select your rooms through the proper booking process.');
+    });
+    
+    Route::post('/create', [App\Http\Controllers\Tourist\PaymentController::class, 'create'])->name('create');
     Route::post('/process', [App\Http\Controllers\Tourist\PaymentController::class, 'process'])->name('process');
     Route::get('/success/{booking}', [App\Http\Controllers\Tourist\PaymentController::class, 'success'])->name('success');
     Route::get('/success-simple', function () {
         return view('tourist.payment-success-simple');
     })->name('success.simple');
     Route::get('/failed', [App\Http\Controllers\Tourist\PaymentController::class, 'failed'])->name('failed');
+    Route::post('/clear-and-redirect', [App\Http\Controllers\Tourist\PaymentController::class, 'clearAndRedirect'])->name('clear-and-redirect');
+    
+    // Route to clear completed bookings and start fresh
+    Route::post('/clear-completed', function () {
+        session()->forget('completed_bookings');
+        return redirect()->route('landing')->with('info', 'Ready to start a new booking!');
+    })->name('clear-completed');
 });
 
 // OTP verify for tourist registration

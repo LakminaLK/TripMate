@@ -22,20 +22,53 @@
         <div class="flex items-center gap-3">
             <!-- Total Rooms Badge -->
             <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-gray-500">Total Rooms:</span>
+                <span class="text-sm font-medium text-gray-500">Total Rooms Added:</span>
                 <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
                     {{ $hotelRooms->sum('room_count') }}
                 </span>
             </div>
             
-            <!-- Action Button -->
-            <div class="flex gap-2">
-                <button type="submit" 
-                        form="room-management-form"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2">
-                    <i class="fas fa-save"></i>
-                    Save Changes
-                </button>
+
+        </div>
+    </div>
+
+    <!-- Pricing Information -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-200 mb-6">
+        <div class="p-6">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                        💡 Pricing Guidelines & Commission Structure
+                    </h3>
+                    <div class="grid gap-3 text-sm text-gray-700">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                            <span><strong>Commission:</strong> TripMate charges a 10% commission on each confirmed booking</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                            <span><strong>Your Earnings:</strong> You receive 90% of the total booking amount</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                            <span><strong>Pricing Strategy:</strong> Set your room prices considering the 10% commission to maintain desired profit margins</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                            <span><strong>Example:</strong> If you want to earn $90 per night, set your room price at $100 per night</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                            <span><strong>Payment:</strong> Commission is automatically deducted from confirmed bookings before payment to your account</span>
+                        </div>
+                    </div>
+                    
+                </div>
             </div>
         </div>
     </div>
@@ -149,10 +182,18 @@
             
             @if($roomTypes->isNotEmpty())
                 <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-xl">
-                    <p class="text-sm text-gray-600">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        Set room count to 0 to remove a room type from your hotel
-                    </p>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Set room count to 0 to remove a room type from your hotel
+                        </p>
+                        <button type="submit" 
+                                form="room-management-form"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg transition-colors text-sm flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow-md">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                    </div>
                 </div>
             @endif
         </div>

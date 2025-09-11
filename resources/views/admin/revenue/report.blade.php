@@ -6,9 +6,9 @@
 <div class="space-y-6">
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
-        <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <h1 class="text-2xl font-semibold text-gray-900">Revenue Report</h1>
-            <span class="text-sm text-gray-600">Detailed commission and booking analysis</span>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Revenue Report</h1>
+            <p class="text-gray-600">Detailed commission analysis and booking revenue breakdown</p>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('admin.revenue.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg transition-colors text-sm font-medium">

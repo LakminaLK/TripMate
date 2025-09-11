@@ -163,31 +163,52 @@
                                         </button>
                                         <div class="w-px h-4 bg-gray-300"></div>
                                         <div class="relative" x-data="{ open: false }">
-                                            <button @click="open = !open" 
-                                                    class="text-green-600 hover:text-green-800 text-sm font-medium">
-                                                <i class="fas fa-edit mr-1"></i> Status
-                                            </button>
-                                            <div x-show="open" 
-                                                 @click.away="open = false"
-                                                 x-transition
-                                                 class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                                                <button onclick="updateBookingStatus({{ $booking->id }}, 'pending')" 
-                                                        class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    Pending
+                                            @php
+                                                $currentStatus = $booking->status ?? $booking->booking_status ?? 'pending';
+                                            @endphp
+                                            
+                                            @if($currentStatus === 'cancelled')
+                                                <!-- Cannot change status after cancellation -->
+                                                <span class="text-gray-400 text-sm">
+                                                    <i class="fas fa-lock mr-1"></i> Locked
+                                                </span>
+                                            @else
+                                                <button @click="open = !open" 
+                                                        class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                                    <i class="fas fa-edit mr-1"></i> Status
                                                 </button>
-                                                <button onclick="updateBookingStatus({{ $booking->id }}, 'confirmed')" 
-                                                        class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    Confirmed
-                                                </button>
-                                                <button onclick="updateBookingStatus({{ $booking->id }}, 'completed')" 
-                                                        class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    Completed
-                                                </button>
-                                                <button onclick="updateBookingStatus({{ $booking->id }}, 'cancelled')" 
-                                                        class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    Cancelled
-                                                </button>
-                                            </div>
+                                                <div x-show="open" 
+                                                     @click.away="open = false"
+                                                     x-transition
+                                                     class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                                    
+                                                    @if($currentStatus === 'pending')
+                                                        <!-- For pending bookings: show confirm and cancel options -->
+                                                        <button onclick="showStatusConfirm({{ $booking->id }}, 'confirmed', 'Booking #{{ $booking->id }}')" 
+                                                                class="block w-full text-left px-3 py-2 text-sm text-green-700 hover:bg-green-50 js-status-btn">
+                                                            <i class="fas fa-check mr-1"></i> Confirm
+                                                        </button>
+                                                        <button onclick="showStatusConfirm({{ $booking->id }}, 'cancelled', 'Booking #{{ $booking->id }}')" 
+                                                                class="block w-full text-left px-3 py-2 text-sm text-red-700 hover:bg-red-50 js-status-btn">
+                                                            <i class="fas fa-times mr-1"></i> Cancel
+                                                        </button>
+                                                    @elseif($currentStatus === 'confirmed')
+                                                        <!-- For confirmed bookings: show complete option only -->
+                                                        <button onclick="showStatusConfirm({{ $booking->id }}, 'completed', 'Booking #{{ $booking->id }}')" 
+                                                                class="block w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-50 js-status-btn">
+                                                            <i class="fas fa-check-double mr-1"></i> Complete
+                                                        </button>
+                                                    @elseif($currentStatus === 'completed')
+                                                        <!-- For completed bookings: no status changes allowed -->
+                                                        <div class="px-2 py-1 text-xs bg-green-50 border border-green-200 rounded-md whitespace-nowrap overflow-hidden">
+                                                            <div class="flex items-center text-green-700 truncate">
+                                                                <i class="fas fa-check-circle mr-1 text-xs flex-shrink-0"></i>
+                                                                <span class="font-medium truncate">Tour completed</span>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -211,6 +232,32 @@
                 {{ $bookings->appends(request()->query())->links() }}
             </div>
         @endif
+    </div>
+
+    <!-- Status Change Confirmation Modal -->
+    <div id="status-confirm-modal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black bg-opacity-20 z-10"></div>
+      <div class="absolute inset-0 flex items-center justify-center z-20">
+        <div class="bg-white rounded-xl shadow-2xl ring-1 ring-black/5 overflow-hidden w-[90%] max-w-md">
+          <div class="px-5 py-4 flex items-start gap-3">
+            <svg id="status-icon" class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z" fill="currentColor" opacity=".12"/>
+              <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+              <h3 id="status-title" class="text-base font-semibold text-gray-900">Change booking status?</h3>
+              <p class="text-sm text-gray-600 mt-1">
+                Are you sure you want to change status of <span id="status-booking-name" class="font-medium text-gray-900">this booking</span> to <span id="status-new-status" class="font-medium"></span>?
+                <span id="status-warning">This action cannot be undone.</span>
+              </p>
+            </div>
+          </div>
+          <div class="px-5 pb-5 pt-2 flex items-center justify-end gap-2">
+            <button id="status-cancel" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button id="status-confirm" class="px-4 py-2 rounded-lg text-white">Confirm</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Booking Details Modal -->
@@ -342,7 +389,9 @@ function viewBookingDetails(bookingId) {
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Payment Status:</span>
-                                <span class="font-medium">${booking.payment_status || 'N/A'}</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor(status === 'cancelled' ? 'refunded' : (booking.payment_status || 'pending'))}">
+                                    ${status === 'cancelled' ? 'Refunded' : ((booking.payment_status || 'N/A').charAt(0).toUpperCase() + (booking.payment_status || 'N/A').slice(1))}
+                                </span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Booking Date:</span>
@@ -364,8 +413,8 @@ function viewBookingDetails(bookingId) {
                                 <span class="font-medium">${tourist.email || 'N/A'}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Phone:</span>
-                                <span class="font-medium">${tourist.phone || 'N/A'}</span>
+                                <span class="text-gray-600">Mobile:</span>
+                                <span class="font-medium">${tourist.mobile || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
@@ -432,10 +481,6 @@ function closeBookingModal() {
 }
 
 function updateBookingStatus(bookingId, status) {
-    if (!confirm(`Are you sure you want to update this booking status to "${status}"?`)) {
-        return;
-    }
-
     fetch(`/hotel/bookings/${bookingId}/status`, {
         method: 'POST',
         headers: {
@@ -447,15 +492,94 @@ function updateBookingStatus(bookingId, status) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Show success message and reload
+            alert(data.message || 'Booking status updated successfully');
             location.reload();
         } else {
-            alert('Failed to update booking status');
+            // Show error message
+            alert(data.message || 'Failed to update booking status');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Failed to update booking status');
+        alert('Failed to update booking status. Please try again.');
     });
 }
+
+function getPaymentStatusColor(status) {
+    const colors = {
+        'pending': 'bg-yellow-100 text-yellow-800',
+        'paid': 'bg-green-100 text-green-800',
+        'failed': 'bg-red-100 text-red-800',
+        'refunded': 'bg-orange-100 text-orange-800'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+}
+
+// Status Confirmation Modal Functions
+let pendingStatusChange = null;
+
+function showStatusConfirm(bookingId, newStatus, bookingName) {
+    const modal = document.getElementById('status-confirm-modal');
+    const icon = document.getElementById('status-icon');
+    const bookingNameSpan = document.getElementById('status-booking-name');
+    const newStatusSpan = document.getElementById('status-new-status');
+    const confirmBtn = document.getElementById('status-confirm');
+    const warningText = document.getElementById('status-warning');
+    
+    // Store the pending change
+    pendingStatusChange = { bookingId, newStatus };
+    
+    // Update modal content based on status
+    bookingNameSpan.textContent = bookingName;
+    newStatusSpan.textContent = newStatus;
+    
+    // Set appropriate colors and messages based on status
+    if (newStatus === 'confirmed') {
+        icon.className = 'w-6 h-6 shrink-0 text-green-600';
+        confirmBtn.className = 'px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700';
+        warningText.textContent = 'This will send a confirmation email to the customer.';
+    } else if (newStatus === 'cancelled') {
+        icon.className = 'w-6 h-6 shrink-0 text-red-600';
+        confirmBtn.className = 'px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700';
+        warningText.textContent = 'This action cannot be undone and will notify the customer.';
+    } else if (newStatus === 'completed') {
+        icon.className = 'w-6 h-6 shrink-0 text-purple-600';
+        confirmBtn.className = 'px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700';
+        warningText.textContent = 'This will mark the tour as completed.';
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeStatusConfirm() {
+    const modal = document.getElementById('status-confirm-modal');
+    modal.classList.add('hidden');
+    pendingStatusChange = null;
+}
+
+// Event listeners for status modal
+document.addEventListener('DOMContentLoaded', function() {
+    const statusModal = document.getElementById('status-confirm-modal');
+    const overlay = statusModal?.querySelector('.absolute.inset-0.bg-black');
+    const cancelBtn = document.getElementById('status-cancel');
+    const confirmBtn = document.getElementById('status-confirm');
+    
+    // Close on background click
+    overlay?.addEventListener('click', (e) => {
+        if (e.target === overlay) closeStatusConfirm();
+    });
+    
+    // Cancel button
+    cancelBtn?.addEventListener('click', closeStatusConfirm);
+    
+    // Confirm button
+    confirmBtn?.addEventListener('click', () => {
+        if (pendingStatusChange) {
+            updateBookingStatus(pendingStatusChange.bookingId, pendingStatusChange.newStatus);
+            closeStatusConfirm();
+        }
+    });
+});
 </script>
 @endpush

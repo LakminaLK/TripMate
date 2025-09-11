@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
     <style>
         [x-cloak] { display: none !important; }
         
@@ -184,12 +185,12 @@
                                 </div>
                             </div>
                             <div class="py-2">
-                                <a href="{{ route('profile.edit') }}" 
+                                <a href="{{ route('tourist.profile.show') }}" 
                                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-user-circle mr-3 text-blue-600"></i>
                                     View Profile
                                 </a>
-                                <a href="#bookings" 
+                                <a href="{{ route('tourist.bookings.view') }}" 
                                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
                                     My Bookings
@@ -333,11 +334,23 @@
                             
                             <!-- Star Rating -->
                             @if($hotel->star_rating)
-                                <div class="flex items-center bg-yellow-50 px-3 py-2 rounded-lg">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star {{ $i <= $hotel->star_rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
-                                    @endfor
-                                    <span class="ml-2 text-sm font-medium text-gray-700">{{ $hotel->star_rating }}-Star Hotel</span>
+                                <div class="flex flex-col items-end space-y-3">
+                                    <div class="flex items-center bg-yellow-50 px-3 py-2 rounded-lg">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star {{ $i <= $hotel->star_rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                                        @endfor
+                                        <span class="ml-2 text-sm font-medium text-gray-700">{{ $hotel->star_rating }}-Star Hotel</span>
+                                    </div>
+                                    
+                                    <!-- View on Map Button -->
+                                    @if($hotel->map_url || ($hotel->latitude && $hotel->longitude))
+                                        <a href="{{ $hotel->map_url ?: 'https://www.google.com/maps/search/?api=1&query=' . $hotel->latitude . ',' . $hotel->longitude }}" 
+                                           target="_blank"
+                                           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 text-sm">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>View on Map</span>
+                                        </a>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -425,50 +438,8 @@
                         @endif
                     </div>
 
-                    <!-- Right Column - Contact & Actions -->
+                    <!-- Right Column - Guest Reviews -->
                     <div class="lg:w-80 space-y-6">
-                        <!-- Contact Information Section -->
-                        <div class="bg-gray-50 rounded-2xl p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-                            
-                            @if($hotel->email)
-                                <div class="flex items-center space-x-3 mb-3">
-                                    <i class="fas fa-envelope text-blue-600"></i>
-                                    <span class="text-gray-700">{{ $hotel->email }}</span>
-                                </div>
-                            @endif
-                            
-                            @if($hotel->phone)
-                                <div class="flex items-center space-x-3 mb-3">
-                                    <i class="fas fa-phone text-blue-600"></i>
-                                    <span class="text-gray-700">{{ $hotel->phone }}</span>
-                                </div>
-                            @endif
-                            
-                            @if($hotel->website)
-                                <div class="flex items-center space-x-3 mb-4">
-                                    <i class="fas fa-globe text-blue-600"></i>
-                                    <a href="{{ $hotel->website }}" target="_blank" class="text-blue-600 hover:underline">Visit Website</a>
-                                </div>
-                            @endif
-
-                            @if($hotel->map_url || ($hotel->latitude && $hotel->longitude))
-                                <a href="{{ $hotel->map_url ?: 'https://www.google.com/maps/search/?api=1&query=' . $hotel->latitude . ',' . $hotel->longitude }}" 
-                                   target="_blank"
-                                   class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mb-4">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>View on Map</span>
-                                </a>
-                            @endif
-
-                            <button onclick="callHotel('{{ $hotel->phone ?? '' }}')" 
-                                    id="callButton"
-                                    class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
-                                <i class="fas fa-phone"></i>
-                                <span>Call to Book</span>
-                            </button>
-                        </div>
-
                         <!-- Guest Reviews Section -->
                         @if($totalReviews > 0)
                             <div class="bg-white rounded-2xl p-6 border border-gray-200">
@@ -521,7 +492,7 @@
                                 </div>
 
                                 <!-- See All Reviews Button -->
-                                @if($totalReviews > 3)
+                                @if($totalReviews > 6)
                                     <button onclick="openAllReviewsModal()"
                                             class="w-full mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
                                         See All {{ $totalReviews }} Reviews
@@ -1458,7 +1429,7 @@ function scrollToSearch() {
         currentReviewPage = page;
 
         try {
-            const response = await fetch(`/hotels/{{ $hotel->id }}/reviews?page=${page}`);
+            const response = await fetch(`/explore/hotels/{{ $hotel->id }}/reviews?page=${page}`);
             const data = await response.json();
 
             if (data.success) {

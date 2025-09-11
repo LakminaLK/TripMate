@@ -49,6 +49,7 @@ class AdminBookingController extends Controller
                 'customer_id' => 'C' . str_pad($booking->tourist_id, 3, '0', STR_PAD_LEFT),
                 'tourist_name' => $booking->tourist ? $booking->tourist->name : 'Unknown',
                 'tourist_email' => $booking->tourist ? $booking->tourist->email : 'N/A',
+                'tourist_mobile' => $booking->tourist ? $booking->tourist->mobile : 'N/A',
                 'tourist_id' => $booking->tourist_id,
                 'hotel_display_id' => 'H' . str_pad($booking->hotel_id, 3, '0', STR_PAD_LEFT),
                 'hotel_name' => $booking->hotel ? $booking->hotel->name : 'Unknown Hotel',

@@ -59,6 +59,11 @@ class Hotel extends Authenticatable
                     ->withTimestamps();
     }
 
-    // 🔕 Booking relation removed until the Booking model exists.
-    // public function bookings() { return $this->hasMany(Booking::class); }
+    /**
+     * Get the bookings for the hotel.
+     */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

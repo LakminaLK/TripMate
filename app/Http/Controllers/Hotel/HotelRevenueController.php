@@ -23,10 +23,12 @@ class HotelRevenueController extends Controller
         $period = $request->get('period', 'this_month');
         $dateRange = $this->getDateRange($period);
 
-        // Get ALL bookings for this hotel within date range (removed status filter)
+        // Get only confirmed and completed bookings for this hotel within date range
         $bookings = Booking::with(['tourist', 'roomType'])
             ->where('hotel_id', $hotel->id)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->get();
 
         // Calculate revenue metrics
@@ -179,7 +181,7 @@ class HotelRevenueController extends Controller
             ];
         }
 
-        // Get actual booking data (removed status filter)
+        // Get actual booking data (only confirmed and completed)
         $bookingData = Booking::select(
                 DB::raw('YEAR(created_at) as year'),
                 DB::raw('MONTH(created_at) as month'),
@@ -188,6 +190,8 @@ class HotelRevenueController extends Controller
             )
             ->where('hotel_id', $hotelId)
             ->where('created_at', '>=', $startDate)
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->groupBy('year', 'month')
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc')
@@ -222,6 +226,8 @@ class HotelRevenueController extends Controller
             ->with('roomType')
             ->where('hotel_id', $hotelId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->groupBy('room_type_id')
             ->orderByRaw('SUM(total_amount) DESC')
             ->get();
@@ -252,6 +258,8 @@ class HotelRevenueController extends Controller
             )
             ->where('hotel_id', $hotelId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get();
@@ -275,7 +283,7 @@ class HotelRevenueController extends Controller
         $endDate = Carbon::now()->endOfDay();
         $startDate = Carbon::now()->subDays(6)->startOfDay(); // Last 7 days including today
 
-        // Get actual booking data
+        // Get actual booking data (only confirmed and completed)
         $bookingData = Booking::select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total_amount) as total_revenue'),
@@ -283,6 +291,8 @@ class HotelRevenueController extends Controller
             )
             ->where('hotel_id', $hotelId)
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get();
@@ -331,6 +341,8 @@ class HotelRevenueController extends Controller
             ->with('tourist')
             ->where('hotel_id', $hotelId)
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->groupBy('tourist_id')
             ->orderByRaw('SUM(total_amount) DESC')
             ->limit(10)
@@ -347,10 +359,14 @@ class HotelRevenueController extends Controller
 
         $currentRevenue = Booking::where('hotel_id', $hotelId)
             ->whereBetween('created_at', [$currentMonth->startOfMonth(), $currentMonth->endOfMonth()])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->sum('total_amount');
 
         $previousRevenue = Booking::where('hotel_id', $hotelId)
             ->whereBetween('created_at', [$previousMonth->startOfMonth(), $previousMonth->endOfMonth()])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('booking_status', ['confirmed', 'completed'])
             ->sum('total_amount');
 
         $growthRate = $previousRevenue > 0 ? (($currentRevenue - $previousRevenue) / $previousRevenue) * 100 : 0;

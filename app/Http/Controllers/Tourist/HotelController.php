@@ -36,12 +36,12 @@ class HotelController extends Controller
             ->with('roomType')
             ->get();
 
-        // Get approved reviews for this hotel (limit to 3 for display)
+        // Get approved reviews for this hotel (limit to 6 for display)
         $reviews = \App\Models\Review::with('tourist')
             ->where('hotel_id', $hotel->id)
             ->where('is_approved', true)
             ->latest()
-            ->limit(3)
+            ->limit(6)
             ->get();
 
         // Get total review count and average rating

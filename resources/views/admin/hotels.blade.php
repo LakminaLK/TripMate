@@ -15,8 +15,12 @@
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Hotels Management</h1>
+            <p class="text-gray-600">Manage hotel registrations, status and revenue tracking</p>
+        </div>
+        
         <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <h1 class="text-2xl font-semibold text-gray-900">Hotels Management</h1>
             <!-- Filter pills -->
             <div class="flex items-center gap-2">
                 @php $status = strtolower(request('status','all')); @endphp
@@ -57,8 +61,8 @@
                 <th class="px-6 py-4 text-left">Email</th>
                 <th class="px-6 py-4 text-left">Location</th>
                 <th class="px-6 py-4 text-left">Status</th>
-                <th class="px-6 py-4 text-left">Bookings</th>
-                <th class="px-6 py-4 text-left">Total Revenue($)</th>
+                <th class="px-6 py-4 text-center">Bookings</th>
+                <th class="px-6 py-4 text-left">Total Revenue</th>
                 <th class="px-6 py-4 text-left">Actions</th>
             </tr>
         </thead>
@@ -78,8 +82,12 @@
                 </span>
               </td>
 
-              <td class="px-6 py-4">{{ $h->bookings_count ?? 0 }}</td>
-              <td class="px-6 py-4">{{ number_format($h->total_revenue ?? 0, 2) }}</td>
+              <td class="px-6 py-4 text-center">
+                <span class="font-medium text-blue-600">
+                  {{ $h->bookings_count ?? 0 }}
+                </span>
+              </td>
+              <td class="px-6 py-4 font-medium text-green-600">{{ $h->total_revenue ?? '$ 0.00' }}</td>
 
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2">

@@ -15,9 +15,12 @@
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Booking Management</h1>
+            <p class="text-gray-600">Monitor all hotel bookings and reservations</p>
+        </div>
+        
         <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <h1 class="text-2xl font-semibold text-gray-900">Booking Management</h1>
-            
             <!-- Filter pills -->
             <div class="flex items-center gap-2">
                 @php $status = strtolower(request('status','all')); @endphp
@@ -193,8 +196,8 @@ function showBookingDetails(booking) {
                     
                     <div class="flex justify-between">
                         <span class="text-gray-600">Payment Status:</span>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPaymentColor(booking.payment_status)}">
-                            ${booking.payment_status.charAt(0).toUpperCase() + booking.payment_status.slice(1)}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPaymentColor(booking.status === 'cancelled' ? 'refunded' : booking.payment_status)}">
+                            ${booking.status === 'cancelled' ? 'Refunded' : (booking.payment_status.charAt(0).toUpperCase() + booking.payment_status.slice(1))}
                         </span>
                     </div>
                 </div>
@@ -218,6 +221,11 @@ function showBookingDetails(booking) {
                     <div class="flex justify-between">
                         <span class="text-gray-600">Email:</span>
                         <span class="font-medium text-sm">${booking.tourist_email}</span>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Mobile:</span>
+                        <span class="font-medium">${booking.tourist_mobile}</span>
                     </div>
                 </div>
             </div>
@@ -292,7 +300,7 @@ function getPaymentColor(status) {
         'pending': 'bg-yellow-100 text-yellow-800',
         'paid': 'bg-green-100 text-green-800',
         'failed': 'bg-red-100 text-red-800',
-        'refunded': 'bg-gray-100 text-gray-800'
+        'refunded': 'bg-orange-100 text-orange-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
 }

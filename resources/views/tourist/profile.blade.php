@@ -18,11 +18,26 @@
         .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
         .float { animation: float 3s ease-in-out infinite; }
         
+        /* Smooth transitions */
+        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+        .hover-scale:hover { transform: scale(1.02); }
+        
+        /* Professional gradients */
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.1); }
+        
         @keyframes fadeIn { to { opacity: 1; } }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
         @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
     </style>
     <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
 </head>
@@ -34,7 +49,6 @@
     $imageUrl = $tourist->profile_image ? asset('storage/' . $tourist->profile_image) : null;
 @endphp
 
-<!-- ✅ Professional Navbar -->
 <!-- ✅ Professional Navbar -->
 <header x-data="{ isOpen: false }" 
         class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-lg transition-all duration-300">
@@ -49,44 +63,37 @@
                     </div>
                 </div>
                 <div>
-                    <h1 :class="scrolled ? 'text-gray-900' : 'text-white'" 
-                        class="text-xl font-bold transition-colors">
+                    <h1 class="text-xl font-bold transition-colors text-gray-900">
                         Trip<span class="text-blue-600">Mate</span>
                     </h1>
-                    <p :class="scrolled ? 'text-gray-500' : 'text-white/70'" 
-                       class="text-xs transition-colors">Your Travel Companion</p>
+                    <p class="text-xs transition-colors text-gray-500">Your Travel Companion</p>
                 </div>
             </a>
 
             <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center space-x-8">
                 <a href="{{ route('landing') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="font-medium transition-colors relative group text-gray-700 hover:text-blue-600">
                     Home
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#about" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="font-medium transition-colors relative group text-gray-700 hover:text-blue-600">
                     About
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="{{ route('tourist.explore') }}" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="font-medium transition-colors relative group text-gray-700 hover:text-blue-600">
                     Explore
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#emergency" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="font-medium transition-colors relative group text-gray-700 hover:text-blue-600">
                     Emergency
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#contact" 
-                   :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                   class="font-medium transition-colors relative group">
+                   class="font-medium transition-colors relative group text-gray-700 hover:text-blue-600">
                     Contact us
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
@@ -98,8 +105,7 @@
                     <!-- Profile Dropdown -->
                     <div x-data="{ open: false }" class="relative" @click.away="open = false">
                         <button @click="open = !open"
-                                :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300">
+                                class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300 text-gray-700 hover:text-blue-600">
                             <i class="fas fa-user-circle text-2xl"></i>
                         </button>
 
@@ -125,16 +131,17 @@
                                 </div>
                             </div>
                             <div class="py-2">
-                                <a href="{{ route('profile.edit') }}" 
+                                <a href="{{ route('tourist.profile.show') }}" 
                                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-user-circle mr-3 text-blue-600"></i>
                                     View Profile
                                 </a>
-                                <a href="#bookings" 
+                                <a href="{{ route('tourist.bookings.view') }}" 
                                    class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
                                     My Bookings
                                 </a>
+                                <hr class="my-2">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" 
@@ -148,8 +155,7 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" 
-                       :class="scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'"
-                       class="font-medium transition-colors">
+                       class="font-medium transition-colors text-gray-700 hover:text-blue-600">
                         Login
                     </a>
                     <a href="{{ route('register') }}" 
@@ -171,7 +177,7 @@
                 <h2 class="text-lg font-semibold text-gray-800 mb-1">Profile Information</h2>
                 <p class="text-sm text-gray-500 mb-4">Update your name and profile picture.</p>
 
-                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4">
+                <form method="POST" action="{{ route('tourist.profile.update') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     @method('PATCH')
 
@@ -228,7 +234,7 @@
 
                 <!-- ✅ Remove Image Button -->
                 @if ($tourist->profile_image)
-                    <form method="POST" action="{{ route('profile.removeImage') }}"
+                    <form method="POST" action="{{ route('tourist.profile.removeImage') }}"
                           onsubmit="return confirm('Are you sure you want to remove your profile image?')"
                           class="mt-4">
                         @csrf
@@ -249,7 +255,7 @@
                 <h2 class="text-lg font-semibold text-gray-800 mb-1">Update Password</h2>
                 <p class="text-sm text-gray-500 mb-4">Ensure your password is strong and unique.</p>
 
-                <form method="POST" action="{{ route('password.update') }}" class="space-y-4">
+                <form method="POST" action="{{ route('tourist.password.update') }}" class="space-y-4">
                     @csrf
                     @method('PUT')
 

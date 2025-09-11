@@ -12,7 +12,7 @@
         <div class="flex items-center gap-3">
             <!-- Period Filter -->
             <div class="relative">
-                <select id="periodFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 text-sm font-medium focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                <select id="periodFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                     <option value="all" {{ $periodFilter == 'all' ? 'selected' : '' }}>All Time</option>
                     <option value="today" {{ $periodFilter == 'today' ? 'selected' : '' }}>Today</option>
                     <option value="this_week" {{ $periodFilter == 'this_week' ? 'selected' : '' }}>This Week</option>

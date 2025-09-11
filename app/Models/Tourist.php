@@ -24,5 +24,13 @@ class Tourist extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Get the bookings for the tourist.
+     */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
 

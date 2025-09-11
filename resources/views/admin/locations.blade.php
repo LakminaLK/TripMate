@@ -15,8 +15,12 @@
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Locations Management</h1>
+            <p class="text-gray-600">Manage tourist destinations and geographical locations</p>
+        </div>
+        
         <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <h1 class="text-2xl font-semibold text-gray-900">Locations Management</h1>
             <!-- Filter pills -->
             <div class="flex items-center gap-2">
                 @php $status = strtolower(request('status','all')); @endphp

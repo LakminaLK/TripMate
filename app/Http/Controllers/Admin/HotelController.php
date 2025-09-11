@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\HotelCredentialsMail;
 use App\Models\Hotel;
 use App\Models\Location;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -18,8 +19,11 @@ class HotelController extends Controller
         $status = $request->get('status'); // 'all'|'active'|'inactive'
         $search = $request->get('q');
 
-        // ⬇ Removed withCount/withSum('bookings') since Booking model isn't created yet
-        $query = Hotel::query()->with('location');
+        // Query hotels with booking data
+        $query = Hotel::query()->with(['location', 'bookings' => function($query) {
+            $query->where('status', '!=', 'cancelled')
+                  ->orWhereNull('status');
+        }]);
 
         if ($status && in_array(strtolower($status), ['active', 'inactive'])) {
             $query->where('status', ucfirst($status));
@@ -33,7 +37,21 @@ class HotelController extends Controller
             });
         }
 
-        $hotels    = $query->orderBy('id')->paginate(10)->withQueryString();
+        $hotels = $query->orderBy('id')->paginate(10)->withQueryString();
+
+        // Calculate booking counts and hotel revenue for each hotel
+        $hotels->getCollection()->transform(function ($hotel) {
+            $confirmedBookings = $hotel->bookings->where('status', '!=', 'cancelled');
+            $hotel->bookings_count = $confirmedBookings->count();
+            
+            // Calculate hotel revenue (90% of total amount, excluding 10% admin commission)
+            $totalRevenue = $confirmedBookings->sum('total_amount');
+            $hotelRevenue = $totalRevenue * 0.90; // Hotel gets 90%
+            $hotel->total_revenue = '$ ' . number_format($hotelRevenue, 2);
+            
+            return $hotel;
+        });
+
         $locations = Location::orderBy('name')->get();
 
         return view('admin.hotels', compact('hotels', 'locations'));

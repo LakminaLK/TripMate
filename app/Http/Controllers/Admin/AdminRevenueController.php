@@ -20,9 +20,13 @@ class AdminRevenueController extends Controller
         $period = $request->get('period', 'this_month');
         $dateRange = $this->getDateRange($period);
 
-        // Get ALL bookings within date range (temporarily remove status filter)
+        // Get only confirmed and completed bookings within date range
         $bookings = Booking::with(['hotel', 'tourist', 'roomType'])
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->where(function($query) {
+                $query->whereIn('status', ['confirmed', 'completed'])
+                      ->orWhereIn('booking_status', ['confirmed', 'completed']);
+            })
             ->get();
 
         // Calculate revenue metrics
@@ -169,7 +173,7 @@ class AdminRevenueController extends Controller
             ];
         }
 
-        // Get ALL booking data (no status filter) to see what we have
+        // Get only confirmed and completed booking data
         $bookingData = Booking::select(
                 DB::raw('YEAR(created_at) as year'),
                 DB::raw('MONTH(created_at) as month'),
@@ -177,6 +181,10 @@ class AdminRevenueController extends Controller
                 DB::raw('COUNT(*) as booking_count')
             )
             ->where('created_at', '>=', $startDate)
+            ->where(function($query) {
+                $query->whereIn('status', ['confirmed', 'completed'])
+                      ->orWhereIn('booking_status', ['confirmed', 'completed']);
+            })
             ->groupBy('year', 'month')
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc')
@@ -214,6 +222,10 @@ class AdminRevenueController extends Controller
             ->selectRaw('COUNT(*) as booking_count')
             ->with('hotel')
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->where(function($query) {
+                $query->whereIn('status', ['confirmed', 'completed'])
+                      ->orWhereIn('booking_status', ['confirmed', 'completed']);
+            })
             ->groupBy('hotel_id')
             ->orderByRaw('SUM(total_amount) DESC')
             ->limit(10)
@@ -240,6 +252,10 @@ class AdminRevenueController extends Controller
             ->selectRaw('AVG(total_amount) as avg_booking_value')
             ->with('hotel')
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->where(function($query) {
+                $query->whereIn('status', ['confirmed', 'completed'])
+                      ->orWhereIn('booking_status', ['confirmed', 'completed']);
+            })
             ->groupBy('hotel_id')
             ->orderByRaw('SUM(total_amount) DESC')
             ->get()
@@ -268,6 +284,10 @@ class AdminRevenueController extends Controller
                 DB::raw('COUNT(*) as booking_count')
             )
             ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->where(function($query) {
+                $query->whereIn('status', ['confirmed', 'completed'])
+                      ->orWhereIn('booking_status', ['confirmed', 'completed']);
+            })
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get()
@@ -289,13 +309,17 @@ class AdminRevenueController extends Controller
         $endDate = Carbon::now()->endOfDay();
         $startDate = Carbon::now()->subDays(6)->startOfDay(); // Last 7 days including today
 
-        // Get ALL booking data first to see what we have
+        // Get only confirmed and completed booking data
         $bookingData = Booking::select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total_amount) as total_revenue'),
                 DB::raw('COUNT(*) as booking_count')
             )
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->where(function($query) {
+                $query->whereIn('status', ['confirmed', 'completed'])
+                      ->orWhereIn('booking_status', ['confirmed', 'completed']);
+            })
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get()
