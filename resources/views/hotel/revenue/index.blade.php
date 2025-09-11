@@ -3,11 +3,11 @@
 @section('title', 'Revenue Dashboard')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Page Header -->
+    <!-- Compact Header like Room Management -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
-        <div class="flex flex-col md:flex-row md:items-center gap-4">
-            <h1 class="text-2xl font-semibold text-gray-900">Revenue Dashboard</h1>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Revenue Dashboard</h1>
+            <p class="text-gray-600">Monitor and analyze your hotel's revenue performance</p>
         </div>
         <div class="flex items-center gap-3">
             <!-- Period Filter -->
@@ -24,12 +24,14 @@
                 </select>
                 <i class="fas fa-chevron-down absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
             </div>
-            <a href="{{ route('hotel.revenue.report') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg transition-colors text-sm font-medium">
-                <i class="fas fa-file-alt mr-2"></i>Detailed Report
+            <a href="{{ route('hotel.revenue.report') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2">
+                <i class="fas fa-file-alt"></i>
+                Detailed Report
             </a>
         </div>
     </div>
 
+    <div class="space-y-6">
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total Bookings -->
@@ -105,39 +107,7 @@
     </div>
 
     <!-- Tables Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Daily Revenue Table -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Revenue ({{ ucfirst(str_replace('_', ' ', $period)) }})</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="text-left py-3 font-medium text-gray-700">Date</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Bookings</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Revenue</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($dailyRevenue as $day)
-                        <tr class="border-b border-gray-100">
-                            <td class="py-3">
-                                <div class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($day->date)->format('M d, Y') }}</div>
-                                <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($day->date)->format('l') }}</div>
-                            </td>
-                            <td class="text-right py-3 text-gray-700">{{ number_format($day->booking_count) }}</td>
-                            <td class="text-right py-3 font-medium text-blue-600">${{ number_format($day->hotel_revenue, 2) }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="3" class="py-8 text-center text-gray-500">No data available for selected period</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Revenue by Room Type -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue by Room Type</h3>

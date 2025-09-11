@@ -28,22 +28,11 @@
                     'icon' => 'fas fa-calendar-check'
                 ],
                 [
-                    'route' => '#',
+                    'route' => 'hotel.reviews.index',
                     'routePattern' => 'hotel.reviews.*',
                     'label' => 'Reviews',
                     'icon' => 'fas fa-star'
-                ],
-                [
-                    'route' => '#',
-                    'routePattern' => 'hotel.settings.*',
-                    'label' => 'Settings',
-                    'icon' => 'fas fa-cog'
                 ]
-            ];
-            
-            $disabledItems = [
-                ['label' => 'Analytics', 'icon' => 'fas fa-chart-bar'],
-                ['label' => 'Reports', 'icon' => 'fas fa-file-alt']
             ];
         @endphp
 
@@ -66,14 +55,5 @@
                 </a>
             @endif
         @endforeach
-
-        <div class="pt-4 border-t border-gray-200 mt-4">
-            @foreach($disabledItems as $item)
-                <span class="flex items-center px-4 py-3 text-gray-400 cursor-not-allowed rounded-xl">
-                    <i class="{{ $item['icon'] }} mr-3 text-gray-400"></i>
-                    {{ $item['label'] }}
-                </span>
-            @endforeach
-        </div>
     </div>
 </div>

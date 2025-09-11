@@ -37,6 +37,7 @@ use App\Http\Controllers\Hotel\HotelManagementController;
 use App\Http\Controllers\Hotel\HotelRevenueController;
 use App\Http\Controllers\Hotel\RoomController;
 use App\Http\Controllers\Hotel\BookingController;
+use App\Http\Controllers\Hotel\ReviewController as HotelReviewController;
 use App\Http\Controllers\Hotel\Auth\PasswordResetController;
 
 /* =========================================================================
@@ -169,6 +170,9 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
         // Revenue Management Routes
         Route::get('/revenue', [HotelRevenueController::class, 'index'])->name('revenue.index');
         Route::get('/revenue/report', [HotelRevenueController::class, 'report'])->name('revenue.report');
+        
+        // Review Management Routes
+        Route::get('/reviews', [HotelReviewController::class, 'index'])->name('reviews.index');
     });
 });
 

@@ -105,39 +105,7 @@
     </div>
 
     <!-- Tables Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Daily Commission Table -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Commission ({{ ucfirst(str_replace('_', ' ', $period)) }})</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="text-left py-3 font-medium text-gray-700">Date</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Bookings</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Commission</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($dailyRevenueTable as $day)
-                        <tr class="border-b border-gray-100">
-                            <td class="py-3">
-                                <div class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($day->date)->format('M d, Y') }}</div>
-                                <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($day->date)->format('l') }}</div>
-                            </td>
-                            <td class="text-right py-3 text-gray-700">{{ number_format($day->booking_count) }}</td>
-                            <td class="text-right py-3 font-medium text-green-600">${{ number_format($day->admin_commission, 2) }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="3" class="py-8 text-center text-gray-500">No data available for selected period</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Top Hotels by Commission -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Hotels by Commission</h3>
