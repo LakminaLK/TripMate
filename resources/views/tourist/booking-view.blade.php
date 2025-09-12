@@ -265,7 +265,7 @@
                                     View Profile
                                 </a>
                                 <a href="{{ route('tourist.bookings.view') }}" 
-                                   class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors bg-blue-50 border-l-4 border-blue-600">
+                                   class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors">
                                     <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
                                     My Bookings
                                 </a>
