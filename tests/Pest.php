@@ -12,8 +12,11 @@
 */
 
 pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
+
+// Unit tests don't need database
+pest()->extend(Tests\TestCase::class)
+    ->in('Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +31,14 @@ pest()->extend(Tests\TestCase::class)
 
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
+});
+
+expect()->extend('toBeValidEmail', function () {
+    return $this->toMatch('/^[^\s@]+@[^\s@]+\.[^\s@]+$/');
+});
+
+expect()->extend('toBeValidPhoneNumber', function () {
+    return $this->toMatch('/^[\+]?[1-9][\d]{0,15}$/');
 });
 
 /*

@@ -4,15 +4,23 @@ namespace App\Http\Controllers\Tourist;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Repositories\BookingRepository;
+use App\Services\AuthService;
+use App\Services\BookingAuthorizationService;
+use App\Services\BookingStatsService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
-    public function __construct()
-    {
-        // Remove middleware to avoid redirect loops
-        // $this->middleware('auth:tourist');
+    protected BookingRepository $bookingRepository;
+    protected BookingStatsService $bookingStatsService;
+
+    public function __construct(
+        BookingRepository $bookingRepository,
+        BookingStatsService $bookingStatsService
+    ) {
+        $this->bookingRepository = $bookingRepository;
+        $this->bookingStatsService = $bookingStatsService;
     }
 
     /**
@@ -20,15 +28,12 @@ class BookingController extends Controller
      */
     public function index()
     {
-        // Check authentication manually to avoid redirect loops
-        if (!Auth::guard('tourist')->check()) {
-            return redirect()->route('login')->with('message', 'Please login to view your bookings.');
+        if ($redirect = $this->checkAuthentication()) {
+            return $redirect;
         }
 
-        $bookings = Booking::with(['hotel', 'review'])
-            ->where('tourist_id', Auth::guard('tourist')->id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $tourist = AuthService::getAuthenticatedTourist();
+        $bookings = $this->bookingRepository->getTouristBookings($tourist->id);
 
         return view('tourist.bookings.index', compact('bookings'));
     }
@@ -38,17 +43,13 @@ class BookingController extends Controller
      */
     public function show(Booking $booking)
     {
-        // Check authentication manually to avoid redirect loops
-        if (!Auth::guard('tourist')->check()) {
-            return redirect()->route('login')->with('message', 'Please login to view your bookings.');
+        if ($redirect = $this->checkAuthentication()) {
+            return $redirect;
         }
 
-        // Ensure the booking belongs to the authenticated tourist
-        if ($booking->tourist_id !== Auth::guard('tourist')->id()) {
-            abort(403, 'Unauthorized access to booking');
-        }
+        $tourist = AuthService::getAuthenticatedTourist();
+        BookingAuthorizationService::authorizeBookingAccess($booking, $tourist);
 
-        // Redirect to the new booking details page
         return redirect()->route('tourist.booking.details', $booking);
     }
 
@@ -57,17 +58,15 @@ class BookingController extends Controller
      */
     public function showReceipt(Booking $booking)
     {
-        // Check authentication manually to avoid redirect loops
-        if (!Auth::guard('tourist')->check()) {
-            return redirect()->route('login')->with('message', 'Please login to view your booking details.');
+        if ($redirect = $this->checkAuthentication()) {
+            return $redirect;
         }
 
-        // Ensure the booking belongs to the authenticated tourist
-        if ($booking->tourist_id !== Auth::guard('tourist')->id()) {
-            abort(403, 'Unauthorized access to booking');
-        }
-
-        $booking->load('hotel');
+        $tourist = AuthService::getAuthenticatedTourist();
+        $booking = BookingAuthorizationService::getBookingWithHotelForTouristOrFail(
+            $booking->id, 
+            $tourist
+        );
         
         return view('tourist.booking-details', compact('booking'));
     }
@@ -77,35 +76,43 @@ class BookingController extends Controller
      */
     public function viewBookings()
     {
-        // Check authentication manually to avoid redirect loops
-        if (!Auth::guard('tourist')->check()) {
-            return redirect()->route('login')->with('message', 'Please login to view your bookings.');
+        if ($redirect = $this->checkAuthentication()) {
+            return $redirect;
         }
 
-        $userId = Auth::guard('tourist')->id();
-
-        // Get paginated bookings
-        $bookings = Booking::with(['hotel.location', 'review'])
-            ->where('tourist_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        // Get total counts for all statuses
-        $totalBookings = Booking::where('tourist_id', $userId)->count();
-        $confirmedCount = Booking::where('tourist_id', $userId)->where('status', 'confirmed')->count();
-        $pendingCount = Booking::where('tourist_id', $userId)->where('status', 'pending')->count();
-        $completedCount = Booking::where('tourist_id', $userId)->where('status', 'completed')->count();
-        $cancelledCount = Booking::where('tourist_id', $userId)->where('status', 'cancelled')->count();
-
-        // Create stats array
-        $stats = [
-            'total' => $totalBookings,
-            'confirmed' => $confirmedCount,
-            'pending' => $pendingCount,
-            'completed' => $completedCount,
-            'cancelled' => $cancelledCount
-        ];
+        $tourist = AuthService::getAuthenticatedTourist();
+        
+        $bookings = $this->getBookingsWithStats($tourist->id);
+        $stats = $this->getBookingStatistics($tourist->id);
 
         return view('tourist.booking-view', compact('bookings', 'stats'));
+    }
+
+    // ========================================
+    // PRIVATE HELPER METHODS
+    // ========================================
+
+    /**
+     * Check if user is authenticated.
+     */
+    private function checkAuthentication()
+    {
+        return AuthService::checkTouristAuth();
+    }
+
+    /**
+     * Get bookings with location data.
+     */
+    private function getBookingsWithStats(int $touristId)
+    {
+        return $this->bookingRepository->getTouristBookingsWithLocation($touristId);
+    }
+
+    /**
+     * Get booking statistics for the tourist.
+     */
+    private function getBookingStatistics(int $touristId): array
+    {
+        return $this->bookingStatsService->getTouristBookingStats($touristId);
     }
 }
