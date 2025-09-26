@@ -4,15 +4,15 @@
 
 @section('content')
     <!-- Compact Header like Room Management -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-dark-100 p-6 rounded-xl shadow-md border border-gray-200 dark:border-dark-200 mb-6 transition-colors duration-300">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Revenue Dashboard</h1>
-            <p class="text-gray-600">Monitor and analyze your hotel's revenue performance</p>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-dark-700">Revenue Dashboard</h1>
+            <p class="text-gray-600 dark:text-dark-500">Monitor and analyze your hotel's revenue performance</p>
         </div>
         <div class="flex items-center gap-3">
             <!-- Period Filter -->
             <div class="relative">
-                <select id="periodFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2.5 pr-10 text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <select id="periodFilter" class="appearance-none bg-white dark:bg-dark-100 border border-gray-300 dark:border-dark-200 rounded-lg px-4 py-2.5 pr-10 text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:text-dark-700 transition-colors duration-300">
                     <option value="today" {{ $period == 'today' ? 'selected' : '' }}>Today</option>
                     <option value="yesterday" {{ $period == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                     <option value="this_week" {{ $period == 'this_week' ? 'selected' : '' }}>This Week</option>
@@ -22,9 +22,9 @@
                     <option value="this_year" {{ $period == 'this_year' ? 'selected' : '' }}>This Year</option>
                     <option value="last_year" {{ $period == 'last_year' ? 'selected' : '' }}>Last Year</option>
                 </select>
-                <i class="fas fa-chevron-down absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
+                <i class="fas fa-chevron-down absolute right-3 top-3 text-gray-400 dark:text-dark-400 pointer-events-none"></i>
             </div>
-            <a href="{{ route('hotel.revenue.report') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2">
+            <a href="{{ route('hotel.revenue.report') }}" class="bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2">
                 <i class="fas fa-file-alt"></i>
                 Detailed Report
             </a>
@@ -35,53 +35,53 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total Bookings -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Bookings</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ number_format($totalBookings) }}</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-dark-400">Total Bookings</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-dark-700">{{ number_format($totalBookings) }}</p>
                 </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+                <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                    <i class="fas fa-calendar-check text-blue-600 dark:text-blue-400 text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Total Booking Value -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Booking Value</p>
-                    <p class="text-2xl font-bold text-gray-900">${{ number_format($totalBookingValue, 2) }}</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-dark-400">Total Booking Value</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-dark-700">${{ number_format($totalBookingValue, 2) }}</p>
                 </div>
-                <div class="bg-green-100 p-3 rounded-full">
-                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                <div class="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+                    <i class="fas fa-dollar-sign text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Your Revenue -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Your Revenue (90%)</p>
-                    <p class="text-2xl font-bold text-blue-600">${{ number_format($hotelRevenue, 2) }}</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-dark-400">Your Revenue (90%)</p>
+                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${{ number_format($hotelRevenue, 2) }}</p>
                 </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <i class="fas fa-hotel text-blue-600 text-xl"></i>
+                <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                    <i class="fas fa-hotel text-blue-600 dark:text-blue-400 text-xl"></i>
                 </div>
             </div>
         </div>
 
         <!-- Platform Fee -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Platform Fee (10%)</p>
-                    <p class="text-2xl font-bold text-gray-600">${{ number_format($adminCommission, 2) }}</p>
+                    <p class="text-sm font-medium text-gray-600 dark:text-dark-400">Platform Fee (10%)</p>
+                    <p class="text-2xl font-bold text-gray-600 dark:text-dark-500">${{ number_format($adminCommission, 2) }}</p>
                 </div>
-                <div class="bg-gray-100 p-3 rounded-full">
-                    <i class="fas fa-percentage text-gray-600 text-xl"></i>
+                <div class="bg-gray-100 dark:bg-dark-200 p-3 rounded-full">
+                    <i class="fas fa-percentage text-gray-600 dark:text-dark-400 text-xl"></i>
                 </div>
             </div>
         </div>
@@ -90,16 +90,16 @@
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Monthly Revenue Trend -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Revenue Trend (Last 12 Months)</h3>
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-dark-700 mb-4">Monthly Revenue Trend (Last 12 Months)</h3>
             <div class="h-64 relative">
                 <canvas id="monthlyRevenueChart"></canvas>
             </div>
         </div>
 
         <!-- Daily Revenue -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Revenue (Last 7 Days)</h3>
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-dark-700 mb-4">Daily Revenue (Last 7 Days)</h3>
             <div class="h-64 relative">
                 <canvas id="dailyRevenueChart"></canvas>
             </div>
@@ -109,25 +109,25 @@
     <!-- Tables Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Revenue by Room Type -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue by Room Type</h3>
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-dark-700 mb-4">Revenue by Room Type</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="text-left py-3 font-medium text-gray-700">Room Type</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Bookings</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Revenue</th>
+                        <tr class="border-b border-gray-200 dark:border-dark-200">
+                            <th class="text-left py-3 font-medium text-gray-700 dark:text-dark-500">Room Type</th>
+                            <th class="text-right py-3 font-medium text-gray-700 dark:text-dark-500">Bookings</th>
+                            <th class="text-right py-3 font-medium text-gray-700 dark:text-dark-500">Revenue</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($roomTypeRevenue as $roomType)
-                        <tr class="border-b border-gray-100">
+                        <tr class="border-b border-gray-100 dark:border-dark-200">
                             <td class="py-3">
-                                <div class="font-medium text-gray-900">{{ $roomType->roomType->name ?? 'N/A' }}</div>
-                                <div class="text-gray-500 text-xs">{{ $roomType->total_rooms_booked }} rooms booked</div>
+                                <div class="font-medium text-gray-900 dark:text-dark-700">{{ $roomType->roomType->name ?? 'N/A' }}</div>
+                                <div class="text-gray-500 dark:text-dark-400 text-xs">{{ $roomType->total_rooms_booked }} rooms booked</div>
                             </td>
-                            <td class="text-right py-3 text-gray-700">{{ number_format($roomType->booking_count) }}</td>
+                            <td class="text-right py-3 text-gray-700 dark:text-dark-500">{{ number_format($roomType->booking_count) }}</td>
                             <td class="text-right py-3 font-medium text-blue-600">${{ number_format($roomType->hotel_revenue, 2) }}</td>
                         </tr>
                         @empty
@@ -141,30 +141,30 @@
         </div>
 
         <!-- Top Guests -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Guests by Spending</h3>
+        <div class="bg-white dark:bg-dark-100 rounded-xl shadow-lg p-6 border dark:border-dark-200 transition-colors duration-300">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-dark-700 mb-4">Top Guests by Spending</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="text-left py-3 font-medium text-gray-700">Guest</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Bookings</th>
-                            <th class="text-right py-3 font-medium text-gray-700">Total Spent</th>
+                        <tr class="border-b border-gray-200 dark:border-dark-200">
+                            <th class="text-left py-3 font-medium text-gray-700 dark:text-dark-500">Guest</th>
+                            <th class="text-right py-3 font-medium text-gray-700 dark:text-dark-500">Bookings</th>
+                            <th class="text-right py-3 font-medium text-gray-700 dark:text-dark-500">Total Spent</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($topGuests as $guest)
-                        <tr class="border-b border-gray-100">
+                        <tr class="border-b border-gray-100 dark:border-dark-200">
                             <td class="py-3">
-                                <div class="font-medium text-gray-900">{{ $guest->tourist->name ?? 'N/A' }}</div>
-                                <div class="text-gray-500 text-xs">${{ number_format($guest->avg_booking_value, 2) }} avg</div>
+                                <div class="font-medium text-gray-900 dark:text-dark-700">{{ $guest->tourist->name ?? 'N/A' }}</div>
+                                <div class="text-gray-500 dark:text-dark-400 text-xs">${{ number_format($guest->avg_booking_value, 2) }} avg</div>
                             </td>
-                            <td class="text-right py-3 text-gray-700">{{ number_format($guest->booking_count) }}</td>
-                            <td class="text-right py-3 font-medium text-green-600">${{ number_format($guest->total_spent, 2) }}</td>
+                            <td class="text-right py-3 text-gray-700 dark:text-dark-500">{{ number_format($guest->booking_count) }}</td>
+                            <td class="text-right py-3 font-medium text-green-600 dark:text-green-400">${{ number_format($guest->total_spent, 2) }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="3" class="py-8 text-center text-gray-500">No data available for selected period</td>
+                            <td colspan="3" class="py-8 text-center text-gray-500 dark:text-dark-400">No data available for selected period</td>
                         </tr>
                         @endforelse
                     </tbody>

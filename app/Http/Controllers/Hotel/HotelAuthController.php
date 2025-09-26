@@ -17,10 +17,12 @@ class HotelAuthController extends Controller
         return view('hotel.login');
     }
 
-    public function dashboard()
-{
-    return view('hotel.dashboard'); // Make sure this Blade view exists!
-}
+    public function dashboard(Request $request)
+    {
+        // Redirect to the proper dashboard controller with data
+        $hotelProfileController = new HotelProfileController();
+        return $hotelProfileController->dashboard($request);
+    }
 
     public function login(Request $request)
     {

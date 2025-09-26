@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - TripMate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -27,15 +28,20 @@
             <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">Welcome Back!</h2>
             <p class="text-center text-sm text-gray-500 mb-6">Join us in exploring breathtaking destinations</p>
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-4">
-                @csrf
+            <div x-data="loginForm()" class="space-y-4">
+                <!-- Hidden field to store redirect URL -->
+                @if(request('redirect'))
+                    <input type="hidden" name="redirect" value="{{ request('redirect') }}" x-ref="redirect">
+                @endif
 
-                <input type="email" name="email" placeholder="Email"
-                    class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring focus:border-blue-500" required>
+                <input type="email" x-model="email" placeholder="Email" 
+                    class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring focus:border-blue-500" 
+                    autocomplete="email" required>
 
                 <div x-data="{ show: false }" class="relative">
-                    <input :type="show ? 'text' : 'password'" name="password" placeholder="Password"
-                        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring focus:border-blue-500" required>
+                    <input :type="show ? 'text' : 'password'" x-model="password" placeholder="Password"
+                        class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring focus:border-blue-500" 
+                        autocomplete="current-password" required>
                     <button type="button" @click="show = !show" class="absolute right-3 inset-y-0 flex items-center">
                         <!-- Eye icons -->
                         <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,53 +59,154 @@
                     </button>
                 </div>
 
-                <button type="submit"
-                        class="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                    Login
+                <button type="button" @click="submitLogin" :disabled="loading"
+                        class="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50">
+                    <span x-show="!loading">Login</span>
+                    <span x-show="loading">Logging in...</span>
                 </button>
-            </form>
+            </div>
 
             <p class="mt-4 text-sm text-center text-gray-600">
-                Don’t have an account? 
+                Don't have an account? 
                 <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Sign up</a>
+            </p>
             <p class="mt-4 text-sm text-center text-gray-600">
                 Forget your password?
                 <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">Forgot Password</a>
-
             </p>
         </div>
     </div>
 
-    <!-- Toast Notifications -->
+    <!-- Toast Notifications - Only for errors, no individual field errors -->
+    @if (session('success') || session('error') || $errors->any())
     <div 
-        x-data="{ show: {{ session('success') || session('error') || $errors->any() ? 'true' : 'false' }} }"
-        x-init="setTimeout(() => show = false, 4000)"
+        x-data="{ show: true }"
+        x-init="setTimeout(() => show = false, 5000)"
         x-show="show"
         x-transition:enter="transition ease-out duration-500"
         x-transition:leave="transition ease-in duration-300"
         class="fixed top-6 right-6 z-50"
     >
         @if (session('success'))
-            <div class="bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4">
-                <span>{{ session('success') }}</span>
-                <button @click="show = false" class="text-white text-lg font-bold">&times;</button>
+            <div class="bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center justify-between gap-4 min-w-80">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <button @click="show = false" class="text-white text-xl font-bold hover:bg-green-700 rounded px-2">&times;</button>
             </div>
         @elseif (session('error'))
-            <div class="bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4">
-                <span>{{ session('error') }}</span>
-                <button @click="show = false" class="text-white text-lg font-bold">&times;</button>
+            <div class="bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center justify-between gap-4 min-w-80">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span>{{ session('error') }}</span>
+                </div>
+                <button @click="show = false" class="text-white text-xl font-bold hover:bg-red-700 rounded px-2">&times;</button>
             </div>
         @elseif ($errors->any())
-            <div class="bg-yellow-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-start justify-between gap-4">
-                <ul class="list-disc ml-4 text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button @click="show = false" class="text-white text-lg font-bold mt-1">&times;</button>
+            <div class="bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-start justify-between gap-4 min-w-80">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        @if($errors->count() == 1)
+                            <span>{{ $errors->first() }}</span>
+                        @else
+                            <div>
+                                <div class="font-semibold mb-1">Please fix the following:</div>
+                                <ul class="text-sm space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>• {{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <button @click="show = false" class="text-white text-xl font-bold hover:bg-red-700 rounded px-2">&times;</button>
             </div>
         @endif
     </div>
+    @endif
+
+    <script>
+        function loginForm() {
+            return {
+                email: '{{ old("email") }}',
+                password: '',
+                loading: false,
+
+                async submitLogin() {
+                    this.loading = true;
+                    
+                    const formData = new FormData();
+                    formData.append('email', this.email);
+                    formData.append('password', this.password);
+                    formData.append('_token', '{{ csrf_token() }}');
+                    
+                    @if(request('redirect'))
+                        formData.append('redirect', this.$refs.redirect.value);
+                    @endif
+
+                    try {
+                        const response = await fetch('{{ route("login") }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            const data = await response.json();
+                            if (data.errors) {
+                                this.showToast('error', data.errors.email ? data.errors.email[0] : 'Login failed');
+                            }
+                        }
+                    } catch (error) {
+                        this.showToast('error', 'Network error. Please try again.');
+                    }
+                    
+                    this.loading = false;
+                    this.password = ''; // Clear password to prevent browser popup
+                },
+
+                showToast(type, message) {
+                    // Create toast notification
+                    const toast = document.createElement('div');
+                    toast.className = `fixed top-6 right-6 z-50 ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} text-white px-6 py-4 rounded-lg shadow-lg flex items-center justify-between gap-4 min-w-80`;
+                    toast.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                ${type === 'error' 
+                                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+                                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+                                }
+                            </svg>
+                            <span>${message}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-white text-xl font-bold hover:bg-opacity-80 rounded px-2">&times;</button>
+                    `;
+                    
+                    document.body.appendChild(toast);
+                    
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        if (toast.parentElement) {
+                            toast.remove();
+                        }
+                    }, 5000);
+                }
+            }
+        }
+    </script>
 
 </body>
 </html>

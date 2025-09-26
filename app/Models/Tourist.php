@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\TouristPasswordResetNotification;
 
 class Tourist extends Authenticatable
 {
@@ -24,6 +25,17 @@ class Tourist extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new TouristPasswordResetNotification($token));
+    }
 
     /**
      * Get the bookings for the tourist.

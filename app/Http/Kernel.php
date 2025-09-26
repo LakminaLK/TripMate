@@ -8,6 +8,15 @@ use App\Http\Middleware\CustomAuthenticate;
 
 class Kernel extends HttpKernel
 {
+    /**
+     * The application's global HTTP middleware stack.
+     */
+    protected $middleware = [
+        \App\Http\Middleware\SecurityHeaders::class,
+        \App\Http\Middleware\DetectSuspiciousActivity::class,
+        // ... other global middlewares
+    ];
+
     protected $middlewareGroups = [
         'web' => [
             // ...
@@ -19,6 +28,12 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
+        
+        'api' => [
+            \App\Http\Middleware\SecurityRateLimiter::class . ':60,1', // 60 requests per minute
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
     ];
 
     protected $routeMiddleware = [
@@ -26,5 +41,8 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\CustomAuthenticate::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'security.rate' => \App\Http\Middleware\SecurityRateLimiter::class,
+        'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
+        'security.detect' => \App\Http\Middleware\DetectSuspiciousActivity::class,
     ];
 }

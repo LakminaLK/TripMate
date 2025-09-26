@@ -87,55 +87,54 @@
         </div>
     </div>
 
-    <!-- Detailed Bookings Table -->
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Details</h3>
+    <!-- Revenue Table -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+            <table class="min-w-full">
                 <thead>
-                    <tr class="border-b border-gray-200 bg-gray-50">
-                        <th class="text-left py-3 px-4 font-medium text-gray-700">Booking ID</th>
-                        <th class="text-left py-3 px-4 font-medium text-gray-700">Hotel</th>
-                        <th class="text-left py-3 px-4 font-medium text-gray-700">Guest</th>
-                        <th class="text-left py-3 px-4 font-medium text-gray-700">Date</th>
-                        <th class="text-right py-3 px-4 font-medium text-gray-700">Total Amount</th>
-                        <th class="text-right py-3 px-4 font-medium text-gray-700">Commission (10%)</th>
-                        <th class="text-right py-3 px-4 font-medium text-gray-700">Hotel Revenue (90%)</th>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Booking ID</th>
+                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Hotel</th>
+                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Guest</th>
+                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Date</th>
+                        <th class="text-right py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Total Amount</th>
+                        <th class="text-right py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Commission (10%)</th>
+                        <th class="text-right py-4 px-6 text-sm font-semibold text-gray-800 bg-gray-50">Hotel Revenue (90%)</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     @forelse($bookings as $booking)
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4">
-                            <div class="font-medium text-gray-900">{{ $booking->booking_reference }}</div>
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-4 px-6">
+                            <div class="text-sm font-medium text-gray-900">{{ $booking->booking_reference }}</div>
                             <div class="text-xs text-gray-500">{{ $booking->status }}</div>
                         </td>
-                        <td class="py-3 px-4">
-                            <div class="font-medium text-gray-900">{{ $booking->hotel->name ?? 'N/A' }}</div>
+                        <td class="py-4 px-6">
+                            <div class="text-sm font-medium text-gray-900">{{ $booking->hotel->name ?? 'N/A' }}</div>
                             <div class="text-xs text-gray-500">{{ $booking->roomType->name ?? 'N/A' }}</div>
                         </td>
-                        <td class="py-3 px-4">
-                            <div class="font-medium text-gray-900">{{ $booking->tourist->name ?? 'N/A' }}</div>
+                        <td class="py-4 px-6">
+                            <div class="text-sm font-medium text-gray-900">{{ $booking->tourist->name ?? 'N/A' }}</div>
                             <div class="text-xs text-gray-500">{{ $booking->tourist->email ?? 'N/A' }}</div>
                         </td>
-                        <td class="py-3 px-4">
-                            <div class="font-medium text-gray-900">{{ $booking->created_at->format('M d, Y') }}</div>
+                        <td class="py-4 px-6">
+                            <div class="text-sm font-medium text-gray-900">{{ $booking->created_at->format('M d, Y') }}</div>
                             <div class="text-xs text-gray-500">{{ $booking->created_at->format('H:i A') }}</div>
                         </td>
-                        <td class="py-3 px-4 text-right font-medium text-gray-900">
+                        <td class="py-4 px-6 text-right text-sm font-medium text-gray-900">
                             ${{ number_format($booking->total_amount, 2) }}
                         </td>
-                        <td class="py-3 px-4 text-right font-medium text-amber-600">
+                        <td class="py-4 px-6 text-right text-sm font-medium text-amber-600">
                             ${{ number_format($booking->admin_commission, 2) }}
                         </td>
-                        <td class="py-3 px-4 text-right font-medium text-purple-600">
+                        <td class="py-4 px-6 text-right text-sm font-medium text-purple-600">
                             ${{ number_format($booking->hotel_revenue, 2) }}
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-8 text-center text-gray-500">
-                            No bookings found for the selected date range.
+                        <td colspan="7" class="py-12 text-center text-gray-500">
+                            <div class="text-sm">No bookings found for the selected date range.</div>
                         </td>
                     </tr>
                     @endforelse
@@ -145,7 +144,7 @@
 
         <!-- Pagination -->
         @if($bookings->hasPages())
-        <div class="mt-6">
+        <div class="px-6 py-4 border-t border-gray-200">
             {{ $bookings->appends(request()->query())->links() }}
         </div>
         @endif

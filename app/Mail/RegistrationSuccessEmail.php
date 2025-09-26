@@ -21,7 +21,7 @@ class RegistrationSuccessEmail extends Mailable
     // Build the email
     public function build()
     {
-        return $this->subject('Welcome to Our Platform!')
+        return $this->subject('🌍 Welcome to TripMate - Your Adventure Begins!')
                     ->view('emails.registration_success')
                     ->with([
                         'name' => $this->user->name,

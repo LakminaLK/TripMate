@@ -7,6 +7,7 @@ use App\Models\Facility;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class HotelManagementController extends Controller
@@ -139,31 +140,62 @@ class HotelManagementController extends Controller
 
     public function deleteImage($imageId)
     {
-        $hotel = Auth::guard('hotel')->user();
-        $image = $hotel->images()->find($imageId);
-        
-        if ($image) {
-            Storage::disk('public')->delete($image->image_path);
+        try {
+            $hotel = Auth::guard('hotel')->user();
+            
+            if (!$hotel) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+            
+            $image = $hotel->images()->find($imageId);
+            
+            if (!$image) {
+                return response()->json(['success' => false, 'message' => 'Image not found'], 404);
+            }
+            
+            // Delete the file from storage
+            if ($image->image_path && Storage::disk('public')->exists($image->image_path)) {
+                Storage::disk('public')->delete($image->image_path);
+            }
+            
+            // Delete the database record
             $image->delete();
             
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' => 'Image deleted successfully']);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error deleting image: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error occurred'], 500);
         }
-        
-        return response()->json(['success' => false], 404);
     }
 
     public function deleteMainImage()
     {
-        $hotel = Auth::guard('hotel')->user();
-        
-        if ($hotel->main_image) {
-            Storage::disk('public')->delete($hotel->main_image);
+        try {
+            $hotel = Auth::guard('hotel')->user();
+            
+            if (!$hotel) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+            
+            if (!$hotel->main_image) {
+                return response()->json(['success' => false, 'message' => 'No main image to delete'], 404);
+            }
+            
+            // Delete the file from storage
+            if (Storage::disk('public')->exists($hotel->main_image)) {
+                Storage::disk('public')->delete($hotel->main_image);
+            }
+            
+            // Update the database record
             $hotel->update(['main_image' => null]);
             
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' => 'Main image deleted successfully']);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error deleting main image: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error occurred'], 500);
         }
-        
-        return response()->json(['success' => false], 404);
     }
 
     public function toggleStatus()

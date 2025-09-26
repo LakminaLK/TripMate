@@ -1,172 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>My Bookings - TripMate</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        [x-cloak] { display: none !important; }
-        
-        /* Professional animations */
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
-        .slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
-        .slide-in-left { animation: slideInLeft 0.8s ease-out forwards; opacity: 0; transform: translateX(-50px); }
-        .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
-        .float { animation: float 3s ease-in-out infinite; }
-        
-        /* Smooth transitions */
-        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
-        .hover-scale:hover { transform: scale(1.02); }
-        
-        /* Professional gradients */
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .glass { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.1); }
-        
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
-        @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #764ba2; }
-        
-        /* Enhanced booking cards */
-        .booking-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .booking-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .booking-card:hover::before {
-            opacity: 1;
-        }
-        
-        .booking-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12), 0 12px 24px rgba(0, 0, 0, 0.08);
-        }
-        
-        /* Enhanced status badges */
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: 2px solid transparent;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .status-confirmed {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .status-pending {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .status-cancelled {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .status-completed {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Glassmorphism effects */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        
-        /* Button enhancements */
-        .btn-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-gradient::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .btn-gradient:hover::before {
-            left: 100%;
-        }
-        
-        /* Animation delays for staggered effect */
-        .booking-card:nth-child(1) { animation-delay: 0.1s; }
-        .booking-card:nth-child(2) { animation-delay: 0.2s; }
-        .booking-card:nth-child(3) { animation-delay: 0.3s; }
-        .booking-card:nth-child(4) { animation-delay: 0.4s; }
-        .booking-card:nth-child(5) { animation-delay: 0.5s; }
-        
-        /* Modal enhancements */
-        #reviewModalContent {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        /* Star rating enhancements */
-        .star-btn {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-        
-        .star-btn:hover {
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-        }
-        
-        /* Loading state */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-    </style>
-    <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
+<x-tourist.head title="My Bookings - TripMate" />
 </head>
 <body class="bg-gray-50 min-h-screen">
 
@@ -175,7 +9,7 @@
     $tourist = Auth::guard('tourist')->user();
 @endphp
 
-<!-- ✅ Professional Navbar -->
+<x-tourist.header />
 <header x-data="{ isOpen: false, scrolled: false }" 
         @scroll.window="scrolled = window.pageYOffset > 50"
         :class="scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white/95 backdrop-blur-md shadow-lg'"
@@ -607,21 +441,12 @@
                                     </a>
                                     
                                     @if($booking->status === 'completed')
-                                        @if($booking->review)
-                                            <!-- Edit Review Button -->
-                                            <button onclick="openEditReviewModal({{ $booking->id }}, {{ json_encode($booking->review) }})"
-                                                    class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-xl hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                                                <i class="fas fa-edit mr-2"></i>
-                                                Edit Review
-                                            </button>
-                                        @else
-                                            <!-- Write Review Button -->
-                                            <button onclick="openReviewModal({{ $booking->id }}, '{{ $booking->hotel->name }}')"
-                                                    class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                                                <i class="fas fa-star mr-2"></i>
-                                                Write Review
-                                            </button>
-                                        @endif
+                                        <!-- Write Review Button -->
+                                        <button onclick="openReviewModal({{ $booking->id }}, '{{ $booking->hotel->name }}')"
+                                                class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium rounded-xl hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                                            <i class="fas fa-star mr-2"></i>
+                                            Write Review
+                                        </button>
                                     @endif
                                 </div>
                             </div>
@@ -691,147 +516,14 @@
         </main>
     </div>
 
-<!-- ✅ Professional Footer -->
-<footer class="bg-gradient-to-b from-gray-900 to-gray-950 text-white pt-16 pb-8 mt-auto relative overflow-hidden">
-    <!-- Decorative Elements -->
-    <div class="absolute inset-0 z-0">
-        <div class="absolute top-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full filter blur-3xl"></div>
-        <div class="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/10 rounded-full filter blur-3xl"></div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
-        <!-- Top Section with Logo and Newsletter -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 pb-16 border-b border-gray-800">
-            <!-- Brand Section -->
-            <div class="space-y-8">
-                <div class="flex items-center space-x-4">
-                    <div>
-                        <h3 class="text-2xl font-bold">Trip<span class="text-blue-500">Mate</span></h3>
-                        <p class="text-gray-400 text-sm">Your Ultimate Travel Companion</p>
-                    </div>
-                </div>
-                <p class="text-gray-400 max-w-md">
-                    Discover Sri Lanka's hidden gems with TripMate. We're dedicated to creating unforgettable travel experiences 
-                    that connect you with the heart and soul of this beautiful island.
-                </p>
-                <!-- Social Links -->
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-facebook-f text-lg"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-twitter text-lg"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-instagram text-lg"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="fab fa-linkedin-in text-lg"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Newsletter Section -->
-            <div class="lg:pl-12">
-                <h4 class="text-xl font-semibold mb-6">Subscribe to Our Newsletter</h4>
-                <p class="text-gray-400 mb-6">
-                    Stay updated with travel tips, local insights, and exclusive offers.
-                </p>
-                <form class="space-y-4">
-                    <div class="flex gap-4">
-                        <input type="email" 
-                               placeholder="Enter your email" 
-                               class="flex-1 bg-gray-800 rounded-lg px-4 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" 
-                                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                            Subscribe
-                        </button>
-                    </div>
-                    <p class="text-gray-500 text-sm">
-                        By subscribing, you agree to our Privacy Policy and consent to receive updates.
-                    </p>
-                </form>
-            </div>
-        </div>
-
-        <!-- Main Footer Links -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-            <!-- Company Info -->
-            <div>
-                <h4 class="text-lg font-semibold mb-4">Company</h4>
-                <ul class="space-y-3 text-gray-400">
-                    <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Our Team</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Press Kit</a></li>
-                </ul>
-            </div>
-
-            <!-- Explore -->
-            <div>
-                <h4 class="text-lg font-semibold mb-4">Explore</h4>
-                <ul class="space-y-3 text-gray-400">
-                    <li><a href="{{ route('tourist.explore') }}" class="hover:text-white transition-colors">Destinations</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Activities</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Local Guides</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Travel Blog</a></li>
-                </ul>
-            </div>
-
-            <!-- Support -->
-            <div>
-                <h4 class="text-lg font-semibold mb-4">Support</h4>
-                <ul class="space-y-3 text-gray-400">
-                    <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Safety Tips</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Cancellation Options</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">COVID-19 Updates</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact -->
-            <div>
-                <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
-                <ul class="space-y-3 text-gray-400">
-                    <li class="flex items-center space-x-3">
-                        <i class="fas fa-map-marker-alt text-blue-500"></i>
-                        <span>Colombo, Sri Lanka</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <i class="fas fa-phone text-blue-500"></i>
-                        <span>+94 11 234 5678</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <i class="fas fa-envelope text-blue-500"></i>
-                        <span>hello@tripmate.com</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Bottom Bar -->
-        <div class="pt-8 border-t border-gray-800">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <div class="text-gray-400 text-sm">
-                    © 2025 TripMate. All rights reserved.
-                </div>
-                <div class="flex items-center space-x-6 text-sm text-gray-400">
-                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
-                    <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
-                    <a href="#" class="hover:text-white transition-colors">Sitemap</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</footer>
+<x-tourist.footer />
 
     <!-- Enhanced Review Modal -->
     <div id="reviewModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 transition-all duration-300">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="reviewModalContent">
+        <div class="flex items-center justify-center min-h-screen p-4 overflow-y-auto">
+            <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0 flex flex-col" id="reviewModalContent">
                 <!-- Modal Header -->
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex-shrink-0">
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 id="reviewModalTitle" class="text-2xl font-bold">Write Review</h3>
@@ -844,7 +536,7 @@
                 </div>
                 
                 <!-- Modal Body -->
-                <div class="p-8">
+                <div class="p-8 overflow-y-auto flex-1">
                     <form id="reviewForm" class="space-y-6">
                         <input type="hidden" id="reviewBookingId" name="booking_id">
                         <input type="hidden" id="reviewId" name="review_id">
@@ -946,7 +638,6 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         
         let currentRating = 0;
-        let isEditMode = false;
         
         // Rating system
         document.addEventListener('DOMContentLoaded', function() {
@@ -1015,7 +706,6 @@
         }
         
         function openReviewModal(bookingId, hotelName) {
-            isEditMode = false;
             document.getElementById('reviewModalTitle').textContent = 'Write Review';
             document.getElementById('reviewBookingId').value = bookingId;
             document.getElementById('reviewId').value = '';
@@ -1032,34 +722,8 @@
             setRating(0);
             document.getElementById('charCount').textContent = '0';
             
-            // Show modal with animation
-            const modal = document.getElementById('reviewModal');
-            const modalContent = document.getElementById('reviewModalContent');
-            
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modalContent.classList.remove('scale-95', 'opacity-0');
-                modalContent.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-        
-        function openEditReviewModal(bookingId, review) {
-            isEditMode = true;
-            document.getElementById('reviewModalTitle').textContent = 'Edit Review';
-            document.getElementById('reviewBookingId').value = bookingId;
-            document.getElementById('reviewId').value = review.id;
-            document.getElementById('reviewHotelName').textContent = review.hotel?.name || 'Hotel';
-            document.getElementById('reviewTitle').value = review.title;
-            document.getElementById('reviewDescription').value = review.description;
-            document.getElementById('submitReviewBtn').innerHTML = `
-                <span class="flex items-center justify-center">
-                    <i class="fas fa-edit mr-2"></i>
-                    Update Review
-                </span>
-            `;
-            
-            setRating(review.rating);
-            document.getElementById('charCount').textContent = review.description.length;
+            // Lock background scrolling
+            document.body.style.overflow = 'hidden';
             
             // Show modal with animation
             const modal = document.getElementById('reviewModal');
@@ -1075,6 +739,9 @@
         function closeReviewModal() {
             const modal = document.getElementById('reviewModal');
             const modalContent = document.getElementById('reviewModalContent');
+            
+            // Unlock background scrolling
+            document.body.style.overflow = '';
             
             modalContent.classList.remove('scale-100', 'opacity-100');
             modalContent.classList.add('scale-95', 'opacity-0');
@@ -1102,24 +769,13 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    ${isEditMode ? 'Updating...' : 'Submitting...'}
+                    Submitting...
                 </span>
             `;
             
             try {
-                let url, method;
-                
-                if (isEditMode) {
-                    const reviewId = document.getElementById('reviewId').value;
-                    url = `/reviews/${reviewId}`;
-                    method = 'PUT';
-                } else {
-                    url = '/reviews';
-                    method = 'POST';
-                }
-                
-                const response = await fetch(url, {
-                    method: method,
+                const response = await fetch('/reviews', {
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
@@ -1157,8 +813,8 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `
                     <span class="flex items-center justify-center">
-                        <i class="fas fa-${isEditMode ? 'edit' : 'paper-plane'} mr-2"></i>
-                        ${isEditMode ? 'Update Review' : 'Submit Review'}
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Submit Review
                     </span>
                 `;
             }

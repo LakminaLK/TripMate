@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Validation Test</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    <div x-data="emailValidator()">
+        <h2>Email Validation Test</h2>
+        <input type="email" x-model="email" @input="debounceEmailCheck()" :class="emailFieldClass" placeholder="Enter email">
+        <div x-show="emailError" x-text="emailError" style="color: red;"></div>
+        <div x-show="emailLoading">Checking email...</div>
+        
+        <script>
+            function emailValidator() {
+                return {
+                    email: '',
+                    emailError: '',
+                    emailLoading: false,
+                    emailTimeout: null,
+
+                    get emailFieldClass() {
+                        if (!this.email) return 'border: 1px solid gray;';
+                        if (this.emailError) return 'border: 2px solid red;';
+                        if (this.email && !this.emailError && !this.emailLoading) return 'border: 2px solid green;';
+                        return 'border: 1px solid gray;';
+                    },
+
+                    debounceEmailCheck() {
+                        clearTimeout(this.emailTimeout);
+                        this.emailTimeout = setTimeout(() => {
+                            this.checkEmail();
+                        }, 500);
+                    },
+
+                    async checkEmail() {
+                        if (!this.email) {
+                            this.emailError = '';
+                            return;
+                        }
+
+                        // Basic email format validation
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(this.email)) {
+                            this.emailError = 'Please enter a valid email address';
+                            return;
+                        }
+
+                        this.emailLoading = true;
+                        this.emailError = '';
+
+                        try {
+                            const response = await fetch('http://localhost/Tripmate/public/api/check-email', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                                },
+                                body: JSON.stringify({ email: this.email })
+                            });
+
+                            const data = await response.json();
+                            
+                            if (data.exists) {
+                                this.emailError = 'This email is already registered';
+                            } else {
+                                this.emailError = '';
+                            }
+                        } catch (error) {
+                            console.error('Email check error:', error);
+                            this.emailError = 'Error checking email availability';
+                        } finally {
+                            this.emailLoading = false;
+                        }
+                    }
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

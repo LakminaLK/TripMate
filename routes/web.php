@@ -41,6 +41,7 @@ use App\Http\Controllers\Hotel\HotelRevenueController;
 use App\Http\Controllers\Hotel\RoomController;
 use App\Http\Controllers\Hotel\BookingController;
 use App\Http\Controllers\Hotel\ReviewController as HotelReviewController;
+use App\Http\Controllers\Hotel\HotelNotificationController;
 use App\Http\Controllers\Hotel\Auth\PasswordResetController;
 
 /* =========================================================================
@@ -158,6 +159,18 @@ Route::prefix('payment')->name('tourist.payment.')->group(function () {
 
 // OTP verify for tourist registration
 Route::post('/verify-otp', [RegisteredUserController::class, 'verifyOtp'])->name('verify.otp');
+Route::post('/resend-otp', [RegisteredUserController::class, 'resendOtp'])->name('resend.otp');
+
+// Debug route (remove in production)
+Route::get('/debug-session', function() {
+    return [
+        'register_data' => Session::get('register_data'),
+        'pending_email' => Session::get('pending_email'),
+        'otp_attempts' => Session::get('otp_attempts'),
+        'showOtpModal' => Session::get('showOtpModal'),
+        'otp_error' => Session::get('otp_error'),
+    ];
+})->name('debug.session');
 
 /* =========================================================================
 |  DEFAULT AUTH ROUTES (Breeze/Jetstream/etc)
@@ -212,6 +225,17 @@ Route::prefix('hotel')->name('hotel.')->group(function () {
         
         // Review Management Routes
         Route::get('/reviews', [HotelReviewController::class, 'index'])->name('reviews.index');
+        
+        // Notification Routes
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [HotelNotificationController::class, 'index'])->name('index');
+            Route::post('/{id}/read', [HotelNotificationController::class, 'markAsRead'])->name('mark-read');
+            Route::post('/mark-all-read', [HotelNotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+            Route::post('/clear-all', [HotelNotificationController::class, 'clearAll'])->name('clear-all');
+            Route::post('/mark-type-read/{type}', [HotelNotificationController::class, 'markTypeAsRead'])->name('mark-type-read');
+            Route::get('/unread-count', [HotelNotificationController::class, 'getUnreadCount'])->name('unread-count');
+            Route::post('/cleanup', [HotelNotificationController::class, 'cleanup'])->name('cleanup');
+        });
     });
 });
 

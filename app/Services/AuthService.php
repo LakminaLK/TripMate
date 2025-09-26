@@ -13,6 +13,11 @@ class AuthService
     public static function checkTouristAuth(): ?RedirectResponse
     {
         if (!Auth::guard('tourist')->check()) {
+            // Store the intended URL for redirect after login
+            if (request()->isMethod('GET') && !request()->is('login', 'register', 'logout')) {
+                session(['url.intended' => request()->fullUrl()]);
+            }
+            
             return redirect()->route('login')
                 ->with('message', 'Please login to continue with your booking');
         }

@@ -66,4 +66,12 @@ class Hotel extends Authenticatable
     {
         return $this->hasMany(Booking::class);
     }
+
+    /**
+     * Get the reviews for the hotel.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

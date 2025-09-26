@@ -8,6 +8,23 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
+    
+    <!-- Alpine.js cloaking styles -->
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Immediate Dark Mode Detection (runs before any content renders) -->
+    <script>
+        (function() {
+            // Check localStorage immediately and apply dark mode class if needed
+            const isDarkMode = localStorage.getItem('tripmate_darkMode') === 'true';
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -33,22 +50,22 @@
         
         // Alpine.js store for dark mode
         document.addEventListener('alpine:init', () => {
-            console.log('Alpine.js initialized, creating darkMode store');
             Alpine.store('darkMode', {
                 on: false,
+                _initialized: false,
                 
                 init() {
-                    console.log('Dark mode store initializing...');
-                    // Get saved preference or default to false
-                    const saved = localStorage.getItem('tripmate_darkMode');
-                    this.on = saved === 'true';
-                    console.log('Dark mode loaded from storage:', this.on);
-                    
-                    // Set initial state immediately
-                    this.updateDOM();
+                    // Check if dark mode is already applied to the document
+                    this.on = document.documentElement.classList.contains('dark');
+                    this._initialized = true;
+                    console.log('Dark mode store initialized with current state:', this.on);
                 },
                 
                 toggle() {
+                    if (!this._initialized) {
+                        console.warn('Dark mode store not yet initialized');
+                        return;
+                    }
                     this.on = !this.on;
                     console.log('Dark mode toggled to:', this.on);
                     this.updateDOM();
@@ -56,7 +73,6 @@
                 },
                 
                 updateDOM() {
-                    console.log('Updating DOM for dark mode:', this.on);
                     if (this.on) {
                         document.documentElement.classList.add('dark');
                     } else {
@@ -70,7 +86,7 @@
 </head>
 <body class="bg-gradient-to-br from-green-50 to-teal-100 dark:from-dark-50 dark:to-gray-900 min-h-screen font-sans transition-colors duration-300" 
       x-data 
-      x-init="() => { $store.darkMode.init(); }">
+      x-init="setTimeout(() => { $store.darkMode.init(); }, 0)">
     <div class="mt-20">
         
         @stack('flash-scripts')

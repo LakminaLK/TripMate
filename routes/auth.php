@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\LoginAttemptController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -21,6 +22,18 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    // Login attempt tracking routes
+    Route::post('auth/login-attempt', [LoginAttemptController::class, 'login'])
+        ->name('auth.login.attempt');
+    Route::post('auth/hotel-login-attempt', [LoginAttemptController::class, 'hotelLogin'])
+        ->name('auth.hotel.login.attempt');
+    Route::post('auth/admin-login-attempt', [LoginAttemptController::class, 'adminLogin'])
+        ->name('auth.admin.login.attempt');
+    Route::post('auth/check-lockout-status', [LoginAttemptController::class, 'checkLockoutStatus'])
+        ->name('auth.lockout.status');
+    Route::post('auth/remaining-time', [LoginAttemptController::class, 'getRemainingTime'])
+        ->name('auth.remaining.time');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

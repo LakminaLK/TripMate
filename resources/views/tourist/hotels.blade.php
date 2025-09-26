@@ -1,103 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotels in {{ $location->name }} | TripMate</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        [x-cloak] { display: none !important; }
-        
-        /* Professional animations */
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
-        .slide-up { animation: slideUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
-        .slide-in-left { animation: slideInLeft 0.8s ease-out forwards; opacity: 0; transform: translateX(-50px); }
-        .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
-        .float { animation: float 3s ease-in-out infinite; }
-        
-        /* Smooth transitions */
-        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .hover-scale:hover { transform: scale(1.02); }
-        
-        @keyframes fadeIn { to { opacity: 1; } }
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
-        @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        
-        /* Custom blue scrollbar */
-        ::-webkit-scrollbar { 
-            width: 8px; 
-        }
-        ::-webkit-scrollbar-track { 
-            background: #f1f1f1; 
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(45deg, #667eea, #764ba2); 
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        ::-webkit-scrollbar-thumb:hover { 
-            background: linear-gradient(45deg, #5a67d8, #6b46c1);
-            transform: scale(1.1);
-        }
-        
-        .blue-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #667eea #f1f1f1;
-        }
-        
-        /* Image gallery custom styles */
-        .gallery-overlay {
-            background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
-        }
-        
-        /* Enhanced image hover effects */
-        .image-hover-container {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .image-hover-container img {
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .image-hover-container:hover img {
-            transform: scale(1.1);
-        }
-        
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-    </style>
-    <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
+    <x-tourist.head />
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col blue-scrollbar">
 
-@php
-    use Illuminate\Support\Facades\Auth;
-    $tourist = Auth::guard('tourist')->user();
-@endphp
-
-<!-- ✅ Professional Navbar -->
-<header x-data="{ isOpen: false }" 
-        class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-lg transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <!-- Logo & Brand -->
-            <a href="{{ route('landing') }}" class="flex items-center space-x-3 group">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                    <div class="relative bg-white p-2 rounded-xl">
-                        <img src="{{ asset('images/logoo.png') }}" alt="TripMate" class="h-8 w-8">
-                    </div>
-                </div>
-                <div>
+<x-tourist.header />
                     <h1 class="text-xl font-bold text-gray-900">
                         Trip<span class="text-blue-600">Mate</span>
                     </h1>
