@@ -63,7 +63,7 @@
             </nav>
 
             <!-- Auth Section -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
                 @if ($tourist)
                     <!-- Profile Dropdown -->
                     <div x-data="{ open: false }" x-cloak class="relative" @click.away="open = false">
@@ -119,8 +119,8 @@
                         </div>
                     </div>
                 @else
-                    <!-- Guest Actions -->
-                    <div class="flex items-center space-x-4">
+                    <!-- Guest Actions - Hidden on Mobile, shown only on desktop -->
+                    <div class="hidden md:flex items-center space-x-4">
                         <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" 
                            :class="scrolled ? 'text-gray-700 hover:text-blue-600' : '{{ $transparent ?? false ? 'text-white hover:text-blue-300' : 'text-gray-700 hover:text-blue-600' }}'"
                            class="font-medium transition-colors">
@@ -136,24 +136,40 @@
                 <!-- Mobile Menu Button -->
                 <button @click="isOpen = !isOpen" 
                         :class="scrolled ? 'text-gray-700' : '{{ $transparent ?? false ? 'text-white' : 'text-gray-700' }}'"
-                        class="md:hidden">
+                        class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-all duration-300">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
 
         <!-- Mobile Navigation -->
-        <div x-show="isOpen" x-transition class="md:hidden bg-white rounded-b-2xl shadow-lg border-t">
-            <div class="px-4 py-6 space-y-4">
-                <a href="{{ route('landing') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Home</a>
-                <a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">About</a>
-                <a href="{{ route('tourist.explore') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Explore</a>
-                <a href="{{ route('emergency-services.index') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Emergency</a>
-                <a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Contact us</a>
+        <div x-show="isOpen" x-transition class="md:hidden bg-white/95 backdrop-blur-md rounded-b-2xl shadow-xl border-t border-gray-100">
+            <div class="px-4 py-6 space-y-3">
+                <a href="{{ route('landing') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-home mr-3 text-blue-600 w-5"></i>Home
+                </a>
+                <a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-info-circle mr-3 text-blue-600 w-5"></i>About
+                </a>
+                <a href="{{ route('tourist.explore') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-compass mr-3 text-blue-600 w-5"></i>Explore
+                </a>
+                <a href="{{ route('emergency-services.index') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-ambulance mr-3 text-blue-600 w-5"></i>Emergency
+                </a>
+                <a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-envelope mr-3 text-blue-600 w-5"></i>Contact us
+                </a>
                 @if (!$tourist)
-                    <div class="pt-4 border-t border-gray-200 space-y-2">
-                        <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="block w-full text-center py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors">Login</a>
-                        <a href="{{ route('register') }}" class="block w-full text-center py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium">Sign Up</a>
+                    <div class="pt-4 border-t border-gray-200 space-y-3">
+                        <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" 
+                           class="block w-full text-center py-3 text-blue-600 hover:text-blue-800 font-medium transition-colors border border-blue-200 rounded-lg hover:bg-blue-50">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="{{ route('register') }}" 
+                           class="block w-full text-center py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 font-medium">
+                            <i class="fas fa-user-plus mr-2"></i>Sign Up
+                        </a>
                     </div>
                 @endif
             </div>

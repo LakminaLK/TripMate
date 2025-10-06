@@ -17,7 +17,12 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
+--sudo php artisan config:clear
+sudo php artisan route:clear
+sudo php artisan view:clear
+sudo php artisan cache:clear
+sudo php artisan config:cache
+sudo php artisan route:cache
 -- Database: `tripmate_db`
 --
 

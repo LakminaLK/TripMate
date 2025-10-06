@@ -12,13 +12,13 @@
 
 <!-- ✅ Hero Section - Enhanced Mobile Responsive -->
 <section class="relative min-h-screen bg-cover bg-center flex items-center justify-center text-white overflow-hidden parallax-bg"
-         style="background-image: url('/images/2.jpeg');">
+         style="background-image: url('/images/2.jpeg'); padding-top: 80px;">
     <!-- Enhanced Gradient Overlay -->
     <div class="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-blue-900/30 to-transparent"></div>
     
     <!-- Hero Content -->
-    <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto" x-data x-init="$el.classList.add('animate-fade-in')">
+    <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto mt-16 sm:mt-0" x-data x-init="$el.classList.add('animate-fade-in')">
         <div class="space-y-6 lg:space-y-8">
             <!-- Main Headline -->
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-slide-up">
@@ -554,10 +554,33 @@
         transform: scale(1.1);
     }
 
-    /* Parallax effect for hero section */
+    /* Parallax effect for hero section - Optimized for Performance */
     .parallax-bg {
         transform: translateZ(0);
         will-change: transform;
+        backface-visibility: hidden;
+        perspective: 1000px;
+    }
+
+    /* Performance optimizations */
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+        .parallax-bg {
+            transform: none !important;
+        }
+        
+        .animate-slide-up,
+        .animate-fade-in,
+        .animate-pop {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
     }
 </style>
 
@@ -597,17 +620,26 @@
 
             addParallaxEffect() {
                 let ticking = false;
+                let lastScrollY = 0;
                 
                 const updateParallax = () => {
                     const scrolled = window.pageYOffset;
+                    
+                    // Only update if scroll distance is significant (performance optimization)
+                    if (Math.abs(scrolled - lastScrollY) < 8) {
+                        ticking = false;
+                        return;
+                    }
+                    
                     const parallaxElements = document.querySelectorAll('.parallax-bg');
                     
                     parallaxElements.forEach(element => {
-                        const speed = 0.5;
+                        const speed = 0.3; // Reduced speed for better performance
                         const yPos = -(scrolled * speed);
                         element.style.transform = `translate3d(0, ${yPos}px, 0)`;
                     });
                     
+                    lastScrollY = scrolled;
                     ticking = false;
                 };
 
@@ -618,7 +650,8 @@
                     }
                 };
 
-                window.addEventListener('scroll', requestTick);
+                // Use passive listener for better performance
+                window.addEventListener('scroll', requestTick, { passive: true });
             },
 
             addSmoothScrollToLinks() {
