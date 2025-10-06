@@ -1,11 +1,11 @@
 <div>
     <!-- Hero Section with Search -->
-    <section class="relative bg-gradient-to-br from-blue-600 to-indigo-700 text-white overflow-hidden mt-[72px]">
+    <section class="relative bg-gradient-to-br from-blue-600 to-indigo-700 text-white overflow-hidden mt-[72px] scroll-animate" data-delay="100">
         <div class="absolute inset-0 bg-black/10"></div>
         
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
             <div class="space-y-8">
-                <div class="space-y-4">
+                <div class="space-y-4 scroll-animate" data-delay="200">
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
                         Discover Amazing
                         <span class="block text-yellow-300">Adventures</span>
@@ -16,7 +16,7 @@
                 </div>
 
                 <!-- Livewire Search Bar -->
-                <div class="max-w-2xl mx-auto">
+                <div class="max-w-2xl mx-auto scroll-animate" data-delay="300">
                     <div class="bg-white/95 rounded-xl p-3 shadow-lg">
                         <div class="flex items-center">
                             <div class="flex-1 relative">
@@ -43,7 +43,7 @@
                     </div>
                     
                     <!-- Search Stats -->
-                    <div wire:loading.remove wire:target="search">
+                    <div wire:loading.remove wire:target="search" class="scroll-animate" data-delay="400">
                         @if($activities->total() > 0)
                             <div class="mt-3 text-white/80 text-sm">
                                 <i class="fas fa-info-circle mr-2"></i>
@@ -75,7 +75,7 @@
         <div wire:loading.class="opacity-50" wire:target="search">
             @if($activities->count())
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($activities as $activity)
+                    @foreach($activities as $index => $activity)
                         @php
                             $raw  = $activity->image;
                             $path = $raw ? (strpos($raw, 'public/') === 0 ? substr($raw, 7) : $raw) : null;
@@ -86,7 +86,7 @@
                                 : asset('images/placeholder.jpg');
                         @endphp
 
-                        <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        <article class="activity-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover-lift scroll-animate" data-delay="{{ ($index % 6) * 100 + 500 }}">
                             <a href="{{ route('tourist.activity.show', $activity->id) }}" class="block">
                                 <div class="relative h-48 overflow-hidden">
                                     <img src="{{ $img }}" 
@@ -120,7 +120,7 @@
                     </div>
                 @endif
             @else
-                <div class="text-center py-12">
+                <div class="text-center py-12 scroll-animate" data-delay="300">
                     <div class="max-w-md mx-auto">
                         <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
                             <i class="fas fa-search text-2xl text-gray-400"></i>

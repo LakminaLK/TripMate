@@ -15,6 +15,22 @@
     .scale-in { animation: scaleIn 0.6s ease-out forwards; opacity: 0; transform: scale(0.9); }
     .float { animation: float 3s ease-in-out infinite; }
     
+    /* Scroll-triggered animations */
+    .scroll-animate { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .scroll-animate-left { opacity: 0; transform: translateX(-50px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .scroll-animate-right { opacity: 0; transform: translateX(50px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .scroll-animate-scale { opacity: 0; transform: scale(0.9); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .scroll-animate.animate { opacity: 1; transform: translateY(0); }
+    .scroll-animate-left.animate { opacity: 1; transform: translateX(0); }
+    .scroll-animate-right.animate { opacity: 1; transform: translateX(0); }
+    .scroll-animate-scale.animate { opacity: 1; transform: scale(1); }
+    
+    /* Landing page style animations */
+    .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.8s ease-out forwards; }
+    .animate-pop { animation: pop 0.6s ease-out forwards; }
+    
     /* Smooth transitions */
     .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
@@ -29,6 +45,11 @@
     @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
     @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
     @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+    @keyframes pop { 
+        0% { opacity: 0; transform: scale(0.8); }
+        50% { transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
+    }
     
     /* Custom scrollbar */
     ::-webkit-scrollbar { width: 8px; }

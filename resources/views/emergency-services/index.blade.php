@@ -10,7 +10,7 @@
     <link rel="icon" href="{{ asset('/images/tm1.png') }}" type="image/x-icon">
     <style>
         [x-cloak] { display: none !important; }
-        #map { height: 500px; width: 100%; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        #map { height: 800px; width: 100%; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
         
 
          /* Custom scrollbar */
@@ -528,7 +528,7 @@
                 <!-- Map Container -->
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-2xl shadow-lg p-3 sm:p-4 lg:p-6 mb-6 sm:mb-8">
-                        <div id="map" style="height: 300px; width: 100%; border-radius: 0.5rem;" class="sm:h-[400px] lg:h-[600px]"></div>
+                        <div id="map" style="height: 500px; width: 100%; border-radius: 0.5rem;" class="sm:h-[600px] lg:h-[800px]"></div>
                     </div>
                 </div>
 
