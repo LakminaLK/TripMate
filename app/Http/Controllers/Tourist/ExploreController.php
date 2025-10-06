@@ -14,16 +14,16 @@ class ExploreController extends Controller
     // app/Http/Controllers/Tourist/ExploreController.php
 public function index(Request $request)
 {
-    $q         = trim((string) $request->get('q', ''));
-    $location  = $request->get('location');
+    $search = trim((string) $request->get('search', ''));
+    $location = $request->get('location');
     $priceSort = $request->get('sort');
 
     $query = Activity::query()->with('locations');
 
-    if ($q !== '') {
-        $query->where(function ($x) use ($q) {
-            $x->where('name', 'like', "%{$q}%")
-              ->orWhere('description', 'like', "%{$q}%");
+    if ($search !== '') {
+        $query->where(function ($x) use ($search) {
+            $x->where('name', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
         });
     }
     if ($location) {
@@ -38,14 +38,14 @@ public function index(Request $request)
     }
 
     $activities = $query->paginate(12)->withQueryString();
-    $locations  = \App\Models\Location::orderBy('name')->get();
+    $locations = \App\Models\Location::orderBy('name')->get();
 
     return view('tourist.explore', [
         'activities' => $activities,
-        'locations'  => $locations,
-        'q'          => $q,
-        'location'   => $location,
-        'priceSort'  => $priceSort,
+        'locations' => $locations,
+        'search' => $search,
+        'location' => $location,
+        'priceSort' => $priceSort,
     ]);
 }
 

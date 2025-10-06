@@ -196,9 +196,39 @@
     $tourist = Auth::guard('tourist')->user();
 @endphp
 
-<!-- ✅ Professional Navbar -->
-<header x-data="{ isOpen: false }" 
-        class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-lg transition-all duration-300">
+<!-- ✅ Professional Navbar with Scroll Animation -->
+<header x-data="{ 
+            isOpen: false, 
+            scrolled: false, 
+            lastScrollY: 0, 
+            scrollDirection: 'up',
+            headerVisible: true 
+        }" 
+        x-cloak
+        @scroll.window="
+            let currentScrollY = window.pageYOffset;
+            scrolled = currentScrollY > 50;
+            
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down
+                scrollDirection = 'down';
+                headerVisible = false;
+                isOpen = false; // Close mobile menu when hiding header
+            } else if (currentScrollY < lastScrollY) {
+                // Scrolling up
+                scrollDirection = 'up';
+                headerVisible = true;
+            }
+            
+            lastScrollY = currentScrollY;
+        "
+        :class="{
+            'bg-white/95 backdrop-blur-md shadow-lg': scrolled,
+            'bg-white/95 backdrop-blur-md shadow-lg': !scrolled,
+            '-translate-y-full': !headerVisible,
+            'translate-y-0': headerVisible
+        }"
+        class="fixed top-0 w-full z-50 transition-all duration-500 ease-in-out transform">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
             <!-- Logo & Brand -->
@@ -235,9 +265,9 @@
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="{{ route('emergency-services.index') }}" 
-                   class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
+                   class="text-blue-600 font-medium transition-colors relative group">
                     Emergency
-                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+                    <span class="absolute -bottom-1 left-0 w-full h-0.5 bg-blue-600 transition-all duration-300"></span>
                 </a>
                 <a href="#contact" 
                    class="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group">
@@ -247,10 +277,10 @@
             </nav>
 
             <!-- Auth Section -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
                 @if ($tourist)
                     <!-- Profile Dropdown -->
-                    <div x-data="{ open: false }" class="relative" @click.away="open = false">
+                    <div x-data="{ open: false }" x-cloak class="relative" @click.away="open = false">
                         <button @click="open = !open"
                                 class="w-10 h-10 rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-all duration-300">
                             <i class="fas fa-user-circle text-2xl"></i>
@@ -288,27 +318,70 @@
                                     <i class="fas fa-calendar-alt mr-3 text-blue-600"></i>
                                     My Bookings
                                 </a>
-                                <hr class="my-2">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors">
-                                        <i class="fas fa-sign-out-alt mr-3"></i>
-                                        Logout
-                                    </button>
-                                </form>
+                                <div class="border-t border-gray-100 mt-2 pt-2">
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-sign-out-alt mr-3"></i>
+                                            Sign Out
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" 
-                       class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}" 
-                       class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        Sign Up
-                    </a>
+                    <!-- Guest Actions - Hidden on Mobile, shown only on desktop -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        <a href="{{ route('login') }}" 
+                           class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                            Login
+                        </a>
+                        <a href="{{ route('register') }}" 
+                           class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium">
+                            Sign Up
+                        </a>
+                    </div>
+                @endif
+
+                <!-- Mobile Menu Button -->
+                <button @click="isOpen = !isOpen" 
+                        class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 text-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="isOpen" x-transition class="md:hidden bg-white/95 backdrop-blur-md rounded-b-2xl shadow-xl border-t border-gray-100">
+            <div class="px-4 py-6 space-y-3">
+                <a href="{{ route('landing') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-home mr-3 text-blue-600 w-5"></i>Home
+                </a>
+                <a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-info-circle mr-3 text-blue-600 w-5"></i>About
+                </a>
+                <a href="{{ route('tourist.explore') }}" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-compass mr-3 text-blue-600 w-5"></i>Explore
+                </a>
+                <a href="{{ route('emergency-services.index') }}" class="block text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg bg-blue-50">
+                    <i class="fas fa-ambulance mr-3 text-blue-600 w-5"></i>Emergency
+                </a>
+                <a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-envelope mr-3 text-blue-600 w-5"></i>Contact us
+                </a>
+                @if (!$tourist)
+                    <div class="pt-4 border-t border-gray-200 space-y-3">
+                        <a href="{{ route('login') }}" 
+                           class="block w-full text-center py-3 text-blue-600 hover:text-blue-800 font-medium transition-colors border border-blue-200 rounded-lg hover:bg-blue-50">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="{{ route('register') }}" 
+                           class="block w-full text-center py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 font-medium">
+                            <i class="fas fa-user-plus mr-2"></i>Sign Up
+                        </a>
+                    </div>
                 @endif
             </div>
         </div>
@@ -317,7 +390,7 @@
 
 <body class="bg-gray-50 min-h-screen pt-20">
     <!-- Hero Section -->
-    <section class="relative h-[60vh] bg-cover bg-center flex items-center justify-center text-white mb-12 fade-in"
+    <section class="relative h-[50vh] sm:h-[60vh] bg-cover bg-center flex items-center justify-center text-white mb-8 sm:mb-12 fade-in"
              style="background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.8)), url('/images/emergency.jpg');">
         <div class="absolute inset-0 bg-gradient-to-br from-blue-600/80 via-indigo-600/80 to-purple-700/80"></div>
         
@@ -328,72 +401,69 @@
         </div>
 
         <div class="relative z-10 text-center px-4 max-w-5xl mx-auto slide-up">
-                <!-- <div class="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 mb-6">
-                    <i class="fas fa-shield-alt text-red-400 mr-2"></i>
-                    <span class="text-sm font-medium">Emergency Services Locator</span>
-                </div> -->
-            
-            <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
                 Find Emergency Services 
-                <span class="bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent">
+                <span class="bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent block sm:inline">
                     Near You
                 </span>
             </h1>
             
-            <p class="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">
+            <p class="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">
                 Quick access to hospitals, police stations, fire departments, and pharmacies in your area. 
                 Emergency help is just a click away.
             </p>
             
-            <div class="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
+            <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 max-w-md mx-auto">
                 <a href="#services" 
                    onclick="event.preventDefault(); smoothScrollTo('services');" 
-                   class="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-blue-50 transition-all duration-500 transform hover:scale-105 shadow-xl flex items-center justify-center hover:shadow-2xl group">
-                    <i class="fas fa-search mr-3 transition-transform duration-300 group-hover:scale-110"></i> Find Services
+                   class="bg-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold hover:bg-blue-50 transition-all duration-500 transform hover:scale-105 shadow-xl flex items-center justify-center hover:shadow-2xl group">
+                    <i class="fas fa-search mr-2 sm:mr-3 transition-transform duration-300 group-hover:scale-110"></i> 
+                    <span class="text-sm sm:text-base">Find Services</span>
                 </a>
                 <a href="#map-section" 
                    onclick="event.preventDefault(); smoothScrollTo('map-section');" 
-                   class="bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-semibold hover:bg-white/30 transition-all duration-500 flex items-center justify-center hover:border-white/50 hover:shadow-lg group">
-                    <i class="fas fa-map-marker-alt mr-3 transition-transform duration-300 group-hover:scale-110"></i> View Map
+                   class="bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold hover:bg-white/30 transition-all duration-500 flex items-center justify-center hover:border-white/50 hover:shadow-lg group">
+                    <i class="fas fa-map-marker-alt mr-2 sm:mr-3 transition-transform duration-300 group-hover:scale-110"></i> 
+                    <span class="text-sm sm:text-base">View Map</span>
                 </a>
             </div>
 
             <!-- Quick Stats -->
-            <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
+            <div class="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-2xl mx-auto">
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->where('type', 'hospital')) > 0 ? count($services->where('type', 'hospital')) : 1500 }}">0</div>
-                    <div class="text-white/80 text-sm">Hospitals</div>
+                    <div class="text-xl sm:text-2xl md:text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->where('type', 'hospital')) > 0 ? count($services->where('type', 'hospital')) : 1500 }}">0</div>
+                    <div class="text-white/80 text-xs sm:text-sm">Hospitals</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->where('type', 'police')) > 0 ? count($services->where('type', 'police')) : 600 }}">0</div>
-                    <div class="text-white/80 text-sm">Police Stations</div>
+                    <div class="text-xl sm:text-2xl md:text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->where('type', 'police')) > 0 ? count($services->where('type', 'police')) : 600 }}">0</div>
+                    <div class="text-white/80 text-xs sm:text-sm">Police Stations</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->whereIn('type', ['fire_station', 'fire'])) > 0 ? count($services->whereIn('type', ['fire_station', 'fire'])) : 30 }}">0</div>
-                    <div class="text-white/80 text-sm">Fire Stations</div>
+                    <div class="text-xl sm:text-2xl md:text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->whereIn('type', ['fire_station', 'fire'])) > 0 ? count($services->whereIn('type', ['fire_station', 'fire'])) : 30 }}">0</div>
+                    <div class="text-white/80 text-xs sm:text-sm">Fire Stations</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->where('type', 'pharmacy')) > 0 ? count($services->where('type', 'pharmacy')) : 3100 }}">0</div>
-                    <div class="text-white/80 text-sm">Pharmacies</div>
+                    <div class="text-xl sm:text-2xl md:text-3xl font-bold text-white counter-number animate-count-up" data-target="{{ count($services->where('type', 'pharmacy')) > 0 ? count($services->where('type', 'pharmacy')) : 3100 }}">0</div>
+                    <div class="text-white/80 text-xs sm:text-sm">Pharmacies</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:py-8">
         <!-- Filter Section -->
-        <div class="mb-12 scale-in" id="services">
-            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-3">Emergency Services Filter</h2>
-                    <p class="text-gray-600">Filter emergency services by type and location to find what you need quickly.</p>
+        <div class="mb-8 sm:mb-12 scale-in" id="services">
+            <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-8">
+                <div class="text-center mb-6 sm:mb-8">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3">Emergency Services Filter</h2>
+                    <p class="text-sm sm:text-base text-gray-600">Filter emergency services by type and location to find what you need quickly.</p>
                 </div>
 
-                <form id="searchForm" action="{{ route('emergency-services.index') }}" method="GET" class="space-y-6">
+                <form id="searchForm" action="{{ route('emergency-services.index') }}" method="GET" class="space-y-4 sm:space-y-6">
                     <!-- Filter Options -->
-                    <div class="bg-gray-50 rounded-xl p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                    <div class="bg-gray-50 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto">
                             <!-- Service Type -->
                             <div class="space-y-3">
                                 <label for="type" class="block text-sm font-medium text-gray-700">
@@ -401,7 +471,7 @@
                                 </label>
                                 <div class="relative">
                                     <select name="type" id="type" 
-                                            class="w-full rounded-xl border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-3 px-4 pr-10 bg-white appearance-none cursor-pointer transition-all duration-200 text-gray-700 font-normal">
+                                            class="w-full rounded-xl border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-3 px-4 pr-10 bg-white appearance-none cursor-pointer transition-all duration-200 text-gray-700 font-normal text-sm sm:text-base">
                                         <option value="">All Services</option>
                                         <option value="hospital" {{ $selectedType === 'hospital' ? 'selected' : '' }}>🏥 Hospitals</option>
                                         <option value="police" {{ $selectedType === 'police' ? 'selected' : '' }}>👮 Police Stations</option>
@@ -420,14 +490,14 @@
                                 <label for="radius" class="block text-sm font-medium text-gray-700">
                                     <i class="fas fa-map-marker-alt mr-2 text-green-500"></i>Search Radius
                                 </label>
-                                <div class="bg-white rounded-xl p-4 border border-gray-300">
+                                <div class="bg-white rounded-xl p-3 sm:p-4 border border-gray-300">
                                     <input type="range" name="radius" id="radius" 
                                            value="{{ $radius ?? 5 }}" min="1" max="50" step="1"
                                            oninput="updateRadius(this.value)"
                                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
-                                    <div class="flex justify-between text-sm text-gray-500 mt-2">
+                                    <div class="flex justify-between text-xs sm:text-sm text-gray-500 mt-2">
                                         <span>1 km</span>
-                                        <div class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
+                                        <div class="bg-blue-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs">
                                             <span id="radiusValue">{{ $radius ?? 5 }}</span> km
                                         </div>
                                         <span>50 km</span>
@@ -437,9 +507,9 @@
                         </div>
                         
                         <!-- Submit Button -->
-                        <div class="text-center mt-6">
+                        <div class="text-center mt-4 sm:mt-6">
                             <button type="submit" 
-                                    class="inline-flex justify-center items-center px-8 py-3 rounded-xl text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 shadow-sm">
+                                    class="inline-flex justify-center items-center px-6 sm:px-8 py-3 rounded-xl text-sm sm:text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 shadow-sm w-full sm:w-auto">
                                 <i class="fas fa-filter mr-2"></i>
                                 Apply Filters
                             </button>
@@ -450,48 +520,23 @@
                     <input type="hidden" name="longitude" id="longitude" value="{{ isset($currentLng) ? $currentLng : '' }}">
                 </form>
             </div>
-
-            <!-- Location Info with enhanced styling -->
-            <div id="locationInfo" class="mb-8 {{ isset($currentLat) ? '' : 'hidden' }}">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 p-6 rounded-2xl flex items-center shadow-lg">
-                    <div class="flex-shrink-0 mr-4">
-                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-location-arrow text-white text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow">
-                        <h3 class="font-semibold text-blue-900 text-lg mb-1">Location Detected</h3>
-                        <p class="text-blue-700">
-                            Showing emergency services near your current location. 
-                            <!-- <span class="font-medium">{{ count($services) }} services found</span> -->
-                        </p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <button onclick="updateLocationAndSearch()" 
-                                class="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 font-medium">
-                            <i class="fas fa-sync-alt mr-2"></i>
-                            Update Location
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
 
             <!-- Map Section -->
             <!-- Services Section -->
-            <div class="grid lg:grid-cols-3 gap-6" id="map-section">
+            <div class="grid lg:grid-cols-3 gap-4 sm:gap-6" id="map-section">
                 <!-- Map Container -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                        <div id="map" style="height: 500px; width: 100%; border-radius: 0.5rem;"></div>
+                    <div class="bg-white rounded-2xl shadow-lg p-3 sm:p-4 lg:p-6 mb-6 sm:mb-8">
+                        <div id="map" style="height: 300px; width: 100%; border-radius: 0.5rem;" class="sm:h-[400px] lg:h-[600px]"></div>
                     </div>
                 </div>
 
                 <!-- Services List -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4">Nearby Emergency Services</h3>
-                        <div id="servicesContainer" class="space-y-4 max-h-[450px] overflow-y-auto">
+                    <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Nearby Emergency Services</h3>
+                        <div id="servicesContainer" class="space-y-3 sm:space-y-4 max-h-[350px] sm:max-h-[450px] overflow-y-auto">
                             <!-- Services will be dynamically added here -->
                         </div>
                     </div>
@@ -670,57 +715,8 @@
             // Only update the display, no automatic search
         }
 
-        function updateLocationAndSearch() {
-            // Show loading indicator
-            const button = event.target.closest('button');
-            const originalContent = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
-            button.disabled = true;
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        document.getElementById('latitude').value = position.coords.latitude;
-                        document.getElementById('longitude').value = position.coords.longitude;
-                        
-                        // Update the map center and search for nearby places
-                        if (typeof google !== 'undefined' && window.map) {
-                            const newCenter = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                            window.map.setCenter(newCenter);
-                            if (typeof searchNearbyPlaces === 'function') {
-                                searchNearbyPlaces();
-                            }
-                        }
-                        
-                        // Submit form to refresh the list
-                        document.getElementById('searchForm').submit();
-                    },
-                    function(error) {
-                        alert('Error getting your location: ' + error.message);
-                        // Reset button state
-                        button.innerHTML = originalContent;
-                        button.disabled = false;
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by your browser');
-                // Reset button state
-                button.innerHTML = originalContent;
-                button.disabled = false;
-            }
-        }
-
-        // Initial location check on page load
+        // Initial page load setup
         document.addEventListener('DOMContentLoaded', function() {
-            if (!document.getElementById('latitude').value || !document.getElementById('longitude').value) {
-                updateLocationAndSearch();
-            }
-            
             // Initialize counter animations
             initCounterAnimations();
         });
