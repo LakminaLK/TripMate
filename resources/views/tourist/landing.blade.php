@@ -11,17 +11,17 @@
 <x-tourist.header :transparent="true" />
 
 <!-- ✅ Hero Section - Enhanced Mobile Responsive -->
-<section class="relative min-h-screen bg-cover bg-center flex items-center justify-center text-white overflow-hidden parallax-bg"
+<section class="hero-section relative min-h-[70vh] sm:min-h-[80vh] md:min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center text-white overflow-hidden"
          style="background-image: url('/images/2.jpeg'); padding-top: 80px;">
     <!-- Enhanced Gradient Overlay -->
     <div class="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-blue-900/30 to-transparent"></div>
     
     <!-- Hero Content -->
-    <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto mt-16 sm:mt-0" x-data x-init="$el.classList.add('animate-fade-in')">
+    <div class="hero-content relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto py-12 sm:py-16 md:py-20" x-data x-init="$el.classList.add('animate-fade-in')">
         <div class="space-y-6 lg:space-y-8">
             <!-- Main Headline -->
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-slide-up">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-slide-up mt-8 sm:mt-0">
                 Weaving Your Dreams into 
                 <span class="block mt-2 gradient-text">
                     Unforgettable Adventures
@@ -29,33 +29,33 @@
             </h1>
             
             <!-- Subtitle -->
-            <p class="text-lg sm:text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed text-gray-100 animate-fade-in opacity-90">
+            <p class="text-base sm:text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto leading-relaxed text-gray-100 animate-fade-in opacity-90 px-2">
                 From pristine beachside resorts to unique cultural experiences. 
                 Discover the top 1% of destinations handpicked by seasoned travelers.
             </p>
             
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6 animate-pop">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 sm:pt-6 animate-pop">
                 <a href="{{ route('tourist.explore') }}" 
-                   class="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                   class="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
                     <span>Start Your Journey</span>
                     <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
                 </a>
                 <a href="#discover" 
-                   class="group w-full sm:w-auto px-8 py-4 border-2 border-white/30 backdrop-blur-sm text-white rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300 flex items-center justify-center">
+                   class="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-white/30 backdrop-blur-sm text-white rounded-full font-semibold text-base sm:text-lg hover:bg-white/10 transition-all duration-300 flex items-center justify-center">
                     <i class="fas fa-play mr-2"></i>
                     <span>Watch Our Story</span>
                 </a>
             </div>
             
             <!-- Trust Indicators -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 max-w-2xl mx-auto animate-fade-in">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 sm:pt-8 max-w-2xl mx-auto animate-fade-in mb-8 sm:mb-12">
                 <div class="text-center trust-indicator">
-                    <div class="text-2xl sm:text-3xl font-bold text-blue-400 mb-1">500+</div>
+                    <div class="text-xl sm:text-2xl md:text-3xl font-bold text-blue-400 mb-1">500+</div>
                     <div class="text-xs sm:text-sm text-gray-300">Destinations</div>
                 </div>
                 <div class="text-center trust-indicator">
-                    <div class="text-2xl sm:text-3xl font-bold text-purple-400 mb-1">10K+</div>
+                    <div class="text-xl sm:text-2xl md:text-3xl font-bold text-purple-400 mb-1">10K+</div>
                     <div class="text-xs sm:text-sm text-gray-300">Happy Travelers</div>
                 </div>
                 <div class="text-center trust-indicator">
@@ -137,14 +137,40 @@
                 </div>
             </div>
             
-            <!-- Visual Elements -->
+            <!-- Visual Elements with Auto-Rotating Images -->
             <div class="relative order-first lg:order-last scroll-animate" data-delay="500">
-                <div class="relative rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500">
-                    <img src="/images/2.jpeg" alt="Travel Experience" class="w-full h-80 sm:h-96 object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div class="absolute bottom-6 left-6 text-white">
-                        <h3 class="text-xl font-bold mb-2">Start Your Adventure</h3>
-                        <p class="text-sm opacity-90">Discover the world with confidence</p>
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500"
+                     x-data="adventureCarousel()" x-init="startCarousel()">
+                    
+                    <!-- Auto-Rotating Images - Responsive Height -->
+                    <div class="relative w-full h-60 sm:h-72 md:h-80 lg:h-96">
+                        <template x-for="(image, index) in images" :key="index">
+                            <img :src="image.src" :alt="image.alt" 
+                                 class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                                 :style="`opacity: ${currentIndex === index ? 1 : 0}`">
+                        </template>
+                    </div>
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    
+                    <!-- Dynamic Content - Better Mobile Layout -->
+                    <div class="absolute bottom-4 left-4 right-4 text-white">
+                        <div class="flex justify-between items-end">
+                            <div class="flex-1">
+                                <h3 class="text-lg sm:text-xl font-bold mb-1 leading-tight" x-text="images[currentIndex]?.title || 'Start Your Adventure'"></h3>
+                                <p class="text-xs sm:text-sm opacity-90 leading-snug" x-text="images[currentIndex]?.description || 'Discover the world with confidence'"></p>
+                            </div>
+                            
+                            <!-- Image Indicators - Mobile Optimized -->
+                            <div class="flex space-x-1.5 ml-3">
+                                <template x-for="(image, index) in images" :key="index">
+                                    <button @click="goToSlide(index)" 
+                                            :class="currentIndex === index ? 'bg-white' : 'bg-white/50'"
+                                            class="w-2 h-2 rounded-full transition-all duration-300 hover:bg-white">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -554,13 +580,15 @@
         transform: scale(1.1);
     }
 
-    /* Parallax effect for hero section - Optimized for Performance */
+    /* Parallax effect disabled to fix auto-increasing space issue */
+    /* 
     .parallax-bg {
         transform: translateZ(0);
         will-change: transform;
         backface-visibility: hidden;
         perspective: 1000px;
     }
+    */
 
     /* Performance optimizations */
     * {
@@ -570,10 +598,6 @@
 
     /* Reduce motion for users who prefer it */
     @media (prefers-reduced-motion: reduce) {
-        .parallax-bg {
-            transform: none !important;
-        }
-        
         .animate-slide-up,
         .animate-fade-in,
         .animate-pop {
@@ -582,15 +606,116 @@
             transform: none !important;
         }
     }
+
+    /* Mobile spacing improvements */
+    @media (max-width: 640px) {
+        .hero-section {
+            min-height: 70vh !important;
+            padding-top: 80px !important;
+            padding-bottom: 40px !important;
+        }
+        
+        .hero-content {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        
+        .hero-content h1 {
+            font-size: 1.875rem !important; /* text-3xl */
+            line-height: 1.2 !important;
+        }
+        
+        .hero-content .space-y-6 {
+            gap: 1rem !important;
+        }
+    }
+    
+    @media (min-width: 641px) and (max-width: 768px) {
+        .hero-section {
+            min-height: 80vh !important;
+        }
+    }
 </style>
 
 <!-- ✅ Enhanced Scroll Animation JavaScript -->
 <script>
+    // Adventure Card Image Carousel
+    function adventureCarousel() {
+        return {
+            currentIndex: 0,
+            autoRotateInterval: null,
+            images: [
+                {
+                    src: '/images/explore/beachside.jpg',
+                    alt: 'Beach Adventures',
+                    title: 'Beach Adventures',
+                    description: 'Pristine beaches and water sports'
+                },
+                {
+                    src: '/images/explore/hiking.jpg',
+                    alt: 'Hiking Trails',
+                    title: 'Mountain Hiking',
+                    description: 'Scenic trails and peak experiences'
+                },
+                {
+                    src: '/images/explore/safari.jpg',
+                    alt: 'Safari Tours',
+                    title: 'Wildlife Safari',
+                    description: 'Close encounters with nature'
+                },
+                {
+                    src: '/images/explore/adventure.jpg',
+                    alt: 'Adventure Sports',
+                    title: 'Adventure Sports',
+                    description: 'Thrilling outdoor activities'
+                },
+                {
+                    src: '/images/explore/skydiving.jpg',
+                    alt: 'Skydiving Experience',
+                    title: 'Skydiving',
+                    description: 'Sky-high adrenaline adventures'
+                }
+            ],
+            
+            startCarousel() {
+                // Auto-rotate every 4 seconds
+                this.autoRotateInterval = setInterval(() => {
+                    this.nextSlide();
+                }, 4000);
+                
+                // Preload all images for smooth transitions
+                this.preloadImages();
+            },
+            
+            nextSlide() {
+                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+            },
+            
+            goToSlide(index) {
+                this.currentIndex = index;
+                // Reset auto-rotation timer when user manually changes slide
+                clearInterval(this.autoRotateInterval);
+                setTimeout(() => {
+                    this.startCarousel();
+                }, 8000); // Resume auto-rotation after 8 seconds
+            },
+            
+            preloadImages() {
+                this.images.forEach(image => {
+                    const img = new Image();
+                    img.src = image.src;
+                });
+            }
+        }
+    }
+
     function scrollAnimations() {
         return {
             init() {
                 this.observeScrollElements();
-                this.addParallaxEffect();
+                // Removed parallax effect to fix auto-increasing space issue
                 this.addSmoothScrollToLinks();
             },
 
@@ -618,6 +743,7 @@
                 });
             },
 
+            /* Parallax effect disabled to fix auto-increasing space issue
             addParallaxEffect() {
                 let ticking = false;
                 let lastScrollY = 0;
@@ -653,6 +779,7 @@
                 // Use passive listener for better performance
                 window.addEventListener('scroll', requestTick, { passive: true });
             },
+            */
 
             addSmoothScrollToLinks() {
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {

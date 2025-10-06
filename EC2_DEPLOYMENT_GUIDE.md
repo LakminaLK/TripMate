@@ -67,6 +67,10 @@ sudo chown -R ec2-user:ec2-user /var/www/tripmate
 
 ### Deploy Specific Files Only
 ```bash
+# IMPORTANT: Fix git permissions first (if you get permission denied errors)
+sudo chown -R ec2-user:ec2-user /var/www/tripmate
+sudo chmod -R 755 /var/www/tripmate/.git
+
 # Check current git status
 git status
 
@@ -77,10 +81,11 @@ git fetch origin main
 git checkout origin/main -- resources/views/tourist/landing.blade.php
 
 # For multiple specific files:
-git checkout origin/main -- resources/views/tourist/landing.blade.php resources/css/app.css
+git checkout origin/main -- resources/views/tourist/landing.blade.php resources/views/components/tourist/header.blade.php
 
 # Verify file was updated
 ls -la resources/views/tourist/landing.blade.php
+ls -la resources/views/components/tourist/header.blade.php
 ```
 
 ### Deploy All Changes (use with caution)
@@ -199,14 +204,34 @@ sudo systemctl restart httpd
 ```
 
 ### Issue: "Permission denied" for Git Operations
+
+#### Common Error Messages:
+- `error: cannot open '.git/FETCH_HEAD': Permission denied`
+- `fatal: Unable to create '/var/www/tripmate/.git/index.lock': Permission denied`
+
+#### Solution:
 ```bash
-# Fix git directory ownership
-sudo chown -R ec2-user:ec2-user /var/www/tripmate/.git
+# Step 1: Temporarily give git permissions to ec2-user
+sudo chown -R ec2-user:ec2-user /var/www/tripmate
+
+# Step 2: Fix git directory permissions specifically
 sudo chmod -R 755 /var/www/tripmate/.git
 
-# Add as safe directory
+# Step 3: Add as safe directory (if needed)
 git config --global --add safe.directory /var/www/tripmate
+
+# Step 4: Now try git operations
+git fetch origin main
+git checkout origin/main -- your-file-path
+
+# Step 5: After git operations, restore web server ownership
+sudo chown -R apache:apache /var/www/tripmate
 ```
+
+#### Why This Happens:
+- The web server (apache) owns the files for security
+- Git operations need to be done by ec2-user
+- We temporarily switch ownership for git, then switch back
 
 ### Issue: Database Connection Errors
 ```bash
@@ -256,18 +281,19 @@ ssh -i "tripmate-key.pem" ec2-user@43.205.215.239
 cd /var/www/tripmate
 ```
 
-### Git Quick Deploy (Single File)
+### Complete Deployment Workflow (Recommended)
 ```bash
-git fetch origin main && git checkout origin/main -- resources/views/tourist/landing.blade.php
-```
+# Step 1: Fix permissions for git
+sudo chown -R ec2-user:ec2-user /var/www/tripmate
 
-### Permission Quick Fix
-```bash
+# Step 2: Deploy files
+git fetch origin main
+git checkout origin/main -- resources/views/tourist/landing.blade.php resources/views/components/tourist/header.blade.php
+
+# Step 3: Restore web server permissions
 sudo chown -R apache:apache /var/www/tripmate && sudo chmod -R 755 /var/www/tripmate && sudo chmod -R 775 /var/www/tripmate/storage /var/www/tripmate/bootstrap/cache
-```
 
-### Cache Clear & Restart
-```bash
+# Step 4: Clear cache and restart
 php artisan cache:clear && php artisan config:clear && php artisan view:clear && sudo systemctl restart httpd
 ```
 
@@ -335,7 +361,7 @@ free -h
 
 ### If Website Goes Down
 ```bash
-# Quick recovery commands
+# Emergency recovery with permission fix
 cd /var/www/tripmate
 sudo chown -R apache:apache /var/www/tripmate
 sudo chmod -R 755 /var/www/tripmate
@@ -343,6 +369,20 @@ sudo chmod -R 775 /var/www/tripmate/storage /var/www/tripmate/bootstrap/cache
 php artisan cache:clear
 php artisan config:clear
 php artisan view:clear
+sudo systemctl restart httpd
+```
+
+### Complete Emergency Deployment Fix
+```bash
+# If you need to redeploy AND fix permissions in one go
+cd /var/www/tripmate
+sudo chown -R ec2-user:ec2-user /var/www/tripmate
+git fetch origin main
+git checkout origin/main -- resources/views/tourist/landing.blade.php resources/views/components/tourist/header.blade.php
+sudo chown -R apache:apache /var/www/tripmate
+sudo chmod -R 755 /var/www/tripmate
+sudo chmod -R 775 /var/www/tripmate/storage /var/www/tripmate/bootstrap/cache
+php artisan cache:clear && php artisan config:clear && php artisan view:clear
 sudo systemctl restart httpd
 ```
 
